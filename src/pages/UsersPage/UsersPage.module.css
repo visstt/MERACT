@@ -1,0 +1,442 @@
+.usersPage {
+  padding: var(--spacing-xl);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-xl);
+}
+
+.title {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-800);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.subtitle {
+  font-size: var(--font-size-lg);
+  color: var(--color-gray-600);
+  margin: 0;
+}
+
+.filtersCard {
+  margin-bottom: var(--spacing-lg);
+}
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.searchGroup {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 300px;
+  height: 44px;
+  padding: 0 var(--spacing-md);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  transition: border-color var(--transition-fast);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+}
+
+.filterSelect {
+  min-width: 200px;
+  height: 44px;
+  padding: 0 var(--spacing-md);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  background-color: var(--color-white);
+  cursor: pointer;
+}
+
+.bulkActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  background-color: var(--color-gray-50);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-gray-200);
+}
+
+.selectedCount {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-700);
+}
+
+.bulkButtons {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.tableCard {
+  background-color: var(--color-white);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.tableHeader {
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.tableTitle {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-800);
+  margin: 0;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  padding: var(--spacing-md) var(--spacing-lg);
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-700);
+  background-color: var(--color-gray-50);
+  border-bottom: 1px solid var(--color-gray-200);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-gray-100);
+  vertical-align: middle;
+}
+
+.table tr {
+  transition: background-color var(--transition-fast);
+}
+
+.table tr:hover {
+  background-color: var(--color-gray-50);
+}
+
+.table tr.selected {
+  background-color: rgb(59 130 246 / 0.05);
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.userAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
+  flex-shrink: 0;
+}
+
+.username {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-800);
+  margin-bottom: 2px;
+}
+
+.email {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-500);
+}
+
+.statusBadge {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusBadge.success {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.statusBadge.warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.statusBadge.error {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.lastActive {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+  white-space: nowrap;
+}
+
+.warningBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-500);
+}
+
+.warningBadge.hasWarnings {
+  background-color: var(--color-warning);
+  color: var(--color-white);
+}
+
+.actions {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.actions button {
+  min-width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-3xl);
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 4rem;
+  margin-bottom: var(--spacing-lg);
+  opacity: 0.5;
+}
+
+.emptyTitle {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-700);
+  margin-bottom: var(--spacing-sm);
+}
+
+.emptyText {
+  font-size: var(--font-size-base);
+  color: var(--color-gray-500);
+  max-width: 400px;
+}
+
+/* Dark theme */
+[data-theme="dark"] .title {
+  color: var(--color-dark-text);
+}
+
+[data-theme="dark"] .subtitle {
+  color: var(--color-dark-text-muted);
+}
+
+[data-theme="dark"] .searchInput,
+[data-theme="dark"] .filterSelect {
+  background-color: var(--color-dark-surface);
+  border-color: var(--color-dark-border);
+  color: var(--color-dark-text);
+}
+
+[data-theme="dark"] .searchInput:focus {
+  border-color: var(--color-primary);
+}
+
+[data-theme="dark"] .bulkActions {
+  background-color: var(--color-dark-surface-hover);
+  border-color: var(--color-dark-border);
+}
+
+[data-theme="dark"] .selectedCount {
+  color: var(--color-dark-text);
+}
+
+[data-theme="dark"] .tableCard {
+  background-color: var(--color-dark-surface);
+}
+
+[data-theme="dark"] .tableHeader {
+  border-color: var(--color-dark-border);
+}
+
+[data-theme="dark"] .tableTitle {
+  color: var(--color-dark-text);
+}
+
+[data-theme="dark"] .table th {
+  background-color: var(--color-dark-surface-hover);
+  color: var(--color-dark-text);
+  border-color: var(--color-dark-border);
+}
+
+[data-theme="dark"] .table td {
+  border-color: var(--color-dark-border);
+}
+
+[data-theme="dark"] .table tr:hover {
+  background-color: var(--color-dark-surface-hover);
+}
+
+[data-theme="dark"] .table tr.selected {
+  background-color: rgb(59 130 246 / 0.15);
+}
+
+[data-theme="dark"] .username {
+  color: var(--color-dark-text);
+}
+
+[data-theme="dark"] .email {
+  color: var(--color-dark-text-muted);
+}
+
+[data-theme="dark"] .lastActive {
+  color: var(--color-dark-text-muted);
+}
+
+[data-theme="dark"] .warningBadge {
+  background-color: var(--color-dark-surface-hover);
+  color: var(--color-dark-text-muted);
+}
+
+[data-theme="dark"] .emptyTitle {
+  color: var(--color-dark-text);
+}
+
+[data-theme="dark"] .emptyText {
+  color: var(--color-dark-text-muted);
+}
+
+[data-theme="dark"] .statusBadge.success {
+  background-color: #064e3b;
+  color: #6ee7b7;
+}
+
+[data-theme="dark"] .statusBadge.warning {
+  background-color: #78350f;
+  color: #fcd34d;
+}
+
+[data-theme="dark"] .statusBadge.error {
+  background-color: #7f1d1d;
+  color: #fca5a5;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .table {
+    font-size: var(--font-size-sm);
+  }
+  
+  .table th,
+  .table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+}
+
+@media (max-width: 768px) {
+  .usersPage {
+    padding: var(--spacing-md);
+  }
+  
+  .header {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    align-items: stretch;
+  }
+  
+  .title {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .searchGroup {
+    flex-direction: column;
+  }
+  
+  .searchInput {
+    min-width: auto;
+  }
+  
+  .bulkActions {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+  
+  .tableWrapper {
+    overflow-x: scroll;
+  }
+  
+  .table {
+    min-width: 800px;
+  }
+  
+  .actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .usersPage {
+    padding: var(--spacing-sm);
+  }
+  
+  .tableHeader {
+    padding: var(--spacing-md);
+  }
+  
+  .table th,
+  .table td {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+  
+  .userInfo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+  
+  .userAvatar {
+    width: 32px;
+    height: 32px;
+    font-size: var(--font-size-sm);
+  }
+}

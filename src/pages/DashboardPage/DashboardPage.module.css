@@ -1,0 +1,349 @@
+.dashboard {
+  padding: var(--spacing-xl);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.title {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-800);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.subtitle {
+  font-size: var(--font-size-lg);
+  color: var(--color-gray-600);
+  margin: 0;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.statCard {
+  transition: all var(--transition-fast);
+}
+
+.statCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+}
+
+.statHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.statIcon {
+  font-size: var(--font-size-2xl);
+  line-height: 1;
+}
+
+.statChange {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-md);
+}
+
+.statChange.up {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.statChange.down {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.statValue {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-800);
+  margin-bottom: var(--spacing-xs);
+  line-height: 1.2;
+}
+
+.statTitle {
+  font-size: var(--font-size-base);
+  color: var(--color-gray-600);
+  font-weight: var(--font-weight-medium);
+}
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--spacing-lg);
+}
+
+.activityCard {
+  grid-row: span 2;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.cardTitle {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-800);
+  margin: 0;
+}
+
+.activityList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.activityItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-fast);
+}
+
+.activityItem:hover {
+  background-color: var(--color-gray-50);
+}
+
+.activityDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 8px;
+  flex-shrink: 0;
+}
+
+.activityDot.info {
+  background-color: var(--color-info);
+}
+
+.activityDot.success {
+  background-color: var(--color-success);
+}
+
+.activityDot.warning {
+  background-color: var(--color-warning);
+}
+
+.activityDot.error {
+  background-color: var(--color-error);
+}
+
+.activityContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.activityMessage {
+  font-size: var(--font-size-base);
+  color: var(--color-gray-800);
+  margin-bottom: var(--spacing-xs);
+  line-height: var(--line-height-normal);
+}
+
+.activityTime {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-500);
+}
+
+.quickActions {
+  margin-bottom: var(--spacing-lg);
+}
+
+.actionsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
+}
+
+.actionButton {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+/* System status grid item will auto-size */
+
+.statusList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+}
+
+.statusItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) 0;
+}
+
+.statusLabel {
+  font-size: var(--font-size-base);
+  color: var(--color-gray-700);
+  font-weight: var(--font-weight-medium);
+}
+
+.statusBadge {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.statusBadge.online {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.statusBadge.warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.statusBadge.offline {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+/* Dark theme */
+[data-theme="dark"] .title {
+  color: var(--color-dark-text);
+}
+
+[data-theme="dark"] .subtitle {
+  color: var(--color-dark-text-muted);
+}
+
+[data-theme="dark"] .statValue {
+  color: var(--color-dark-text);
+}
+
+[data-theme="dark"] .statTitle {
+  color: var(--color-dark-text-muted);
+}
+
+[data-theme="dark"] .cardTitle {
+  color: var(--color-dark-text);
+}
+
+[data-theme="dark"] .activityItem:hover {
+  background-color: var(--color-dark-surface-hover);
+}
+
+[data-theme="dark"] .activityMessage {
+  color: var(--color-dark-text);
+}
+
+[data-theme="dark"] .activityTime {
+  color: var(--color-dark-text-muted);
+}
+
+[data-theme="dark"] .statusLabel {
+  color: var(--color-dark-text);
+}
+
+[data-theme="dark"] .statChange.up {
+  background-color: #064e3b;
+  color: #6ee7b7;
+}
+
+[data-theme="dark"] .statChange.down {
+  background-color: #7f1d1d;
+  color: #fca5a5;
+}
+
+[data-theme="dark"] .statusBadge.online {
+  background-color: #064e3b;
+  color: #6ee7b7;
+}
+
+[data-theme="dark"] .statusBadge.warning {
+  background-color: #78350f;
+  color: #fcd34d;
+}
+
+[data-theme="dark"] .statusBadge.offline {
+  background-color: #7f1d1d;
+  color: #fca5a5;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .activityCard {
+    grid-row: span 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    padding: var(--spacing-md);
+  }
+  
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+  
+  .title {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .subtitle {
+    font-size: var(--font-size-base);
+  }
+  
+  .contentGrid {
+    gap: var(--spacing-md);
+  }
+  
+  .cardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard {
+    padding: var(--spacing-sm);
+  }
+  
+  .statsGrid {
+    gap: var(--spacing-sm);
+  }
+  
+  .contentGrid {
+    gap: var(--spacing-sm);
+  }
+  
+  .activityItem {
+    padding: var(--spacing-sm);
+  }
+  
+  .actionButton {
+    font-size: var(--font-size-sm);
+  }
+}
