@@ -344,3 +344,36 @@
     font-size: var(--font-size-sm);
   }
 }
+
+@media (max-width: 600px) {
+  .dashboard {
+    padding: var(--spacing-sm);
+  }
+  .header {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    align-items: stretch;
+  }
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+  .activityCard {
+    margin-top: var(--spacing-md);
+  }
+  .activityItem {
+    padding: var(--spacing-xs);
+    font-size: 0.95rem;
+  }
+  .statCard {
+    padding: var(--spacing-xs);
+  }
+  .cardHeader {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    align-items: flex-start;
+  }
+  .cardTitle {
+    font-size: 1.1rem;
+  }
+}

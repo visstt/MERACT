@@ -128,6 +128,12 @@
   border-bottom: none;
 }
 
+.streamItem.inactive {
+  opacity: 0.5;
+  pointer-events: none;
+  background-color: var(--color-gray-100);
+}
+
 .streamThumbnail {
   position: relative;
   flex-shrink: 0;
@@ -267,6 +273,31 @@
   font-size: var(--font-size-base);
   color: var(--color-gray-500);
   max-width: 400px;
+}
+
+.stoppedLabel {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #dc2626;
+  color: #fff;
+  padding: 2px 10px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+}
+
+.streamImage {
+  width: 120px;
+  height: 68px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  display: block;
 }
 
 /* Dark theme */
@@ -435,5 +466,64 @@
   .streamActions {
     flex-wrap: wrap;
     gap: var(--spacing-xs);
+  }
+}
+
+@media (max-width: 600px) {
+  .streamsPage {
+    padding: var(--spacing-sm);
+  }
+  .header {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    align-items: stretch;
+  }
+  .statsCards {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+  .filters {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+  .filterSelect {
+    min-width: 0;
+    width: 100%;
+    font-size: 0.95rem;
+    height: 38px;
+  }
+  .streamsList {
+    gap: var(--spacing-sm);
+  }
+  .streamItem {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md);
+  }
+  .streamImage, .thumbnailPlaceholder {
+    width: 100%;
+    height: 140px;
+    min-width: 0;
+    margin-bottom: var(--spacing-xs);
+  }
+  .streamTitle {
+    font-size: 1.1rem;
+  }
+  .streamStats {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    font-size: 0.95rem;
+  }
+  .streamActions {
+    width: 100%;
+    justify-content: space-between;
+    gap: var(--spacing-xs);
+  }
+  .cardHeader {
+    padding: var(--spacing-md);
+  }
+  .cardTitle {
+    font-size: 1.1rem;
   }
 }

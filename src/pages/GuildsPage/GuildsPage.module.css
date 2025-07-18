@@ -243,6 +243,109 @@
   justify-content: flex-end;
 }
 
+.modalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.25);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+  padding: 2rem 2.5rem;
+  min-width: 420px;
+  max-width: 600px;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+.form label {
+  display: flex;
+  flex-direction: column;
+  font-size: 1rem;
+  color: #333;
+  gap: 0.3rem;
+}
+.form input, .form textarea, .form select {
+  padding: 0.6rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s;
+}
+.form textarea {
+  min-height: 60px;
+  resize: vertical;
+}
+.form input:focus, .form textarea:focus, .form select:focus {
+  border-color: #6366f1;
+}
+.modalActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+.primaryButton {
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.primaryButton:hover {
+  background: #4f46e5;
+}
+
+.editButton {
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.98rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.2s;
+}
+.editButton:hover {
+  background: #4f46e5;
+}
+
+.cancelButton {
+  background: #f3f4f6;
+  color: #333;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.cancelButton:hover {
+  background: #e5e7eb;
+}
+.error {
+  color: #dc2626;
+  background: #fee2e2;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
 @media (max-width: 700px) {
   .guildsPage {
     padding: var(--spacing-md);
@@ -272,5 +375,48 @@
     color: #fff;
     box-shadow: 0 0 0 2px var(--color-primary);
     border-color: var(--color-primary);
+  }
+}
+
+@media (max-width: 600px) {
+  .guildsPage {
+    padding: var(--spacing-sm);
+  }
+  .header {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    align-items: stretch;
+  }
+  .list {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+  .guildCard {
+    min-height: 320px;
+    padding: 0;
+  }
+  .guildImage {
+    height: 120px;
+  }
+  .info {
+    padding: var(--spacing-md);
+    font-size: 0.95rem;
+  }
+  .guildName {
+    font-size: 1.1rem;
+    padding: 6px 10px;
+  }
+  .guildMotto, .guildDescription, .guildMeta {
+    font-size: 0.95rem;
+    padding: 6px 10px;
+  }
+  .guildMeta {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+  .filters {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: 10px 8px;
   }
 }

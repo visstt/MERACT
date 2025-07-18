@@ -1,71 +1,78 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, Button } from '../../shared/ui';
 import styles from './UsersPage.module.css';
+import api from '../../shared/lib/axios';
 
-const mockUsers = [
-  {
-    id: 1,
-    username: 'user123',
-    email: 'user123@example.com',
-    status: 'active',
-    lastActive: '2024-01-15 14:30',
-    warnings: 1,
-    streamCount: 5,
-    followers: 150
-  },
-  {
-    id: 2,
-    username: 'streamer456',
-    email: 'streamer456@example.com',
-    status: 'warning',
-    lastActive: '2024-01-15 12:15',
-    warnings: 2,
-    streamCount: 25,
-    followers: 1250
-  },
-  {
-    id: 3,
-    username: 'gamer789',
-    email: 'gamer789@example.com',
-    status: 'blocked',
-    lastActive: '2024-01-14 09:45',
-    warnings: 5,
-    streamCount: 2,
-    followers: 50
-  }
-];
+const STATUS_MAP = {
+  ACTIVE: 'active',
+  WARNED: 'warning',
+  BLOCKED: 'blocked',
+};
 
 export const UsersPage = () => {
-  const [users, setUsers] = useState(mockUsers);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedUsers, setSelectedUsers] = useState([]);
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const res = await api.get('/user/all-users');
+        // Приводим данные к нужному формату для UI
+        setUsers(res.data.map(u => ({
+          id: u.id,
+          username: u.login || u.email,
+          email: u.email,
+          status: STATUS_MAP[u.status] || 'active',
+          lastActive: u.lastActivity,
+          warnings: u.warnings,
+          streamCount: u.streams,
+          followers: u.followers,
+        })).sort((a, b) => a.email.localeCompare(b.email)));
+      } catch (e) {
+        setError('Failed to load users');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, []);
+
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
-  const handleUserAction = (userId, action) => {
-    setUsers(users.map(user => {
-      if (user.id === userId) {
-        switch (action) {
-          case 'warn':
-            return { ...user, warnings: user.warnings + 1, status: user.warnings >= 2 ? 'warning' : user.status };
-          case 'block':
-            return { ...user, status: 'blocked' };
-          case 'unblock':
-            return { ...user, status: 'active' };
-          case 'delete':
-            return null;
-          default:
-            return user;
-        }
-      }
-      return user;
-    }).filter(Boolean));
+  const handleUserAction = async (userId, action) => {
+    let url = '';
+    if (action === 'warn') url = `/user/issue-warning?userId=${userId}`;
+    if (action === 'block') url = `/user/block-user?userId=${userId}`;
+    if (action === 'unblock') url = `/user/unblock-user?userId=${userId}`;
+    if (action === 'delete') url = `/user/delete-user?userId=${userId}`;
+    try {
+      await api.post(url);
+      // После действия обновляем пользователей
+      const res = await api.get('/user/all-users');
+      setUsers(res.data.map(u => ({
+        id: u.id,
+        username: u.login || u.email,
+        email: u.email,
+        status: STATUS_MAP[u.status] || 'active',
+        lastActive: u.lastActivity,
+        warnings: u.warnings,
+        streamCount: u.streams,
+        followers: u.followers,
+      })).sort((a, b) => a.email.localeCompare(b.email)));
+    } catch (e) {
+      alert('Action failed');
+    }
   };
 
   const handleSelectUser = (userId) => {

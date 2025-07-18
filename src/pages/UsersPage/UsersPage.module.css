@@ -444,3 +444,63 @@
     font-size: var(--font-size-sm);
   }
 }
+
+@media (max-width: 600px) {
+  .usersPage {
+    padding: var(--spacing-sm);
+  }
+  .header {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    align-items: stretch;
+  }
+  .filters {
+    gap: var(--spacing-xs);
+  }
+  .searchGroup {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+  .searchInput, .filterSelect {
+    min-width: 0;
+    width: 100%;
+    font-size: 0.95rem;
+    height: 38px;
+  }
+  .bulkActions {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs);
+  }
+  .bulkButtons {
+    gap: var(--spacing-xs);
+  }
+  .tableHeader {
+    padding: var(--spacing-md);
+  }
+  .tableTitle {
+    font-size: 1.1rem;
+  }
+  .tableWrapper {
+    overflow-x: auto;
+  }
+  .table th, .table td {
+    padding: var(--spacing-xs) var(--spacing-xs);
+    font-size: 0.95rem;
+  }
+  .userInfo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+  .userAvatar {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+  .actions button {
+    min-width: 28px;
+    height: 28px;
+    font-size: 1rem;
+  }
+}

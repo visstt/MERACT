@@ -1,47 +1,51 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, Button } from '../../shared/ui';
 import styles from './StreamsPage.module.css';
+import api, { getImageUrl } from '../../shared/lib/axios';
 
-const mockStreams = [
-  {
-    id: 1,
-    title: 'Gaming Stream #1',
-    streamer: 'ProGamer123',
-    viewers: 1234,
-    duration: '2:30:15',
-    status: 'live',
-    category: 'Gaming',
-    thumbnailUrl: null,
-    startTime: '2024-01-15 12:00:00'
-  },
-  {
-    id: 2,
-    title: 'Music Session',
-    streamer: 'MusicLover456',
-    viewers: 567,
-    duration: '1:45:20',
-    status: 'live',
-    category: 'Music',
-    thumbnailUrl: null,
-    startTime: '2024-01-15 13:15:00'
-  },
-  {
-    id: 3,
-    title: 'Terminated Stream',
-    streamer: 'ViolatingUser',
-    viewers: 0,
-    duration: '0:15:30',
-    status: 'terminated',
-    category: 'Gaming',
-    thumbnailUrl: null,
-    startTime: '2024-01-15 14:00:00'
-  }
-];
+const STATUS_MAP = {
+  ONLINE: 'live',
+  OFFLINE: 'offline',
+};
 
 export const StreamsPage = () => {
-  const [streams, setStreams] = useState(mockStreams);
+  const [streams, setStreams] = useState([]);
+  const [stats, setStats] = useState({ activeStreams: 0, allSpectators: '-', adminBlocked: '-' });
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const [streamsRes, statsRes] = await Promise.all([
+        api.get('/stream/get-streams'),
+        api.get('/stream/statistic'),
+      ]);
+      setStreams(streamsRes.data.map(s => ({
+        id: s.id,
+        title: s.name,
+        streamer: s.user,
+        viewers: s.spectators === 'НЕ СДЕЛАНО' ? 0 : s.spectators,
+        duration: s.duration,
+        status: STATUS_MAP[s.status] || 'live',
+        category: s.category,
+        thumbnailUrl: s.previewFileName,
+        startTime: 'qwerty', // если появится поле — добавить
+      })));
+      setStats(statsRes.data);
+    } catch (e) {
+      setError('Failed to load streams');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredStreams = streams.filter(stream => {
     const matchesStatus = statusFilter === 'all' || stream.status === statusFilter;
@@ -49,28 +53,23 @@ export const StreamsPage = () => {
     return matchesStatus && matchesCategory;
   });
 
-  const handleStreamAction = (streamId, action) => {
-    setStreams(streams.map(stream => {
-      if (stream.id === streamId) {
-        switch (action) {
-          case 'terminate':
-            return { ...stream, status: 'terminated', viewers: 0 };
-          case 'warn':
-            // Would send warning to streamer
-            return stream;
-          default:
-            return stream;
-        }
+  const handleStreamAction = async (streamId, action) => {
+    if (action === 'terminate') {
+      try {
+        await api.post(`/stream/stop-stream?id=${streamId}`);
+        await fetchData();
+      } catch (e) {
+        alert('Failed to stop stream');
       }
-      return stream;
-    }));
+    }
+    // warn — не реализован
   };
 
   const getStatusBadge = (status) => {
     const statusConfig = {
       live: { label: 'Live', className: 'success' },
-      terminated: { label: 'Terminated', className: 'error' },
-      paused: { label: 'Paused', className: 'warning' }
+      offline: { label: 'Stopped', className: 'error' },
+      terminated: { label: 'Stopped', className: 'error' },
     };
     
     const config = statusConfig[status] || statusConfig.live;
@@ -91,12 +90,6 @@ export const StreamsPage = () => {
         <div>
           <h1 className={styles.title}>Stream Management</h1>
           <p className={styles.subtitle}>Monitoring and moderation of active streams</p>
-        </div>
-        <div className={styles.headerActions}>
-          <Button variant="warning" onClick={terminateAllStreams}>
-            Terminate all streams
-          </Button>
-          <Button variant="primary">Stream statistics</Button>
         </div>
       </div>
 
@@ -138,7 +131,6 @@ export const StreamsPage = () => {
             <option value="all">All statuses</option>
             <option value="live">Live</option>
             <option value="terminated">Terminated</option>
-            <option value="paused">Paused</option>
           </select>
           
           <select
@@ -162,11 +154,22 @@ export const StreamsPage = () => {
         
         <div className={styles.streamsList}>
           {filteredStreams.map((stream) => (
-            <div key={stream.id} className={styles.streamItem}>
+            <div key={stream.id} className={`${styles.streamItem} ${(stream.status === 'offline' || stream.status === 'terminated') ? styles.inactive : ''}`}>
               <div className={styles.streamThumbnail}>
-                <div className={styles.thumbnailPlaceholder}>
-                  📺
-                </div>
+                {stream.thumbnailUrl ? (
+                  <img
+                    src={getImageUrl('stream', stream.thumbnailUrl)}
+                    alt={stream.title}
+                    className={styles.streamImage}
+                  />
+                ) : (
+                  <div className={styles.thumbnailPlaceholder}>
+                    📺
+                    {stream.status === 'offline' && (
+                      <div className={styles.stoppedLabel}>🛑 Stopped</div>
+                    )}
+                  </div>
+                )}
                 {stream.status === 'live' && (
                   <div className={styles.liveIndicator}>LIVE</div>
                 )}
