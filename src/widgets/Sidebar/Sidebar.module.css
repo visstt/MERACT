@@ -246,8 +246,8 @@
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
+    transition: transform var(--transition-normal);
   }
-
   .sidebar.open {
     transform: translateX(0);
   }

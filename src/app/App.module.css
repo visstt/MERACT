@@ -6,7 +6,7 @@
 
 .sidebarContainer {
   position: relative;
-  z-index: var(--z-sidebar);
+  z-index: 1201;
 }
 
 .overlay {
@@ -17,7 +17,7 @@
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: var(--z-sidebar);
+  z-index: 1200;
 }
 
 .mainContent {

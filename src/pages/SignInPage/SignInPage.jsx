@@ -16,7 +16,9 @@ export const SignInPage = () => {
     setError('');
     try {
       const res = await api.post('/auth/sign-in?role=admin', { email, password });
-      // Токены сохраняются сервером в cookie, ничего не сохраняем на клиенте
+      // Save user profile
+      localStorage.setItem('profile', JSON.stringify(res.data));
+      sessionStorage.setItem('profile', JSON.stringify(res.data));
       navigate('/');
     } catch (err) {
       setError(err.message || 'Sign in failed');

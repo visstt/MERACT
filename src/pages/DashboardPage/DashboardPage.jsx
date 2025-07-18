@@ -1,59 +1,40 @@
+import { useState, useEffect } from 'react';
 import { Card, Button } from "../../shared/ui";
 import styles from "./DashboardPage.module.css";
-
-const statsData = [
-  {
-    title: "Active users",
-    value: "12,543",
-    trend: "up",
-    icon: "👥",
-  },
-  {
-    title: "Online streams",
-    value: "1,234",
-    trend: "up",
-    icon: "📺",
-  },
-  {
-    title: "Active guilds",
-    value: "567",
-    trend: "down",
-    icon: "🏰",
-  },
-];
-
-const recentActivity = [
-  {
-    id: 1,
-    type: "user_warning",
-    message: "Warning to user @user123 for rule violation",
-    time: "2 minutes ago",
-    severity: "warning",
-  },
-  {
-    id: 2,
-    type: "stream_ended",
-    message: 'Stream "Gaming Stream #1" was terminated by admin',
-    time: "15 minutes ago",
-    severity: "info",
-  },
-  {
-    id: 3,
-    type: "guild_created",
-    message: 'New guild "Pro Gamers" created',
-    time: "1 hour ago",
-    severity: "success",
-  },
-  {
-    id: 4,
-    type: "user_blocked",
-    message: "User @spammer456 was blocked",
-    time: "2 hours ago",
-    severity: "error",
-  },
-];
+import api from '../../shared/lib/axios';
 
 export const DashboardPage = () => {
+  const [stats, setStats] = useState({ activeUsers: '-', activeStreams: '-', activeGuilds: '-' });
+  const [activity, setActivity] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await api.get('/user/statistic-blocks');
+        setStats(res.data);
+      } catch {}
+    };
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
+    const fetchLogs = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const res = await api.get('/user/activity-logs');
+        setActivity(res.data);
+      } catch {
+        setError('Failed to load activity logs');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLogs();
+  }, []);
+
   return (
     <div className={styles.dashboard}>
       <div className={styles.header}>
@@ -62,15 +43,27 @@ export const DashboardPage = () => {
       </div>
 
       <div className={styles.statsGrid}>
-        {statsData.map((stat, index) => (
-          <Card key={index} variant="elevated" className={styles.statCard}>
-            <div className={styles.statHeader}>
-              <span className={styles.statIcon}>{stat.icon}</span>
-            </div>
-            <div className={styles.statValue}>{stat.value}</div>
-            <div className={styles.statTitle}>{stat.title}</div>
-          </Card>
-        ))}
+        <Card variant="elevated" className={styles.statCard}>
+          <div className={styles.statHeader}>
+            <span className={styles.statIcon}>👥</span>
+          </div>
+          <div className={styles.statValue}>{stats.activeUsers}</div>
+          <div className={styles.statTitle}>Active users</div>
+        </Card>
+        <Card variant="elevated" className={styles.statCard}>
+          <div className={styles.statHeader}>
+            <span className={styles.statIcon}>📺</span>
+          </div>
+          <div className={styles.statValue}>{stats.activeStreams}</div>
+          <div className={styles.statTitle}>Online streams</div>
+        </Card>
+        <Card variant="elevated" className={styles.statCard}>
+          <div className={styles.statHeader}>
+            <span className={styles.statIcon}>🏰</span>
+          </div>
+          <div className={styles.statValue}>{stats.activeGuilds}</div>
+          <div className={styles.statTitle}>Active guilds</div>
+        </Card>
       </div>
 
       <Card padding="lg" className={styles.activityCard}>
@@ -82,42 +75,30 @@ export const DashboardPage = () => {
         </div>
 
         <div className={styles.activityList}>
-          {recentActivity.map((activity) => (
-            <div key={activity.id} className={styles.activityItem}>
-              <div
-                className={`${styles.activityDot} ${
-                  styles[activity.severity]
-                }`}
-              />
-              <div className={styles.activityContent}>
-                <div className={styles.activityMessage}>
-                  {activity.message}
+          {loading ? (
+            <div className={styles.activityMessage}>Loading...</div>
+          ) : error ? (
+            <div className={styles.activityMessage}>{error}</div>
+          ) : activity.length === 0 ? (
+            <div className={styles.activityMessage}>No activity logs</div>
+          ) : [...activity].reverse().map((log, i) => {
+              let dotClass = styles.info;
+              const action = log.action?.toLowerCase() || '';
+              if (action.includes('unblocked')) dotClass = styles.success;
+              else if (action.includes('warning')) dotClass = styles.warning;
+              else if (action.includes('blocked')) dotClass = styles.error;
+              return (
+                <div key={log.id || i} className={styles.activityItem}>
+                  <div className={`${styles.activityDot} ${dotClass}`} />
+                  <div className={styles.activityContent}>
+                    <div className={styles.activityMessage}>{log.action}</div>
+                    <div className={styles.activityTime}>{log.timeAgo}</div>
+                  </div>
                 </div>
-                <div className={styles.activityTime}>{activity.time}</div>
-              </div>
-            </div>
-          ))}
+              );
+            })}
         </div>
       </Card>
-
-      {/* <Card padding="lg" className={styles.quickActions}>
-          <h2 className={styles.cardTitle}>Quick actions</h2>
-
-          <div className={styles.actionsList}>
-            <Button variant="primary" className={styles.actionButton}>
-              🚫 Emergency block
-            </Button>
-            <Button variant="warning" className={styles.actionButton}>
-              📺 Terminate all streams
-            </Button>
-            <Button variant="secondary" className={styles.actionButton}>
-              📊 Generate report
-            </Button>
-            <Button variant="success" className={styles.actionButton}>
-              ✅ Mass approval
-            </Button>
-          </div>
-        </Card> */}
     </div>
   );
 };

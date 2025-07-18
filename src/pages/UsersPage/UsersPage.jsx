@@ -16,6 +16,7 @@ export const UsersPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [isMobileCardView, setIsMobileCardView] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -23,7 +24,7 @@ export const UsersPage = () => {
       setError('');
       try {
         const res = await api.get('/user/all-users');
-        // Приводим данные к нужному формату для UI
+        // Convert data to required UI format
         setUsers(res.data.map(u => ({
           id: u.id,
           username: u.login || u.email,
@@ -43,6 +44,13 @@ export const UsersPage = () => {
     fetchUsers();
   }, []);
 
+  useEffect(() => {
+    const checkMobile = () => setIsMobileCardView(window.innerWidth <= 480);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -58,7 +66,7 @@ export const UsersPage = () => {
     if (action === 'delete') url = `/user/delete-user?userId=${userId}`;
     try {
       await api.post(url);
-      // После действия обновляем пользователей
+      // Refresh users after action
       const res = await api.get('/user/all-users');
       setUsers(res.data.map(u => ({
         id: u.id,
@@ -166,98 +174,157 @@ export const UsersPage = () => {
         </div>
       </Card>
 
-      <Card padding="none" className={styles.tableCard}>
-        <div className={styles.tableHeader}>
-          <h2 className={styles.tableTitle}>User list ({filteredUsers.length})</h2>
-        </div>
-        
-        <div className={styles.tableWrapper}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>
-                  <input
-                    type="checkbox"
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedUsers(filteredUsers.map(u => u.id));
-                      } else {
-                        setSelectedUsers([]);
-                      }
-                    }}
-                    checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0}
-                  />
-                </th>
-                <th>User</th>
-                <th>Status</th>
-                <th>Last active</th>
-                <th>Warnings</th>
-                <th>Streams</th>
-                <th>Followers</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map((user) => (
-                <tr key={user.id} className={selectedUsers.includes(user.id) ? styles.selected : ''}>
-                  <td>
+      {!isMobileCardView && (
+        <Card padding="none" className={styles.tableCard}>
+          <div className={styles.tableHeader}>
+            <h2 className={styles.tableTitle}>User list ({filteredUsers.length})</h2>
+          </div>
+          
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>
                     <input
                       type="checkbox"
-                      checked={selectedUsers.includes(user.id)}
-                      onChange={() => handleSelectUser(user.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedUsers(filteredUsers.map(u => u.id));
+                        } else {
+                          setSelectedUsers([]);
+                        }
+                      }}
+                      checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0}
                     />
-                  </td>
-                  <td>
-                    <div className={styles.userInfo}>
-                      <div className={styles.userAvatar}>
-                        {user.username.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <div className={styles.username}>{user.username}</div>
-                        <div className={styles.email}>{user.email}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>{getStatusBadge(user.status)}</td>
-                  <td className={styles.lastActive}>{user.lastActive}</td>
-                  <td>
-                    <span className={`${styles.warningBadge} ${user.warnings > 0 ? styles.hasWarnings : ''}`}>
-                      {user.warnings}
-                    </span>
-                  </td>
-                  <td>{user.streamCount}</td>
-                  <td>{user.followers.toLocaleString()}</td>
-                  <td>
-                    <div className={styles.actions}>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleUserAction(user.id, 'warn')}
-                        disabled={user.status === 'blocked'}
-                      >
-                        ⚠️
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleUserAction(user.id, user.status === 'blocked' ? 'unblock' : 'block')}
-                      >
-                        {user.status === 'blocked' ? '✅' : '🚫'}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleUserAction(user.id, 'delete')}
-                      >
-                        🗑️
-                      </Button>
-                    </div>
-                  </td>
+                  </th>
+                  <th>User</th>
+                  <th>Status</th>
+                  <th>Last active</th>
+                  <th>Warnings</th>
+                  <th>Streams</th>
+                  <th>Followers</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          
+              </thead>
+              <tbody>
+                {filteredUsers.map((user) => (
+                  <tr key={user.id} className={selectedUsers.includes(user.id) ? styles.selected : ''}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.includes(user.id)}
+                        onChange={() => handleSelectUser(user.id)}
+                      />
+                    </td>
+                    <td>
+                      <div className={styles.userInfo}>
+                        <div className={styles.userAvatar}>
+                          {user.username.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className={styles.username}>{user.username}</div>
+                          <div className={styles.email}>{user.email}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{getStatusBadge(user.status)}</td>
+                    <td className={styles.lastActive}>{user.lastActive}</td>
+                    <td>
+                      <span className={`${styles.warningBadge} ${user.warnings > 0 ? styles.hasWarnings : ''}`}>
+                        {user.warnings}
+                      </span>
+                    </td>
+                    <td>{user.streamCount}</td>
+                    <td>{user.followers.toLocaleString()}</td>
+                    <td>
+                      <div className={styles.actions}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleUserAction(user.id, 'warn')}
+                          disabled={user.status === 'blocked'}
+                        >
+                          ⚠️
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleUserAction(user.id, user.status === 'blocked' ? 'unblock' : 'block')}
+                        >
+                          {user.status === 'blocked' ? '✅' : '🚫'}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleUserAction(user.id, 'delete')}
+                        >
+                          🗑️
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            
+            {filteredUsers.length === 0 && (
+              <div className={styles.emptyState}>
+                <div className={styles.emptyIcon}>👥</div>
+                <div className={styles.emptyTitle}>Users not found</div>
+                <div className={styles.emptyText}>
+                  Try changing search or filter parameters
+                </div>
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
+      {isMobileCardView && (
+        <div className={styles.userCards}>
+          {filteredUsers.map(user => (
+            <div key={user.id} className={styles.userCard}>
+              <div className={styles.userCardHeader}>
+                <div className={styles.userCardAvatar}>{user.username.charAt(0).toUpperCase()}</div>
+                <div className={styles.userCardInfo}>
+                  <div className={styles.userCardName}>{user.username}</div>
+                  <div className={styles.userCardEmail}>{user.email}</div>
+                </div>
+                <div>{getStatusBadge(user.status)}</div>
+              </div>
+              <div className={styles.userCardRow}>
+                <span>Last active: {user.lastActive}</span>
+                <span>Warnings: {user.warnings}</span>
+              </div>
+              <div className={styles.userCardRow}>
+                <span>Streams: {user.streamCount}</span>
+                <span>Followers: {user.followers.toLocaleString()}</span>
+              </div>
+              <div className={styles.userCardActions}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleUserAction(user.id, 'warn')}
+                  disabled={user.status === 'blocked'}
+                >
+                  ⚠️
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleUserAction(user.id, user.status === 'blocked' ? 'unblock' : 'block')}
+                >
+                  {user.status === 'blocked' ? '✅' : '🚫'}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleUserAction(user.id, 'delete')}
+                >
+                  🗑️
+                </Button>
+              </div>
+            </div>
+          ))}
           {filteredUsers.length === 0 && (
             <div className={styles.emptyState}>
               <div className={styles.emptyIcon}>👥</div>
@@ -268,7 +335,7 @@ export const UsersPage = () => {
             </div>
           )}
         </div>
-      </Card>
+      )}
     </div>
   );
 };

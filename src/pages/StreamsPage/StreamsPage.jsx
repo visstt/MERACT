@@ -32,12 +32,12 @@ export const StreamsPage = () => {
         id: s.id,
         title: s.name,
         streamer: s.user,
-        viewers: s.spectators === 'НЕ СДЕЛАНО' ? 0 : s.spectators,
+        viewers: s.spectators === 'NOT_IMPLEMENTED' ? 0 : s.spectators,
         duration: s.duration,
         status: STATUS_MAP[s.status] || 'live',
         category: s.category,
         thumbnailUrl: s.previewFileName,
-        startTime: 'qwerty', // если появится поле — добавить
+        startTime: 'qwerty', // TODO: add startTime field if available
       })));
       setStats(statsRes.data);
     } catch (e) {
@@ -62,7 +62,7 @@ export const StreamsPage = () => {
         alert('Failed to stop stream');
       }
     }
-    // warn — не реализован
+    // warn — not implemented
   };
 
   const getStatusBadge = (status) => {

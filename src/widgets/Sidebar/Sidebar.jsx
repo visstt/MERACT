@@ -57,21 +57,17 @@ export const Sidebar = ({
   onItemClick,
   collapsed = false,
   onToggle,
+  open = false,
+  user,
 }) => {
+  const userName = user?.login || user?.email || 'Super Admin';
   return (
-    <aside className={`${styles.sidebar} ${collapsed ? styles.collapsed : ""}`}>
+    <aside className={`${styles.sidebar} ${collapsed ? styles.collapsed : ''} ${open ? styles.open : ''}`}>
       <div className={styles.header}>
         <div className={styles.logo}>
           <span className={styles.logoIcon}>🎮</span>
           {!collapsed && <span className={styles.logoText}>Meract Admin</span>}
         </div>
-        <button
-          className={styles.toggleButton}
-          onClick={onToggle}
-          aria-label={collapsed ? "Expand menu" : "Collapse menu"}
-        >
-          {collapsed ? "→" : "←"}
-        </button>
       </div>
 
       <nav className={styles.nav}>
@@ -100,7 +96,7 @@ export const Sidebar = ({
           <div className={styles.avatar}>👤</div>
           {!collapsed && (
             <div className={styles.userDetails}>
-              <div className={styles.userName}>Super Admin</div>
+              <div className={styles.userName}>{userName}</div>
               <div className={styles.userRole}>Administrator</div>
             </div>
           )}

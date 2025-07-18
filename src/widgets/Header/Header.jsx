@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '../../shared/ui';
 import styles from './Header.module.css';
 
-export const Header = ({ title, sidebarCollapsed, onToggleSidebar }) => {
+export const Header = ({ title, sidebarCollapsed, onToggleSidebar, isSidebarOpen, user }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   const toggleTheme = () => {
@@ -10,30 +10,24 @@ export const Header = ({ title, sidebarCollapsed, onToggleSidebar }) => {
     document.documentElement.setAttribute('data-theme', isDarkMode ? 'light' : 'dark');
   };
 
+  const userName = user?.login || user?.email || 'Admin';
+
   return (
     <header className={styles.header}>
       <div className={styles.left}>
-        <button 
-          className={styles.mobileMenuButton}
+        <div
+          className={styles.burger + (isSidebarOpen ? ' ' + styles.open : '')}
           onClick={onToggleSidebar}
           aria-label="Open menu"
         >
-          ☰
-        </button>
+          <span className={styles.burgerLine + ' ' + styles.burgerLine1}></span>
+          <span className={styles.burgerLine + ' ' + styles.burgerLine2}></span>
+          <span className={styles.burgerLine + ' ' + styles.burgerLine3}></span>
+        </div>
         <h1 className={styles.title}>{title}</h1>
       </div>
       
       <div className={styles.right}>
-        <div className={styles.search}>
-          <input 
-            type="text" 
-            placeholder="Search..."
-            className={styles.searchInput}
-          />
-          <button className={styles.searchButton}>
-            🔍
-          </button>
-        </div>
         
         <div className={styles.actions}>
           <button 
@@ -44,16 +38,11 @@ export const Header = ({ title, sidebarCollapsed, onToggleSidebar }) => {
             {isDarkMode ? '☀️' : '🌙'}
           </button>
           
-          <button className={styles.actionButton} title="Notifications">
-            🔔
-            <span className={styles.badge}>3</span>
-          </button>
           
           <div className={styles.userMenu}>
             <button className={styles.userButton}>
               <div className={styles.userAvatar}>👤</div>
-              <span className={styles.userName}>Admin</span>
-              <span className={styles.dropdownIcon}>▼</span>
+              <span className={styles.userName}>{userName}</span>
             </button>
           </div>
         </div>

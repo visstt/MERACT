@@ -7,29 +7,71 @@ import { SignInPage } from '../pages/SignInPage/SignInPage';
 import { Header } from '../widgets/Header/Header';
 import { Sidebar } from '../widgets/Sidebar/Sidebar';
 import styles from './App.module.css';
+import { useState, useEffect } from 'react';
+import api from '../shared/lib/axios';
 
 function getAccessToken() {
+  // Example: look for cookie named access_token (or another name if server uses different one)
   return document.cookie.split('; ').find(row => row.startsWith('access_token='));
 }
 
 function ProtectedRoute({ children }) {
-  if (!getAccessToken()) {
-    return <Navigate to="/sign-in" replace />;
-  }
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAuth, setIsAuth] = useState(false);
+
+  useEffect(() => {
+    async function checkAuth() {
+      let hasToken = getAccessToken();
+      if (!hasToken) {
+        try {
+          await api.post('/auth/refresh');
+        } catch {
+          setIsAuth(false);
+          setAuthChecked(true);
+          return;
+        }
+        hasToken = getAccessToken();
+      }
+      setIsAuth(!!hasToken);
+      setAuthChecked(true);
+    }
+    checkAuth();
+  }, []);
+
+  if (!authChecked) return null;
+  if (!isAuth) return <Navigate to="/sign-in" replace />;
   return children;
 }
 
 function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Get profile from localStorage/sessionStorage if present
+    let profile = null;
+    try {
+      profile = JSON.parse(localStorage.getItem('profile') || sessionStorage.getItem('profile'));
+    } catch {}
+    setUser(profile);
+  }, []);
+
   const handlePageChange = (pagePath) => {
     navigate(pagePath);
+    setSidebarOpen(false); // close menu after navigation
   };
+  const handleBurger = () => setSidebarOpen(true);
+  const handleCloseSidebar = () => setSidebarOpen(false);
+  const isMobile = window.innerWidth <= 768;
   return (
     <div className={styles.app}>
-      <Sidebar activeItem={location.pathname} onItemClick={handlePageChange} />
+      <div className={styles.sidebarContainer + (isMobile ? (sidebarOpen ? ' ' + styles.open : '') : '')}>
+        <Sidebar activeItem={location.pathname} onItemClick={handlePageChange} user={user} {...(isMobile ? { open: sidebarOpen } : {})} />
+      </div>
       <div className={styles.mainContent}>
-        <Header />
+        <Header onToggleSidebar={handleBurger} isSidebarOpen={sidebarOpen} user={user} />
         <main className={styles.pageContent}>
           <Routes>
             <Route path="/" element={<DashboardPage />} />

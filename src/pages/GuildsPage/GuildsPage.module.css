@@ -346,6 +346,66 @@
   text-align: center;
 }
 
+[data-theme="dark"] .guildCard {
+  background: #23272f;
+  color: #fff;
+  border-color: #333;
+}
+[data-theme="dark"] .guildImage {
+  background: #181a20;
+  filter: brightness(0.7);
+}
+[data-theme="dark"] .info {
+  background: #23272f;
+  color: #fff;
+}
+[data-theme="dark"] .guildName {
+  color: #fff;
+  background: #181a20;
+}
+[data-theme="dark"] .guildMotto {
+  color: #a5b4fc;
+  background: #23272f;
+}
+[data-theme="dark"] .guildDescription {
+  color: #cbd5e1;
+  background: #181a20;
+}
+[data-theme="dark"] .guildMeta {
+  color: #a5b4fc;
+  background: #181a20;
+}
+[data-theme="dark"] .guildButton {
+  background: #6366f1;
+  color: #fff;
+}
+[data-theme="dark"] .guildButton:hover {
+  background: #4f46e5;
+}
+[data-theme="dark"] .modalOverlay {
+  background: rgba(20,20,20,0.7);
+}
+[data-theme="dark"] .modal {
+  background: #23272f;
+  color: #fff;
+}
+[data-theme="dark"] .form input,
+[data-theme="dark"] .form textarea,
+[data-theme="dark"] .form select {
+  background: #181a20;
+  color: #fff;
+  border-color: #333;
+}
+[data-theme="dark"] .form input:focus,
+[data-theme="dark"] .form textarea:focus,
+[data-theme="dark"] .form select:focus {
+  border-color: #6366f1;
+}
+[data-theme="dark"] .error {
+  background: #7f1d1d;
+  color: #fff;
+}
+
 @media (max-width: 700px) {
   .guildsPage {
     padding: var(--spacing-md);

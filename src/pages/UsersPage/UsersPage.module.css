@@ -418,43 +418,16 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 900px) {
   .usersPage {
-    padding: var(--spacing-sm);
-  }
-
-  .tableHeader {
-    padding: var(--spacing-md);
-  }
-
-  .table th,
-  .table td {
-    padding: var(--spacing-xs) var(--spacing-sm);
-  }
-
-  .userInfo {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-xs);
-  }
-
-  .userAvatar {
-    width: 32px;
-    height: 32px;
-    font-size: var(--font-size-sm);
-  }
-}
-
-@media (max-width: 600px) {
-  .usersPage {
-    padding: var(--spacing-sm);
-  }
-  .header {
-    flex-direction: column;
-    gap: var(--spacing-sm);
-    align-items: stretch;
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+    margin-left: 0;
+    margin-right: 0;
   }
   .filters {
+    flex-direction: column;
     gap: var(--spacing-xs);
   }
   .searchGroup {
@@ -465,42 +438,124 @@
     min-width: 0;
     width: 100%;
     font-size: 0.95rem;
-    height: 38px;
+    height: 36px;
   }
-  .bulkActions {
+}
+
+.table th, .table td {
+  padding: 6px 8px;
+  font-size: 0.97rem;
+}
+
+.tableTitle {
+  font-size: 1rem;
+}
+
+.actions button {
+  min-width: 24px;
+  height: 24px;
+  font-size: 0.95rem;
+  padding: 0 2px;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+.tableWrapper::-webkit-scrollbar {
+  height: 6px;
+  background: #f1f5f9;
+}
+.tableWrapper::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+@media (max-width: 480px) {
+  .tableCard {
+    display: none;
+  }
+  .userCards {
+    display: flex;
     flex-direction: column;
-    gap: var(--spacing-xs);
-    padding: var(--spacing-xs);
+    gap: var(--spacing-sm);
   }
-  .bulkButtons {
-    gap: var(--spacing-xs);
-  }
-  .tableHeader {
+  .userCard {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     padding: var(--spacing-md);
-  }
-  .tableTitle {
-    font-size: 1.1rem;
-  }
-  .tableWrapper {
-    overflow-x: auto;
-  }
-  .table th, .table td {
-    padding: var(--spacing-xs) var(--spacing-xs);
-    font-size: 0.95rem;
-  }
-  .userInfo {
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
     gap: var(--spacing-xs);
   }
-  .userAvatar {
+  .userCardHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: 4px;
+  }
+  .userCardAvatar {
     width: 32px;
     height: 32px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
     font-size: 1rem;
   }
-  .actions button {
-    min-width: 28px;
-    height: 28px;
-    font-size: 1rem;
+  .userCardInfo {
+    flex: 1;
+    min-width: 0;
   }
+  .userCardName {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--color-gray-800);
+  }
+  .userCardEmail {
+    font-size: 0.95rem;
+    color: var(--color-gray-500);
+  }
+  .userCardRow {
+    display: flex;
+    gap: 1.2em;
+    font-size: 0.95rem;
+    color: var(--color-gray-600);
+    margin-bottom: 2px;
+  }
+  .userCardActions {
+    display: flex;
+    gap: var(--spacing-xs);
+    margin-top: 4px;
+  }
+}
+
+[data-theme="dark"] .userCard {
+  background: #23272f;
+  color: #fff;
+}
+[data-theme="dark"] .userCardAvatar {
+  background: #6366f1;
+  color: #fff;
+}
+[data-theme="dark"] .userCardName {
+  color: #fff;
+}
+[data-theme="dark"] .userCardEmail,
+[data-theme="dark"] .userCardRow {
+  color: #cbd5e1;
+}
+[data-theme="dark"] .userCardActions button {
+  background: #181a20;
+  color: #fff;
+  border: 1px solid #333;
+}
+[data-theme="dark"] .userCardActions button:hover {
+  background: #6366f1;
+  color: #fff;
 }

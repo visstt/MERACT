@@ -84,7 +84,7 @@
   width: 100%;
   margin-top: var(--spacing-2xl);
   /* grid-row: span 2; */
-  /* Теперь блочный элемент */
+  /* Now a block element */
 }
 
 .cardHeader {
@@ -142,6 +142,9 @@
 
 .activityDot.error {
   background-color: var(--color-error);
+}
+.activityDot.success {
+  background-color: var(--color-success);
 }
 
 .activityContent {

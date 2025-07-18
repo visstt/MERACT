@@ -14,7 +14,7 @@ const initialForm = {
   image: '',
 };
 
-// Удаляю useEffect и fetchGuilds, работаю только с локальным стейтом
+// Remove useEffect and fetchGuilds, work only with local state
 const defaultGuilds = [
   {
     id: 1,
@@ -48,7 +48,7 @@ export const GuildsPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Удаляю useEffect и fetchGuilds, работаю только с локальным стейтом
+  // Remove useEffect and fetchGuilds, work only with local state
   // const fetchGuilds = async () => {
   //   try {
   //     const res = await api.get('/guild/all');

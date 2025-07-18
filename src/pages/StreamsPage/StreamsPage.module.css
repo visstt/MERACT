@@ -388,6 +388,22 @@
   color: #fca5a5;
 }
 
+[data-theme="dark"] .stoppedLabel {
+  background: #b91c1c;
+  color: #fff;
+}
+[data-theme="dark"] .inactive {
+  background: #23272f;
+  opacity: 0.6;
+}
+[data-theme="dark"] .streamImage {
+  background: #181a20;
+}
+[data-theme="dark"] .thumbnailPlaceholder {
+  background: #181a20;
+  color: #cbd5e1;
+}
+
 /* Responsive */
 @media (max-width: 1200px) {
   .streamItem {
