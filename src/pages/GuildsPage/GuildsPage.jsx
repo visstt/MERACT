@@ -1,45 +1,19 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./GuildsPage.module.css";
-import api from '../../shared/lib/axios';
+import api, { getImageUrl } from '../../shared/lib/axios';
 
 const REGIONS = ["North", "East", "South", "West"];
 const TYPES = ["PvE", "PvP", "Social"];
 
 const initialForm = {
   name: '',
-  motto: '',
   description: '',
-  region: REGIONS[0],
-  type: TYPES[0],
-  image: '',
+  photoFile: null,
 };
 
-// Remove useEffect and fetchGuilds, work only with local state
-const defaultGuilds = [
-  {
-    id: 1,
-    name: "Northern Wolves",
-    motto: "Strength in unity",
-    description: "A guild uniting players for joint PvE adventures and raids. Friendly atmosphere and support for newcomers.",
-    members: 42,
-    region: "North",
-    type: "PvE",
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 2,
-    name: "Eastern Dragons",
-    motto: "Honor above all",
-    description: "PvP guild for fans of battles and tournaments. Here, strategy, teamwork, and fair play are valued.",
-    members: 28,
-    region: "East",
-    type: "PvP",
-    image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80",
-  },
-];
-
 export const GuildsPage = () => {
-  const [guilds, setGuilds] = useState(defaultGuilds);
+  const [guilds, setGuilds] = useState([]);
   const [region, setRegion] = useState("All");
   const [type, setType] = useState("All");
   const [modalOpen, setModalOpen] = useState(false);
@@ -47,16 +21,23 @@ export const GuildsPage = () => {
   const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  // Remove useEffect and fetchGuilds, work only with local state
-  // const fetchGuilds = async () => {
-  //   try {
-  //     const res = await api.get('/guild/all');
-  //     setGuilds(res.data);
-  //   } catch {
-  //     setError('Failed to load guilds');
-  //   }
-  // };
+  useEffect(() => {
+    const fetchGuilds = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const res = await api.get('/guild/find-all');
+        setGuilds(res.data);
+      } catch {
+        setError('Failed to load guilds');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchGuilds();
+  }, []);
 
   const openCreate = () => {
     setForm(initialForm);
@@ -67,11 +48,8 @@ export const GuildsPage = () => {
   const openEdit = (guild) => {
     setForm({
       name: guild.name,
-      motto: guild.motto,
       description: guild.description,
-      region: guild.region,
-      type: guild.type,
-      image: guild.image || '',
+      photoFile: null,
     });
     setEditId(guild.id);
     setModalOpen(true);
@@ -89,22 +67,60 @@ export const GuildsPage = () => {
     setForm(f => ({ ...f, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    setTimeout(() => {
+    try {
       if (editId) {
-        setGuilds(guilds => guilds.map(g => g.id === editId ? { ...g, ...form } : g));
-      } else {
-        setGuilds(guilds => [
-          ...guilds,
-          { ...form, id: Date.now(), members: 0 },
-        ]);
+        const formData = new FormData();
+        formData.append('name', form.name);
+        formData.append('description', form.description);
+        if (form.photoFile instanceof File) {
+          formData.append('photo', form.photoFile);
+        }
+        await api.put(`/guild/${editId}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        const res = await api.get('/guild/find-all');
+        setGuilds(res.data);
+        setForm(initialForm);
+        closeModal();
+        setLoading(false);
+        return;
       }
+      const formData = new FormData();
+      formData.append('name', form.name);
+      formData.append('description', form.description);
+      if (form.photoFile instanceof File) {
+        formData.append('photo', form.photoFile);
+      }
+      await api.post('/guild/create-guild', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      const res = await api.get('/guild/find-all');
+      setGuilds(res.data);
+      setForm(initialForm);
       closeModal();
+    } catch {
+      setError('Failed to create guild');
+    } finally {
       setLoading(false);
-    }, 500);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    setLoading(true);
+    setError('');
+    try {
+      await api.delete(`/guild/${id}`);
+      const res = await api.get('/guild/find-all');
+      setGuilds(res.data);
+    } catch {
+      setError('Failed to delete guild');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredGuilds = guilds.filter(
@@ -118,31 +134,39 @@ export const GuildsPage = () => {
       <div className={styles.header}>
         <h1 className={styles.title}>Guilds</h1>
         <button className={styles.guildButton + ' ' + styles.editButton} onClick={openCreate}>+ Create Guild</button>
-        <div className={styles.filters}>
-          <select value={region} onChange={e => setRegion(e.target.value)} className={styles.select}>
-            <option value="All">All</option>
-            {REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
-          </select>
-          <select value={type} onChange={e => setType(e.target.value)} className={styles.select}>
-            <option value="All">All</option>
-            {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-          </select>
-        </div>
       </div>
       <div className={styles.list}>
         {filteredGuilds.map((guild) => (
-          <div key={guild.id} className={styles.guildCard} style={{ cursor: "pointer" }}>
-            <img src={guild.image} alt={guild.name} className={styles.guildImage} />
-            <div className={styles.guildBadge}>{guild.type}</div>
+          <div key={guild.id} className={styles.guildCard} style={{ cursor: "pointer" }} onClick={e => {
+            // Не переходить по клику на кнопки
+            if (e.target.closest('button')) return;
+            navigate(`/guild/${guild.id}`);
+          }}>
+            <img src={guild.logoFileName ? getImageUrl('guild', guild.logoFileName) : guild.image} alt={guild.name} className={styles.guildImage} />
             <div className={styles.info}>
               <div className={styles.guildName}>{guild.name}</div>
-              <div className={styles.guildMotto}>{guild.motto}</div>
               <div className={styles.guildDescription}>{guild.description}</div>
-              <div className={styles.guildMeta}>
-                <span className={styles.guildMetaItem}><b>{guild.members}</b> members</span>
-                <span className={styles.guildMetaItem}>{guild.region}</span>
+
+              <div className={styles.guildActions}>
+                <button className={styles.guildActionButton + ' ' + styles.editButton} onClick={() => openEdit(guild)} title="Edit">
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 13.5V16h2.5l7.06-7.06-2.5-2.5L4 13.5z" stroke="currentColor" strokeWidth="1.5"/>
+                    <path d="M14.85 6.15a1.5 1.5 0 0 0 0-2.12l-1.88-1.88a1.5 1.5 0 0 0-2.12 0l-1.06 1.06 4 4 1.06-1.06z" stroke="currentColor" strokeWidth="1.5"/>
+                  </svg>
+                  Edit
+                </button>
+                <button className={styles.guildActionButton + ' ' + styles.deleteButton} onClick={() => handleDelete(guild.id)} title="Delete">
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 8V14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    <path d="M10 8V14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    <path d="M14 8V14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    <path d="M3 5H17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    <path d="M8 5V4C8 3.44772 8.44772 3 9 3H11C11.5523 3 12 3.44772 12 4V5" stroke="currentColor" strokeWidth="1.5"/>
+                    <rect x="4" y="5" width="12" height="11" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+                  </svg>
+                  Delete
+                </button>
               </div>
-              <button className={styles.guildButton + ' ' + styles.editButton} onClick={() => openEdit(guild)}>Edit</button>
             </div>
           </div>
         ))}
@@ -157,28 +181,12 @@ export const GuildsPage = () => {
                 <input name="name" value={form.name} onChange={handleChange} required />
               </label>
               <label>
-                Motto
-                <input name="motto" value={form.motto} onChange={handleChange} required />
-              </label>
-              <label>
                 Description
                 <textarea name="description" value={form.description} onChange={handleChange} required />
               </label>
               <label>
-                Region
-                <select name="region" value={form.region} onChange={handleChange} required>
-                  {REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
-                </select>
-              </label>
-              <label>
-                Type
-                <select name="type" value={form.type} onChange={handleChange} required>
-                  {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
-              </label>
-              <label>
-                Image URL
-                <input name="image" value={form.image} onChange={handleChange} />
+                Photo
+                <input type="file" accept="image/*" onChange={e => setForm(f => ({ ...f, photoFile: e.target.files[0] }))} />
               </label>
               {error && <div className={styles.error}>{error}</div>}
               <div className={styles.modalActions}>

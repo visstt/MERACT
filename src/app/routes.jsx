@@ -9,6 +9,7 @@ import { Sidebar } from '../widgets/Sidebar/Sidebar';
 import styles from './App.module.css';
 import { useState, useEffect } from 'react';
 import api from '../shared/lib/axios';
+import { GuildProfilePage } from '../pages/GuildProfilePage/GuildProfilePage';
 
 function getAccessToken() {
   // Example: look for cookie named access_token (or another name if server uses different one)
@@ -77,6 +78,7 @@ function Layout() {
             <Route path="/" element={<DashboardPage />} />
             <Route path="/streams" element={<StreamsPage />} />
             <Route path="/guilds" element={<GuildsPage />} />
+            <Route path="/guild/:id" element={<GuildProfilePage />} />
             <Route path="/users" element={<UsersPage />} />
           </Routes>
         </main>
