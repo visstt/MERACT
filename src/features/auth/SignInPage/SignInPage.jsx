@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './SignInPage.module.css';
-import api from '../../shared/lib/axios';
+import api from '../../../shared/lib/axios';
 
 export const SignInPage = () => {
   const [email, setEmail] = useState('vitaly.sadikov1@yandex.ru');

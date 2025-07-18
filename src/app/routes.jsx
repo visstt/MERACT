@@ -3,7 +3,7 @@ import { StreamsPage } from "../pages/StreamsPage";
 import { GuildsPage } from "../pages/GuildsPage/GuildsPage";
 import { DashboardPage } from "../pages/DashboardPage/DashboardPage";
 import { UsersPage } from "../pages/UsersPage/UsersPage";
-import { SignInPage } from '../pages/SignInPage/SignInPage';
+import { SignInPage } from '../features/auth/SignInPage/SignInPage';
 import { Header } from '../widgets/Header/Header';
 import { Sidebar } from '../widgets/Sidebar/Sidebar';
 import styles from './App.module.css';
