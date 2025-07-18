@@ -1,41 +1,29 @@
-import { useState } from 'react';
-import { Sidebar } from '../widgets/Sidebar';
-import { Header } from '../widgets/Header';
-import { DashboardPage } from '../pages/DashboardPage';
-import { UsersPage } from '../pages/UsersPage';
-import { StreamsPage } from '../pages/StreamsPage';
-import styles from './App.module.css';
-
-const pageComponents = {
-  dashboard: DashboardPage,
-  users: UsersPage,
-  streams: StreamsPage,
-  guilds: () => <div className={styles.placeholder}>Страница гильдий - в разработке</div>,
-  content: () => <div className={styles.placeholder}>Страница контента - в разработке</div>,
-  moderation: () => <div className={styles.placeholder}>Страница модерации - в разработке</div>,
-  analytics: () => <div className={styles.placeholder}>Страница аналитики - в разработке</div>,
-  settings: () => <div className={styles.placeholder}>Страница настроек - в разработке</div>
-};
+import { useState, useEffect } from "react";
+import { Sidebar } from "../widgets/Sidebar";
+import { Header } from "../widgets/Header";
+import styles from "./App.module.css";
+import { AppRoutes } from "./routes";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const pageTitles = {
-  dashboard: 'Dashboard',
-  users: 'Управление пользователями',
-  streams: 'Трансляции',
-  guilds: 'Гильдии',
-  content: 'Контент и медиа',
-  moderation: 'Модерация',
-  analytics: 'Аналитика',
-  settings: 'Настройки системы'
+  "/": "Dashboard",
+  "/users": "User Management",
+  "/streams": "Streams",
+  "/guilds": "Guilds",
+  "/content": "Content & Media",
+  "/moderation": "Moderation",
+  "/analytics": "Analytics",
+  "/settings": "System Settings",
 };
 
 export const App = () => {
-  const [currentPage, setCurrentPage] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const handlePageChange = (pageId) => {
-    setCurrentPage(pageId);
-    // Close mobile sidebar when page changes
+  const handlePageChange = (pagePath) => {
+    navigate(pagePath);
     if (window.innerWidth <= 768) {
       setSidebarOpen(false);
     }
@@ -49,32 +37,11 @@ export const App = () => {
     }
   };
 
-  const CurrentPageComponent = pageComponents[currentPage] || pageComponents.dashboard;
+  // Find the best matching title for the current route
+  const currentTitle =
+    pageTitles[
+      Object.keys(pageTitles).find((key) => location.pathname.startsWith(key))
+    ] || "Dashboard";
 
-  return (
-    <div className={styles.app}>
-      <div className={`${styles.sidebarContainer} ${sidebarOpen ? styles.open : ''}`}>
-        <Sidebar 
-          activeItem={currentPage}
-          onItemClick={handlePageChange}
-          collapsed={sidebarCollapsed}
-          onToggle={toggleSidebar}
-        />
-      </div>
-      
-      {sidebarOpen && <div className={styles.overlay} onClick={toggleSidebar} />}
-      
-      <div className={`${styles.mainContent} ${sidebarCollapsed ? styles.expanded : ''}`}>
-        <Header 
-          title={pageTitles[currentPage]}
-          sidebarCollapsed={sidebarCollapsed}
-          onToggleSidebar={toggleSidebar}
-        />
-        
-        <main className={styles.pageContent}>
-          <CurrentPageComponent />
-        </main>
-      </div>
-    </div>
-  );
+  return <AppRoutes />;
 };

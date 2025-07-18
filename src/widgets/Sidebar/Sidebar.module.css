@@ -105,16 +105,19 @@
 .menuButton.active {
   background-color: var(--color-primary);
   color: var(--color-white);
+  z-index: 1;
 }
 
 .menuButton.active::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
   width: 4px;
   background-color: var(--color-primary-dark);
+  border-radius: 0 4px 4px 0;
+  z-index: 2;
 }
 
 .menuIcon {
@@ -244,16 +247,16 @@
   .sidebar {
     transform: translateX(-100%);
   }
-  
+
   .sidebar.open {
     transform: translateX(0);
   }
-  
+
   .sidebar.collapsed {
     width: 280px;
     transform: translateX(-100%);
   }
-  
+
   .sidebar.collapsed.open {
     transform: translateX(0);
   }

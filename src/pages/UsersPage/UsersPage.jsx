@@ -85,9 +85,9 @@ export const UsersPage = () => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      active: { label: 'Активен', className: 'success' },
-      warning: { label: 'Предупреждение', className: 'warning' },
-      blocked: { label: 'Заблокирован', className: 'error' }
+      active: { label: 'Active', className: 'success' },
+      warning: { label: 'Warning', className: 'warning' },
+      blocked: { label: 'Blocked', className: 'error' }
     };
     
     const config = statusConfig[status] || statusConfig.active;
@@ -98,10 +98,10 @@ export const UsersPage = () => {
     <div className={styles.usersPage}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Управление пользователями</h1>
-          <p className={styles.subtitle}>Управление учетными записями и модерация пользователей</p>
+          <h1 className={styles.title}>User Management</h1>
+          <p className={styles.subtitle}>Manage accounts and moderate users</p>
         </div>
-        <Button variant="primary">Экспорт данных</Button>
+        <Button variant="primary">Export data</Button>
       </div>
 
       <Card padding="lg" className={styles.filtersCard}>
@@ -109,7 +109,7 @@ export const UsersPage = () => {
           <div className={styles.searchGroup}>
             <input
               type="text"
-              placeholder="Поиск по имени или email..."
+              placeholder="Search by name or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className={styles.searchInput}
@@ -119,17 +119,17 @@ export const UsersPage = () => {
               onChange={(e) => setStatusFilter(e.target.value)}
               className={styles.filterSelect}
             >
-              <option value="all">Все статусы</option>
-              <option value="active">Активные</option>
-              <option value="warning">С предупреждениями</option>
-              <option value="blocked">Заблокированные</option>
+              <option value="all">All statuses</option>
+              <option value="active">Active</option>
+              <option value="warning">With warnings</option>
+              <option value="blocked">Blocked</option>
             </select>
           </div>
           
           {selectedUsers.length > 0 && (
             <div className={styles.bulkActions}>
               <span className={styles.selectedCount}>
-                Выбрано: {selectedUsers.length}
+                Selected: {selectedUsers.length}
               </span>
               <div className={styles.bulkButtons}>
                 <Button 
@@ -137,21 +137,21 @@ export const UsersPage = () => {
                   size="sm"
                   onClick={() => handleBulkAction('warn')}
                 >
-                  Предупредить
+                  Warn
                 </Button>
                 <Button 
                   variant="error" 
                   size="sm"
                   onClick={() => handleBulkAction('block')}
                 >
-                  Заблокировать
+                  Block
                 </Button>
                 <Button 
                   variant="ghost" 
                   size="sm"
                   onClick={() => setSelectedUsers([])}
                 >
-                  Отменить выбор
+                  Cancel selection
                 </Button>
               </div>
             </div>
@@ -161,7 +161,7 @@ export const UsersPage = () => {
 
       <Card padding="none" className={styles.tableCard}>
         <div className={styles.tableHeader}>
-          <h2 className={styles.tableTitle}>Список пользователей ({filteredUsers.length})</h2>
+          <h2 className={styles.tableTitle}>User list ({filteredUsers.length})</h2>
         </div>
         
         <div className={styles.tableWrapper}>
@@ -181,13 +181,13 @@ export const UsersPage = () => {
                     checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0}
                   />
                 </th>
-                <th>Пользователь</th>
-                <th>Статус</th>
-                <th>Последняя активность</th>
-                <th>Предупреждения</th>
-                <th>Трансляции</th>
-                <th>Подписчики</th>
-                <th>Действия</th>
+                <th>User</th>
+                <th>Status</th>
+                <th>Last active</th>
+                <th>Warnings</th>
+                <th>Streams</th>
+                <th>Followers</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -254,9 +254,9 @@ export const UsersPage = () => {
           {filteredUsers.length === 0 && (
             <div className={styles.emptyState}>
               <div className={styles.emptyIcon}>👥</div>
-              <div className={styles.emptyTitle}>Пользователи не найдены</div>
+              <div className={styles.emptyTitle}>Users not found</div>
               <div className={styles.emptyText}>
-                Попробуйте изменить параметры поиска или фильтрации
+                Try changing search or filter parameters
               </div>
             </div>
           )}

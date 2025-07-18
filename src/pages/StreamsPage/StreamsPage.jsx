@@ -68,9 +68,9 @@ export const StreamsPage = () => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      live: { label: 'В эфире', className: 'success' },
-      terminated: { label: 'Завершена', className: 'error' },
-      paused: { label: 'Пауза', className: 'warning' }
+      live: { label: 'Live', className: 'success' },
+      terminated: { label: 'Terminated', className: 'error' },
+      paused: { label: 'Paused', className: 'warning' }
     };
     
     const config = statusConfig[status] || statusConfig.live;
@@ -89,14 +89,14 @@ export const StreamsPage = () => {
     <div className={styles.streamsPage}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Управление трансляциями</h1>
-          <p className={styles.subtitle}>Мониторинг и модерация активных трансляций</p>
+          <h1 className={styles.title}>Stream Management</h1>
+          <p className={styles.subtitle}>Monitoring and moderation of active streams</p>
         </div>
         <div className={styles.headerActions}>
           <Button variant="warning" onClick={terminateAllStreams}>
-            Завершить все трансляции
+            Terminate all streams
           </Button>
-          <Button variant="primary">Статистика трансляций</Button>
+          <Button variant="primary">Stream statistics</Button>
         </div>
       </div>
 
@@ -106,7 +106,7 @@ export const StreamsPage = () => {
             <span className={styles.statIcon}>📺</span>
             <span className={styles.statValue}>{streams.filter(s => s.status === 'live').length}</span>
           </div>
-          <div className={styles.statLabel}>Активные трансляции</div>
+          <div className={styles.statLabel}>Active streams</div>
         </Card>
         
         <Card padding="lg" className={styles.statCard}>
@@ -116,7 +116,7 @@ export const StreamsPage = () => {
               {streams.filter(s => s.status === 'live').reduce((sum, s) => sum + s.viewers, 0).toLocaleString()}
             </span>
           </div>
-          <div className={styles.statLabel}>Общее количество зрителей</div>
+          <div className={styles.statLabel}>Total viewers</div>
         </Card>
         
         <Card padding="lg" className={styles.statCard}>
@@ -124,7 +124,7 @@ export const StreamsPage = () => {
             <span className={styles.statIcon}>🛡️</span>
             <span className={styles.statValue}>{streams.filter(s => s.status === 'terminated').length}</span>
           </div>
-          <div className={styles.statLabel}>Завершено админом</div>
+          <div className={styles.statLabel}>Terminated by admin</div>
         </Card>
       </div>
 
@@ -135,10 +135,10 @@ export const StreamsPage = () => {
             onChange={(e) => setStatusFilter(e.target.value)}
             className={styles.filterSelect}
           >
-            <option value="all">Все статусы</option>
-            <option value="live">В эфире</option>
-            <option value="terminated">Завершенные</option>
-            <option value="paused">На паузе</option>
+            <option value="all">All statuses</option>
+            <option value="live">Live</option>
+            <option value="terminated">Terminated</option>
+            <option value="paused">Paused</option>
           </select>
           
           <select
@@ -146,18 +146,18 @@ export const StreamsPage = () => {
             onChange={(e) => setCategoryFilter(e.target.value)}
             className={styles.filterSelect}
           >
-            <option value="all">Все категории</option>
-            <option value="Gaming">Игры</option>
-            <option value="Music">Музыка</option>
-            <option value="Art">Творчество</option>
-            <option value="Talk">Разговоры</option>
+            <option value="all">All categories</option>
+            <option value="Gaming">Gaming</option>
+            <option value="Music">Music</option>
+            <option value="Art">Art</option>
+            <option value="Talk">Talk</option>
           </select>
         </div>
       </Card>
 
       <Card padding="none" className={styles.streamsCard}>
         <div className={styles.cardHeader}>
-          <h2 className={styles.cardTitle}>Активные трансляции ({filteredStreams.length})</h2>
+          <h2 className={styles.cardTitle}>Active streams ({filteredStreams.length})</h2>
         </div>
         
         <div className={styles.streamsList}>
@@ -180,7 +180,7 @@ export const StreamsPage = () => {
                   {getStatusBadge(stream.status)}
                 </div>
                 <div className={styles.streamStats}>
-                  <span>👥 {stream.viewers.toLocaleString()} зрителей</span>
+                  <span>👥 {stream.viewers.toLocaleString()} viewers</span>
                   <span>⏱️ {stream.duration}</span>
                   <span>🕒 {stream.startTime}</span>
                 </div>
@@ -190,14 +190,14 @@ export const StreamsPage = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  title="Просмотреть трансляцию"
+                  title="View stream"
                 >
                   👁️
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  title="Просмотреть чат"
+                  title="View chat"
                 >
                   💬
                 </Button>
@@ -205,7 +205,7 @@ export const StreamsPage = () => {
                   variant="ghost"
                   size="sm"
                   onClick={() => handleStreamAction(stream.id, 'warn')}
-                  title="Предупредить стримера"
+                  title="Warn streamer"
                   disabled={stream.status !== 'live'}
                 >
                   ⚠️
@@ -216,7 +216,7 @@ export const StreamsPage = () => {
                   onClick={() => handleStreamAction(stream.id, 'terminate')}
                   disabled={stream.status !== 'live'}
                 >
-                  🛑 Завершить
+                  🛑 Terminate
                 </Button>
               </div>
             </div>
@@ -225,9 +225,9 @@ export const StreamsPage = () => {
           {filteredStreams.length === 0 && (
             <div className={styles.emptyState}>
               <div className={styles.emptyIcon}>📺</div>
-              <div className={styles.emptyTitle}>Трансляции не найдены</div>
+              <div className={styles.emptyTitle}>No streams found</div>
               <div className={styles.emptyText}>
-                Нет трансляций, соответствующих выбранным фильтрам
+                No streams match the selected filters
               </div>
             </div>
           )}

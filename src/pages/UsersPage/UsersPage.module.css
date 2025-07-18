@@ -1,7 +1,11 @@
 .usersPage {
   padding: var(--spacing-xl);
-  max-width: 1400px;
-  margin: 0 auto;
+  width: calc(100vw - 280px); /* sidebar width */
+  max-width: unset;
+  margin-left: 0;
+  margin-right: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .header {
@@ -366,7 +370,7 @@
   .table {
     font-size: var(--font-size-sm);
   }
-  
+
   .table th,
   .table td {
     padding: var(--spacing-sm) var(--spacing-md);
@@ -377,38 +381,38 @@
   .usersPage {
     padding: var(--spacing-md);
   }
-  
+
   .header {
     flex-direction: column;
     gap: var(--spacing-md);
     align-items: stretch;
   }
-  
+
   .title {
     font-size: var(--font-size-2xl);
   }
-  
+
   .searchGroup {
     flex-direction: column;
   }
-  
+
   .searchInput {
     min-width: auto;
   }
-  
+
   .bulkActions {
     flex-direction: column;
     gap: var(--spacing-sm);
   }
-  
+
   .tableWrapper {
     overflow-x: scroll;
   }
-  
+
   .table {
     min-width: 800px;
   }
-  
+
   .actions {
     flex-direction: column;
   }
@@ -418,22 +422,22 @@
   .usersPage {
     padding: var(--spacing-sm);
   }
-  
+
   .tableHeader {
     padding: var(--spacing-md);
   }
-  
+
   .table th,
   .table td {
     padding: var(--spacing-xs) var(--spacing-sm);
   }
-  
+
   .userInfo {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-xs);
   }
-  
+
   .userAvatar {
     width: 32px;
     height: 32px;

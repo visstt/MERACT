@@ -80,14 +80,11 @@
   font-weight: var(--font-weight-medium);
 }
 
-.contentGrid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: var(--spacing-lg);
-}
-
 .activityCard {
-  grid-row: span 2;
+  width: 100%;
+  margin-top: var(--spacing-2xl);
+  /* grid-row: span 2; */
+  /* Теперь блочный элемент */
 }
 
 .cardHeader {
@@ -291,7 +288,7 @@
   .contentGrid {
     grid-template-columns: 1fr;
   }
-  
+
   .activityCard {
     grid-row: span 1;
   }
@@ -301,24 +298,24 @@
   .dashboard {
     padding: var(--spacing-md);
   }
-  
+
   .statsGrid {
     grid-template-columns: 1fr;
     gap: var(--spacing-md);
   }
-  
+
   .title {
     font-size: var(--font-size-2xl);
   }
-  
+
   .subtitle {
     font-size: var(--font-size-base);
   }
-  
+
   .contentGrid {
     gap: var(--spacing-md);
   }
-  
+
   .cardHeader {
     flex-direction: column;
     align-items: flex-start;
@@ -330,19 +327,19 @@
   .dashboard {
     padding: var(--spacing-sm);
   }
-  
+
   .statsGrid {
     gap: var(--spacing-sm);
   }
-  
+
   .contentGrid {
     gap: var(--spacing-sm);
   }
-  
+
   .activityItem {
     padding: var(--spacing-sm);
   }
-  
+
   .actionButton {
     font-size: var(--font-size-sm);
   }

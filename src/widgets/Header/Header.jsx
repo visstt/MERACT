@@ -16,7 +16,7 @@ export const Header = ({ title, sidebarCollapsed, onToggleSidebar }) => {
         <button 
           className={styles.mobileMenuButton}
           onClick={onToggleSidebar}
-          aria-label="Открыть меню"
+          aria-label="Open menu"
         >
           ☰
         </button>
@@ -27,7 +27,7 @@ export const Header = ({ title, sidebarCollapsed, onToggleSidebar }) => {
         <div className={styles.search}>
           <input 
             type="text" 
-            placeholder="Поиск..."
+            placeholder="Search..."
             className={styles.searchInput}
           />
           <button className={styles.searchButton}>
@@ -39,12 +39,12 @@ export const Header = ({ title, sidebarCollapsed, onToggleSidebar }) => {
           <button 
             className={styles.actionButton}
             onClick={toggleTheme}
-            title={isDarkMode ? 'Светлая тема' : 'Темная тема'}
+            title={isDarkMode ? 'Light theme' : 'Dark theme'}
           >
             {isDarkMode ? '☀️' : '🌙'}
           </button>
           
-          <button className={styles.actionButton} title="Уведомления">
+          <button className={styles.actionButton} title="Notifications">
             🔔
             <span className={styles.badge}>3</span>
           </button>
@@ -52,7 +52,7 @@ export const Header = ({ title, sidebarCollapsed, onToggleSidebar }) => {
           <div className={styles.userMenu}>
             <button className={styles.userButton}>
               <div className={styles.userAvatar}>👤</div>
-              <span className={styles.userName}>Админ</span>
+              <span className={styles.userName}>Admin</span>
               <span className={styles.dropdownIcon}>▼</span>
             </button>
           </div>
