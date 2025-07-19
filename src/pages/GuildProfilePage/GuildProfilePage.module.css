@@ -2,48 +2,92 @@
   max-width: 600px;
   margin: 0 auto;
   padding: 2rem 1rem;
+  background: var(--color-gray-50);
 }
+
+[data-theme="dark"] .guildProfilePage {
+  background: var(--color-dark-bg);
+}
+
 .header {
   display: flex;
   align-items: center;
   gap: 2rem;
   margin-bottom: 2rem;
 }
+
+[data-theme="dark"] .header {
+  color: var(--color-dark-text);
+}
+
 .logo {
   width: 96px;
   height: 96px;
   border-radius: 16px;
   object-fit: cover;
-  background: #f3f4f6;
+  background: var(--color-gray-100);
 }
+
+[data-theme="dark"] .logo {
+  background: var(--color-dark-surface);
+}
+
 .info {
   flex: 1;
 }
+
+[data-theme="dark"] .info {
+  color: var(--color-dark-text);
+}
+
 .name {
   font-size: 2rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
+  color: var(--color-gray-800);
 }
+
+[data-theme="dark"] .name {
+  color: var(--color-dark-text);
+}
+
 .description {
-  color: #555;
+  color: var(--color-gray-600);
   font-size: 1.1rem;
 }
+
+[data-theme="dark"] .description {
+  color: var(--color-dark-text-muted);
+}
+
 .membersBlock {
-  background: #fff;
+  background: var(--color-white);
   border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   padding: 1.5rem 1rem;
   margin-top: 1.5rem;
 }
+
+[data-theme="dark"] .membersBlock {
+  background: var(--color-dark-surface);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  color: var(--color-dark-text);
+}
+
 .membersHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 1rem;
 }
+
+[data-theme="dark"] .membersHeader {
+  color: var(--color-dark-text);
+}
+
 .inviteButton {
-  background: #2563eb;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-white);
   border: none;
   border-radius: 6px;
   padding: 0.5rem 1.1rem;
@@ -52,50 +96,92 @@
   cursor: pointer;
   transition: background 0.2s;
 }
-.inviteButton:hover {
-  background: #1d4ed8;
+
+[data-theme="dark"] .inviteButton {
+  background: var(--color-primary-dark);
+  color: var(--color-dark-text);
 }
+
+.inviteButton:hover {
+  background: var(--color-primary-dark);
+}
+
+[data-theme="dark"] .inviteButton:hover {
+  background: var(--color-primary);
+}
+
 .membersList {
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
 }
+
+[data-theme="dark"] .membersList {
+  color: var(--color-dark-text);
+}
+
 .memberCard {
   display: flex;
   align-items: center;
   gap: 1rem;
-  background: #f3f4f6;
+  background: var(--color-gray-100);
   border-radius: 8px;
   padding: 0.7rem 1rem;
 }
+
+[data-theme="dark"] .memberCard {
+  background: var(--color-dark-surface-hover);
+}
+
 .memberAvatar {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: #6366f1;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-white);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.1rem;
   font-weight: 700;
 }
+
+[data-theme="dark"] .memberAvatar {
+  background: var(--color-primary-dark);
+  color: var(--color-dark-text);
+}
+
 .memberInfo {
   flex: 1;
   min-width: 0;
 }
+
+[data-theme="dark"] .memberInfo {
+  color: var(--color-dark-text);
+}
+
 .memberName {
   font-weight: 600;
   font-size: 1rem;
-  color: #222;
+  color: var(--color-gray-900);
 }
+
+[data-theme="dark"] .memberName {
+  color: var(--color-dark-text);
+}
+
 .memberEmail {
   font-size: 0.95rem;
-  color: #666;
+  color: var(--color-gray-600);
 }
+
+[data-theme="dark"] .memberEmail {
+  color: var(--color-dark-text-muted);
+}
+
 .kickButton {
-  background: #dc2626;
-  color: #fff;
+  background: var(--color-error);
+  color: var(--color-white);
   border: none;
   border-radius: 6px;
   padding: 0.4rem 0.9rem;
@@ -104,27 +190,51 @@
   cursor: pointer;
   transition: background 0.2s;
 }
-.kickButton:hover {
-  background: #b91c1c;
+
+[data-theme="dark"] .kickButton {
+  background: var(--color-error);
+  color: var(--color-dark-text);
 }
+
+.kickButton:hover {
+  background: var(--color-error);
+}
+
+[data-theme="dark"] .kickButton:hover {
+  background: var(--color-error);
+}
+
 .empty {
-  color: #888;
+  color: var(--color-gray-400);
   text-align: center;
   padding: 1.5rem 0;
 }
+
+[data-theme="dark"] .empty {
+  color: var(--color-dark-text-muted);
+}
+
 .inviteModalOverlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.25);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.25);
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
+[data-theme="dark"] .inviteModalOverlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
 .inviteModal {
-  background: #fff;
+  background: var(--color-white);
   border-radius: 12px;
-  box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.18);
   padding: 2rem 2.5rem;
   min-width: 320px;
   max-width: 95vw;
@@ -132,26 +242,48 @@
   flex-direction: column;
   gap: 1.1rem;
 }
+
+[data-theme="dark"] .inviteModal {
+  background: var(--color-dark-surface);
+  color: var(--color-dark-text);
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.4);
+}
+
 .inviteInput {
   padding: 0.6rem 1rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--color-gray-300);
   border-radius: 6px;
   font-size: 1rem;
   outline: none;
+  background: var(--color-white);
+  color: var(--color-gray-800);
   transition: border 0.2s;
 }
-.inviteInput:focus {
-  border-color: #6366f1;
+
+[data-theme="dark"] .inviteInput {
+  background: var(--color-dark-surface-hover);
+  color: var(--color-dark-text);
+  border-color: var(--color-dark-border);
 }
+
+.inviteInput:focus {
+  border-color: var(--color-primary);
+}
+
+[data-theme="dark"] .inviteInput:focus {
+  border-color: var(--color-primary-dark);
+}
+
 .inviteActions {
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
   margin-top: 0.5rem;
 }
+
 .cancelButton {
-  background: #f3f4f6;
-  color: #333;
+  background: var(--color-gray-100);
+  color: var(--color-gray-800);
   border: none;
   border-radius: 6px;
   padding: 0.6rem 1.2rem;
@@ -159,9 +291,20 @@
   cursor: pointer;
   transition: background 0.2s;
 }
-.cancelButton:hover {
-  background: #e5e7eb;
+
+[data-theme="dark"] .cancelButton {
+  background: var(--color-dark-surface-hover);
+  color: var(--color-dark-text);
 }
+
+.cancelButton:hover {
+  background: var(--color-gray-200);
+}
+
+[data-theme="dark"] .cancelButton:hover {
+  background: var(--color-dark-border);
+}
+
 @media (max-width: 600px) {
   .guildProfilePage {
     padding: 1rem 0.2rem;
@@ -182,4 +325,4 @@
     padding: 1.2rem 0.7rem;
     min-width: 0;
   }
-} 
+}

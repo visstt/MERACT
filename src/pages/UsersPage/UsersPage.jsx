@@ -1,42 +1,46 @@
-import { useState, useEffect } from 'react';
-import { Card, Button } from '../../shared/ui';
-import styles from './UsersPage.module.css';
-import api from '../../shared/lib/axios';
+import { useState, useEffect } from "react";
+import { Card, Button } from "../../shared/ui";
+import styles from "./UsersPage.module.css";
+import api from "../../shared/lib/axios";
 
 const STATUS_MAP = {
-  ACTIVE: 'active',
-  WARNED: 'warning',
-  BLOCKED: 'blocked',
+  ACTIVE: "active",
+  WARNED: "warning",
+  BLOCKED: "blocked",
 };
 
 export const UsersPage = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [isMobileCardView, setIsMobileCardView] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
-      setError('');
+      setError("");
       try {
-        const res = await api.get('/user/all-users');
+        const res = await api.get("/user/all-users");
         // Convert data to required UI format
-        setUsers(res.data.map(u => ({
-          id: u.id,
-          username: u.login || u.email,
-          email: u.email,
-          status: STATUS_MAP[u.status] || 'active',
-          lastActive: u.lastActivity,
-          warnings: u.warnings,
-          streamCount: u.streams,
-          followers: u.followers,
-        })).sort((a, b) => a.email.localeCompare(b.email)));
+        setUsers(
+          res.data
+            .map((u) => ({
+              id: u.id,
+              username: u.login || u.email,
+              email: u.email,
+              status: STATUS_MAP[u.status] || "active",
+              lastActive: u.lastActivity,
+              warnings: u.warnings,
+              streamCount: u.streams,
+              followers: u.followers,
+            }))
+            .sort((a, b) => a.email.localeCompare(b.email))
+        );
       } catch (e) {
-        setError('Failed to load users');
+        setError("Failed to load users");
       } finally {
         setLoading(false);
       }
@@ -47,52 +51,58 @@ export const UsersPage = () => {
   useEffect(() => {
     const checkMobile = () => setIsMobileCardView(window.innerWidth <= 480);
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+      user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      statusFilter === "all" || user.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   const handleUserAction = async (userId, action) => {
-    let url = '';
-    if (action === 'warn') url = `/user/issue-warning?userId=${userId}`;
-    if (action === 'block') url = `/user/block-user?userId=${userId}`;
-    if (action === 'unblock') url = `/user/unblock-user?userId=${userId}`;
-    if (action === 'delete') url = `/user/delete-user?userId=${userId}`;
+    let url = "";
+    if (action === "warn") url = `/user/issue-warning?userId=${userId}`;
+    if (action === "block") url = `/user/block-user?userId=${userId}`;
+    if (action === "unblock") url = `/user/unblock-user?userId=${userId}`;
+    if (action === "delete") url = `/user/delete-user?userId=${userId}`;
     try {
       await api.post(url);
       // Refresh users after action
-      const res = await api.get('/user/all-users');
-      setUsers(res.data.map(u => ({
-        id: u.id,
-        username: u.login || u.email,
-        email: u.email,
-        status: STATUS_MAP[u.status] || 'active',
-        lastActive: u.lastActivity,
-        warnings: u.warnings,
-        streamCount: u.streams,
-        followers: u.followers,
-      })).sort((a, b) => a.email.localeCompare(b.email)));
+      const res = await api.get("/user/all-users");
+      setUsers(
+        res.data
+          .map((u) => ({
+            id: u.id,
+            username: u.login || u.email,
+            email: u.email,
+            status: STATUS_MAP[u.status] || "active",
+            lastActive: u.lastActivity,
+            warnings: u.warnings,
+            streamCount: u.streams,
+            followers: u.followers,
+          }))
+          .sort((a, b) => a.email.localeCompare(b.email))
+      );
     } catch (e) {
-      alert('Action failed');
+      alert("Action failed");
     }
   };
 
   const handleSelectUser = (userId) => {
-    setSelectedUsers(prev => 
-      prev.includes(userId) 
-        ? prev.filter(id => id !== userId)
+    setSelectedUsers((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
         : [...prev, userId]
     );
   };
 
   const handleBulkAction = (action) => {
-    selectedUsers.forEach(userId => {
+    selectedUsers.forEach((userId) => {
       handleUserAction(userId, action);
     });
     setSelectedUsers([]);
@@ -100,13 +110,17 @@ export const UsersPage = () => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      active: { label: 'Active', className: 'success' },
-      warning: { label: 'Warning', className: 'warning' },
-      blocked: { label: 'Blocked', className: 'error' }
+      active: { label: "Active", className: "success" },
+      warning: { label: "Warning", className: "warning" },
+      blocked: { label: "Blocked", className: "error" },
     };
-    
+
     const config = statusConfig[status] || statusConfig.active;
-    return <span className={`${styles.statusBadge} ${styles[config.className]}`}>{config.label}</span>;
+    return (
+      <span className={`${styles.statusBadge} ${styles[config.className]}`}>
+        {config.label}
+      </span>
+    );
   };
 
   return (
@@ -116,7 +130,6 @@ export const UsersPage = () => {
           <h1 className={styles.title}>User Management</h1>
           <p className={styles.subtitle}>Manage accounts and moderate users</p>
         </div>
-        <Button variant="primary">Export data</Button>
       </div>
 
       <Card padding="lg" className={styles.filtersCard}>
@@ -140,29 +153,29 @@ export const UsersPage = () => {
               <option value="blocked">Blocked</option>
             </select>
           </div>
-          
+
           {selectedUsers.length > 0 && (
             <div className={styles.bulkActions}>
               <span className={styles.selectedCount}>
                 Selected: {selectedUsers.length}
               </span>
               <div className={styles.bulkButtons}>
-                <Button 
-                  variant="warning" 
+                <Button
+                  variant="warning"
                   size="sm"
-                  onClick={() => handleBulkAction('warn')}
+                  onClick={() => handleBulkAction("warn")}
                 >
                   Warn
                 </Button>
-                <Button 
-                  variant="error" 
+                <Button
+                  variant="error"
                   size="sm"
-                  onClick={() => handleBulkAction('block')}
+                  onClick={() => handleBulkAction("block")}
                 >
                   Block
                 </Button>
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="sm"
                   onClick={() => setSelectedUsers([])}
                 >
@@ -177,9 +190,11 @@ export const UsersPage = () => {
       {!isMobileCardView && (
         <Card padding="none" className={styles.tableCard}>
           <div className={styles.tableHeader}>
-            <h2 className={styles.tableTitle}>User list ({filteredUsers.length})</h2>
+            <h2 className={styles.tableTitle}>
+              User list ({filteredUsers.length})
+            </h2>
           </div>
-          
+
           <div className={styles.tableWrapper}>
             <table className={styles.table}>
               <thead>
@@ -189,12 +204,15 @@ export const UsersPage = () => {
                       type="checkbox"
                       onChange={(e) => {
                         if (e.target.checked) {
-                          setSelectedUsers(filteredUsers.map(u => u.id));
+                          setSelectedUsers(filteredUsers.map((u) => u.id));
                         } else {
                           setSelectedUsers([]);
                         }
                       }}
-                      checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0}
+                      checked={
+                        selectedUsers.length === filteredUsers.length &&
+                        filteredUsers.length > 0
+                      }
                     />
                   </th>
                   <th>User</th>
@@ -208,7 +226,12 @@ export const UsersPage = () => {
               </thead>
               <tbody>
                 {filteredUsers.map((user) => (
-                  <tr key={user.id} className={selectedUsers.includes(user.id) ? styles.selected : ''}>
+                  <tr
+                    key={user.id}
+                    className={
+                      selectedUsers.includes(user.id) ? styles.selected : ""
+                    }
+                  >
                     <td>
                       <input
                         type="checkbox"
@@ -230,7 +253,11 @@ export const UsersPage = () => {
                     <td>{getStatusBadge(user.status)}</td>
                     <td className={styles.lastActive}>{user.lastActive}</td>
                     <td>
-                      <span className={`${styles.warningBadge} ${user.warnings > 0 ? styles.hasWarnings : ''}`}>
+                      <span
+                        className={`${styles.warningBadge} ${
+                          user.warnings > 0 ? styles.hasWarnings : ""
+                        }`}
+                      >
                         {user.warnings}
                       </span>
                     </td>
@@ -241,22 +268,27 @@ export const UsersPage = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleUserAction(user.id, 'warn')}
-                          disabled={user.status === 'blocked'}
+                          onClick={() => handleUserAction(user.id, "warn")}
+                          disabled={user.status === "blocked"}
                         >
                           ⚠️
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleUserAction(user.id, user.status === 'blocked' ? 'unblock' : 'block')}
+                          onClick={() =>
+                            handleUserAction(
+                              user.id,
+                              user.status === "blocked" ? "unblock" : "block"
+                            )
+                          }
                         >
-                          {user.status === 'blocked' ? '✅' : '🚫'}
+                          {user.status === "blocked" ? "✅" : "🚫"}
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleUserAction(user.id, 'delete')}
+                          onClick={() => handleUserAction(user.id, "delete")}
                         >
                           🗑️
                         </Button>
@@ -266,7 +298,7 @@ export const UsersPage = () => {
                 ))}
               </tbody>
             </table>
-            
+
             {filteredUsers.length === 0 && (
               <div className={styles.emptyState}>
                 <div className={styles.emptyIcon}>👥</div>
@@ -281,10 +313,12 @@ export const UsersPage = () => {
       )}
       {isMobileCardView && (
         <div className={styles.userCards}>
-          {filteredUsers.map(user => (
+          {filteredUsers.map((user) => (
             <div key={user.id} className={styles.userCard}>
               <div className={styles.userCardHeader}>
-                <div className={styles.userCardAvatar}>{user.username.charAt(0).toUpperCase()}</div>
+                <div className={styles.userCardAvatar}>
+                  {user.username.charAt(0).toUpperCase()}
+                </div>
                 <div className={styles.userCardInfo}>
                   <div className={styles.userCardName}>{user.username}</div>
                   <div className={styles.userCardEmail}>{user.email}</div>
@@ -303,22 +337,27 @@ export const UsersPage = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleUserAction(user.id, 'warn')}
-                  disabled={user.status === 'blocked'}
+                  onClick={() => handleUserAction(user.id, "warn")}
+                  disabled={user.status === "blocked"}
                 >
                   ⚠️
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleUserAction(user.id, user.status === 'blocked' ? 'unblock' : 'block')}
+                  onClick={() =>
+                    handleUserAction(
+                      user.id,
+                      user.status === "blocked" ? "unblock" : "block"
+                    )
+                  }
                 >
-                  {user.status === 'blocked' ? '✅' : '🚫'}
+                  {user.status === "blocked" ? "✅" : "🚫"}
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleUserAction(user.id, 'delete')}
+                  onClick={() => handleUserAction(user.id, "delete")}
                 >
                   🗑️
                 </Button>

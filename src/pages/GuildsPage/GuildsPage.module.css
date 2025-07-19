@@ -7,14 +7,26 @@
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-bold);
   color: var(--color-white);
+  background: var(--color-primary);
   box-shadow: 0 2px 8px rgba(44, 62, 80, 0.12);
   letter-spacing: 0.5px;
   z-index: 2;
 }
+
+[data-theme="dark"] .guildBadge {
+  background: var(--color-primary-dark);
+  color: var(--color-dark-text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
 .guildsPage {
   padding: var(--spacing-xl);
   background: var(--color-gray-50);
   min-height: 100vh;
+}
+
+[data-theme="dark"] .guildsPage {
+  background: var(--color-dark-bg);
 }
 
 .header {
@@ -25,11 +37,19 @@
   margin-bottom: var(--spacing-xl);
 }
 
+[data-theme="dark"] .header {
+  color: var(--color-dark-text);
+}
+
 .title {
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-gray-800);
   margin: 0;
+}
+
+[data-theme="dark"] .title {
+  color: var(--color-dark-text);
 }
 
 .guildCard {
@@ -50,16 +70,33 @@
   overflow: hidden;
   position: relative;
 }
+
+[data-theme="dark"] .guildCard {
+  background: var(--color-dark-surface);
+  border-color: var(--color-dark-border);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
 .guildCard:hover {
   box-shadow: 0 12px 40px rgba(44, 62, 80, 0.18);
   border-color: var(--color-primary);
   transform: translateY(-4px) scale(1.02);
 }
+
+[data-theme="dark"] .guildCard:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  border-color: var(--color-primary-dark);
+}
+
 .list {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-xl);
   justify-content: flex-start;
+}
+
+[data-theme="dark"] .list {
+  background: var(--color-dark-bg);
 }
 
 .guildImage {
@@ -69,12 +106,18 @@
   background: var(--color-gray-100);
   display: block;
 }
+
+[data-theme="dark"] .guildImage {
+  background: var(--color-dark-surface);
+  filter: brightness(0.7);
+}
+
 .guildAvatar {
   position: absolute;
   top: 16px;
   left: 16px;
-  width: 64px;
-  height: 64px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   background: linear-gradient(
     90deg,
@@ -90,22 +133,14 @@
   z-index: 2;
 }
 
-.guildAvatar {
-  width: 100%;
-  height: 120px;
-  border-radius: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.8rem;
+[data-theme="dark"] .guildAvatar {
   background: linear-gradient(
     90deg,
-    var(--color-primary-light),
+    var(--color-primary-dark),
     var(--color-primary)
   );
-  color: var(--color-white);
-  box-shadow: none;
-  margin: 0;
+  color: var(--color-dark-text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .info {
@@ -117,9 +152,15 @@
   align-items: flex-start;
   background: var(--color-white);
 }
+
+[data-theme="dark"] .info {
+  background: var(--color-dark-surface);
+  color: var(--color-dark-text);
+}
+
 .guildName {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-primary-dark);
   margin-bottom: var(--spacing-xs);
   background: var(--color-gray-100);
@@ -129,15 +170,27 @@
   text-align: center;
   margin-top: 8px;
 }
+
+[data-theme="dark"] .guildName {
+  color: var(--color-dark-text);
+  background: var(--color-dark-surface-hover);
+}
+
 .guildMotto {
   font-size: var(--font-size-base);
-  color: var(--color-primary);
-  margin-bottom: var(--spacing-md);
+  color: var(--color-gray-600);
+  margin-bottom: var(--spacing-sm);
   background: var(--color-primary-light);
   padding: 6px 16px;
   border-radius: var(--radius-md);
   width: fit-content;
 }
+
+[data-theme="dark"] .guildMotto {
+  color: var(--color-dark-text-muted);
+  background: var(--color-dark-surface-hover);
+}
+
 .guildDescription {
   font-size: var(--font-size-base);
   color: var(--color-gray-800);
@@ -153,11 +206,18 @@
   box-shadow: 0 1px 6px rgba(44, 62, 80, 0.08);
   margin-top: 8px;
 }
+
+[data-theme="dark"] .guildDescription {
+  color: var(--color-dark-text);
+  background: var(--color-dark-surface-hover);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+}
+
 .guildMeta {
   display: flex;
   gap: var(--spacing-lg);
-  font-size: var(--font-size-base);
-  color: var(--color-primary-dark);
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-700);
   margin-bottom: var(--spacing-lg);
   width: 100%;
   padding-top: 4px;
@@ -165,45 +225,18 @@
   border-radius: var(--radius-md);
   padding: 10px 18px;
 }
+
+[data-theme="dark"] .guildMeta {
+  color: var(--color-dark-text-muted);
+  background: var(--color-dark-surface-hover);
+}
+
 .guildMetaItem {
   font-weight: var(--font-weight-semibold);
 }
 
-.guildAvatar {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.2rem;
-  margin-right: var(--spacing-xl);
-  box-shadow: var(--shadow-sm);
-}
-
-.info {
-  flex: 1;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.guildName {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-primary-dark);
-  margin-bottom: var(--spacing-xs);
-}
-.guildMotto {
-  font-size: var(--font-size-base);
-  color: var(--color-gray-600);
-  margin-bottom: var(--spacing-sm);
-}
-.guildMeta {
-  display: flex;
-  gap: var(--spacing-lg);
-  font-size: var(--font-size-sm);
-  color: var(--color-gray-700);
+[data-theme="dark"] .guildMetaItem {
+  color: var(--color-dark-text);
 }
 
 .guildButton {
@@ -213,7 +246,7 @@
     var(--color-primary),
     var(--color-primary-dark)
   );
-  color: #fff;
+  color: var(--color-white);
   border: none;
   border-radius: 32px;
   font-size: 1.1rem;
@@ -225,6 +258,17 @@
   display: block;
   margin-top: 12px;
 }
+
+[data-theme="dark"] .guildButton {
+  background: linear-gradient(
+    90deg,
+    var(--color-primary-dark),
+    var(--color-primary)
+  );
+  color: var(--color-dark-text);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
 .guildButton:hover {
   background: linear-gradient(
     90deg,
@@ -232,6 +276,14 @@
     var(--color-primary)
   );
   transform: translateY(-2px) scale(1.04);
+}
+
+[data-theme="dark"] .guildButton:hover {
+  background: linear-gradient(
+    90deg,
+    var(--color-primary),
+    var(--color-primary-dark)
+  );
 }
 
 .filters {
@@ -247,59 +299,113 @@
   justify-content: flex-end;
 }
 
+[data-theme="dark"] .filters {
+  background: var(--color-dark-surface);
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+}
+
 .modalOverlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.25);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.25);
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
+[data-theme="dark"] .modalOverlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
 .modal {
-  background: #fff;
+  background: var(--color-white);
   border-radius: 14px;
-  box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.18);
   padding: 2rem 2.5rem;
   min-width: 420px;
   max-width: 600px;
 }
+
+[data-theme="dark"] .modal {
+  background: var(--color-dark-surface);
+  color: var(--color-dark-text);
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.4);
+}
+
 .form {
   display: flex;
   flex-direction: column;
   gap: 1.1rem;
 }
+
+[data-theme="dark"] .form {
+  color: var(--color-dark-text);
+}
+
 .form label {
   display: flex;
   flex-direction: column;
   font-size: 1rem;
-  color: #333;
+  color: var(--color-gray-800);
   gap: 0.3rem;
 }
-.form input, .form textarea, .form select {
+
+[data-theme="dark"] .form label {
+  color: var(--color-dark-text);
+}
+
+.form input,
+.form textarea,
+.form select {
   padding: 0.6rem 1rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--color-gray-300);
   border-radius: 6px;
   font-size: 1rem;
   outline: none;
+  background: var(--color-white);
+  color: var(--color-gray-800);
   transition: border 0.2s;
 }
+
+[data-theme="dark"] .form input,
+[data-theme="dark"] .form textarea,
+[data-theme="dark"] .form select {
+  background: var(--color-dark-surface-hover);
+  color: var(--color-dark-text);
+  border-color: var(--color-dark-border);
+}
+
 .form textarea {
   min-height: 60px;
   resize: vertical;
 }
-.form input:focus, .form textarea:focus, .form select:focus {
-  border-color: #6366f1;
+
+.form input:focus,
+.form textarea:focus,
+.form select:focus {
+  border-color: var(--color-primary);
 }
+
+[data-theme="dark"] .form input:focus,
+[data-theme="dark"] .form textarea:focus,
+[data-theme="dark"] .form select:focus {
+  border-color: var(--color-primary-dark);
+}
+
 .modalActions {
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
   margin-top: 0.5rem;
 }
+
 .primaryButton {
-  background: #6366f1;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-white);
   border: none;
   border-radius: 6px;
   padding: 0.6rem 1.2rem;
@@ -308,15 +414,23 @@
   cursor: pointer;
   transition: background 0.2s;
 }
-.primaryButton:hover {
-  background: #4f46e5;
+
+[data-theme="dark"] .primaryButton {
+  background: var(--color-primary-dark);
+  color: var(--color-dark-text);
 }
 
+.primaryButton:hover {
+  background: var(--color-primary-dark);
+}
 
+[data-theme="dark"] .primaryButton:hover {
+  background: var(--color-primary);
+}
 
 .cancelButton {
-  background: #f3f4f6;
-  color: #333;
+  background: var(--color-gray-100);
+  color: var(--color-gray-800);
   border: none;
   border-radius: 6px;
   padding: 0.6rem 1.2rem;
@@ -324,76 +438,32 @@
   cursor: pointer;
   transition: background 0.2s;
 }
-.cancelButton:hover {
-  background: #e5e7eb;
+
+[data-theme="dark"] .cancelButton {
+  background: var(--color-dark-surface-hover);
+  color: var(--color-dark-text);
 }
+
+.cancelButton:hover {
+  background: var(--color-gray-200);
+}
+
+[data-theme="dark"] .cancelButton:hover {
+  background: var(--color-dark-border);
+}
+
 .error {
-  color: #dc2626;
-  background: #fee2e2;
+  color: var(--color-error);
+  background: var(--color-gray-100);
   border-radius: 4px;
   padding: 0.5rem 1rem;
   font-size: 0.95rem;
   text-align: center;
 }
 
-[data-theme="dark"] .guildCard {
-  background: #23272f;
-  color: #fff;
-  border-color: #333;
-}
-[data-theme="dark"] .guildImage {
-  background: #181a20;
-  filter: brightness(0.7);
-}
-[data-theme="dark"] .info {
-  background: #23272f;
-  color: #fff;
-}
-[data-theme="dark"] .guildName {
-  color: #fff;
-  background: #181a20;
-}
-[data-theme="dark"] .guildMotto {
-  color: #a5b4fc;
-  background: #23272f;
-}
-[data-theme="dark"] .guildDescription {
-  color: #cbd5e1;
-  background: #181a20;
-}
-[data-theme="dark"] .guildMeta {
-  color: #a5b4fc;
-  background: #181a20;
-}
-[data-theme="dark"] .guildButton {
-  background: #6366f1;
-  color: #fff;
-}
-[data-theme="dark"] .guildButton:hover {
-  background: #4f46e5;
-}
-[data-theme="dark"] .modalOverlay {
-  background: rgba(20,20,20,0.7);
-}
-[data-theme="dark"] .modal {
-  background: #23272f;
-  color: #fff;
-}
-[data-theme="dark"] .form input,
-[data-theme="dark"] .form textarea,
-[data-theme="dark"] .form select {
-  background: #181a20;
-  color: #fff;
-  border-color: #333;
-}
-[data-theme="dark"] .form input:focus,
-[data-theme="dark"] .form textarea:focus,
-[data-theme="dark"] .form select:focus {
-  border-color: #6366f1;
-}
 [data-theme="dark"] .error {
-  background: #7f1d1d;
-  color: #fff;
+  background: var(--color-dark-surface-hover);
+  color: var(--color-error);
 }
 
 .guildActions {
@@ -405,6 +475,7 @@
   margin-top: 1.2em;
   margin-bottom: 1.2em;
 }
+
 .guildActionButton {
   border: none;
   border-radius: 6px;
@@ -419,24 +490,51 @@
   padding: 0 0.7rem;
   transition: background 0.2s;
 }
+
 .editButton {
-  background: #2563eb;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-white);
 }
+
+[data-theme="dark"] .editButton {
+  background: var(--color-primary-dark);
+  color: var(--color-dark-text);
+}
+
 .editButton:hover {
-  background: #1d4ed8;
+  background: var(--color-primary-dark);
 }
+
+[data-theme="dark"] .editButton:hover {
+  background: var(--color-primary);
+}
+
 .deleteButton {
-  background: #dc2626;
-  color: #fff;
+  background: var(--color-error);
+  color: var(--color-white);
 }
+
+[data-theme="dark"] .deleteButton {
+  background: var(--color-error);
+  color: var(--color-dark-text);
+}
+
 .deleteButton:hover {
-  background: #b91c1c;
+  background: var(--color-error);
 }
+
+[data-theme="dark"] .deleteButton:hover {
+  background: var(--color-error);
+}
+
 .guildActionButton svg {
   margin-right: 0.2em;
   width: 16px;
   height: 16px;
+}
+
+[data-theme="dark"] .guildActionButton svg {
+  stroke: var(--color-dark-text);
 }
 
 @media (max-width: 700px) {
@@ -459,15 +557,34 @@
     transition: box-shadow 0.2s, background 0.2s, border-color 0.2s;
     outline: none;
   }
+  [data-theme="dark"] .select {
+    background: linear-gradient(
+      90deg,
+      var(--color-dark-surface-hover) 0%,
+      var(--color-dark-surface) 100%
+    );
+    color: var(--color-dark-text);
+    border-color: var(--color-dark-border);
+  }
   .select:focus {
     background: linear-gradient(
       90deg,
       var(--color-primary-light) 0%,
       var(--color-primary) 100%
     );
-    color: #fff;
+    color: var(--color-white);
     box-shadow: 0 0 0 2px var(--color-primary);
     border-color: var(--color-primary);
+  }
+  [data-theme="dark"] .select:focus {
+    background: linear-gradient(
+      90deg,
+      var(--color-primary-dark) 0%,
+      var(--color-primary) 100%
+    );
+    color: var(--color-dark-text);
+    box-shadow: 0 0 0 2px var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
   }
 }
 
@@ -499,7 +616,9 @@
     font-size: 1.1rem;
     padding: 6px 10px;
   }
-  .guildMotto, .guildDescription, .guildMeta {
+  .guildMotto,
+  .guildDescription,
+  .guildMeta {
     font-size: 0.95rem;
     padding: 6px 10px;
   }

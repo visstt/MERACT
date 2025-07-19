@@ -26,30 +26,30 @@ const menuItems = [
     icon: "🏰",
     path: "/guilds",
   },
-  {
-    id: "content",
-    label: "Content & Media",
-    icon: "🎬",
-    path: "/content",
-  },
-  {
-    id: "moderation",
-    label: "Moderation",
-    icon: "🛡️",
-    path: "/moderation",
-  },
-  {
-    id: "analytics",
-    label: "Analytics",
-    icon: "📈",
-    path: "/analytics",
-  },
-  {
-    id: "settings",
-    label: "System Settings",
-    icon: "⚙️",
-    path: "/settings",
-  },
+  // {
+  //   id: "content",
+  //   label: "Content & Media",
+  //   icon: "🎬",
+  //   path: "/content",
+  // },
+  // {
+  //   id: "moderation",
+  //   label: "Moderation",
+  //   icon: "🛡️",
+  //   path: "/moderation",
+  // },
+  // {
+  //   id: "analytics",
+  //   label: "Analytics",
+  //   icon: "📈",
+  //   path: "/analytics",
+  // },
+  // {
+  //   id: "settings",
+  //   label: "System Settings",
+  //   icon: "⚙️",
+  //   path: "/settings",
+  // },
 ];
 
 export const Sidebar = ({
@@ -60,9 +60,13 @@ export const Sidebar = ({
   open = false,
   user,
 }) => {
-  const userName = user?.login || user?.email || 'Super Admin';
+  const userName = user?.login || user?.email || "Super Admin";
   return (
-    <aside className={`${styles.sidebar} ${collapsed ? styles.collapsed : ''} ${open ? styles.open : ''}`}>
+    <aside
+      className={`${styles.sidebar} ${collapsed ? styles.collapsed : ""} ${
+        open ? styles.open : ""
+      }`}
+    >
       <div className={styles.header}>
         <div className={styles.logo}>
           <span className={styles.logoIcon}>🎮</span>
