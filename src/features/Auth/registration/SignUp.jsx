@@ -19,7 +19,7 @@ export default function SignUp() {
 
   return (
     <div className={styles.login_wrapper}>
-      <h1>Sign Up</h1>
+      <h1>MERACT</h1>
       <form
         className={styles.login_form}
         autoComplete="off"
