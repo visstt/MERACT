@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import { useNavigate } from "react-router-dom";
+
 import styles from "./Login.module.css";
 import { useAuth } from "./hooks/useAuth";
 
@@ -7,6 +9,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { signIn, loading, error } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,7 +44,15 @@ export default function Login() {
           <input type="checkbox" id="check" />
           <label htmlFor="check">Remember Password</label>
         </div>
-        <a href="#">Forget Password?</a>
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            navigate("/forgot-password");
+          }}
+        >
+          Forget Password?
+        </a>
         <button
           type="submit"
           className={styles.login_button}
