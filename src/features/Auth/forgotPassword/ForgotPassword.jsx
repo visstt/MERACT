@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
-import styles from "../Auth/Login/Login.module.css";
+import styles from "../Login/Login.module.css";
 import { useChangePassword } from "./hooks/useChangePassword";
 import { useForgotPassword } from "./hooks/useForgotPassword";
 import { useVerifyCode } from "./hooks/useVerifyCode";
@@ -51,7 +51,7 @@ export default function ForgotPassword() {
     const ok = await changePassword(userId, password);
     if (ok) {
       setStep(4);
-      setTimeout(() => navigate(-1), 1500);
+      setTimeout(() => navigate("/"), 1500);
     }
   };
 

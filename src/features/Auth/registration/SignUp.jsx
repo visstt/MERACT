@@ -2,23 +2,24 @@ import { useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
-import styles from "./Login.module.css";
-import { useAuth } from "./hooks/useAuth";
+import styles from "../Login/Login.module.css";
+import { useSignUp } from "./hooks/useSignUp";
 
-export default function Login() {
+export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { signIn, loading, error } = useAuth();
+  const { signUp, loading, error, success } = useSignUp();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await signIn(email, password);
+    const ok = await signUp(email, password);
+    if (ok) setTimeout(() => navigate("/"), 1500);
   };
 
   return (
     <div className={styles.login_wrapper}>
-      <h1>MERACT</h1>
+      <h1>Sign Up</h1>
       <form
         className={styles.login_form}
         autoComplete="off"
@@ -26,50 +27,46 @@ export default function Login() {
       >
         <div className={styles.input_wrapper}>
           <input
-            type="text"
+            type="email"
             placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            disabled={loading}
+            disabled={loading || success}
           />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            disabled={loading}
+            disabled={loading || success}
           />
+          <div className={styles.checkbox_wrapper}>
+            <input type="checkbox" id="check" />
+            <label htmlFor="check">Remember Password</label>
+          </div>
         </div>
-        <div className={styles.checkbox_wrapper}>
-          <input type="checkbox" id="check" />
-          <label htmlFor="check">Remember Password</label>
-        </div>
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            navigate("/forgot-password");
-          }}
-        >
-          Forget Password?
-        </a>
         <button
           type="submit"
           className={styles.login_button}
-          disabled={loading}
+          disabled={loading || !email || !password || success}
         >
-          {loading ? "Loading..." : "Login"}
+          {loading ? "Registering..." : "Sign Up"}
         </button>
         {error && (
           <p style={{ color: "#ff6a6a", marginTop: 8, textAlign: "center" }}>
             {error}
           </p>
         )}
+        {success && (
+          <p style={{ color: "#58d0ff", marginTop: 16, textAlign: "center" }}>
+            Registration successful!
+          </p>
+        )}
         <p
           style={{ cursor: "pointer", textDecoration: "underline" }}
-          onClick={() => navigate("/registration")}
+          onClick={() => navigate("/login")}
         >
-          SIGN UP
+          SIGN IN
         </p>
       </form>
       <p>OR</p>

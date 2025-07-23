@@ -2,15 +2,18 @@ import { useState } from "react";
 
 import api from "../../../../shared/api/api";
 
-export function useChangePassword() {
+export function useSignUp() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
-  async function changePassword(userId, password) {
+  async function signUp(email, password) {
     setLoading(true);
     setError("");
+    setSuccess(false);
     try {
-      await api.post("/auth/change-password", { userId, password });
+      await api.post("/auth/sign-up", { email, password });
+      setSuccess(true);
       setLoading(false);
       return true;
     } catch (e) {
@@ -20,5 +23,5 @@ export function useChangePassword() {
     }
   }
 
-  return { changePassword, loading, error };
+  return { signUp, loading, error, success };
 }
