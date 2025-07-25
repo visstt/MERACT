@@ -14,7 +14,7 @@ export default function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const ok = await signUp(email, password);
-    if (ok) setTimeout(() => navigate("/"), 1500);
+    if (ok) setTimeout(() => navigate("/acts"), 1500);
   };
 
   return (

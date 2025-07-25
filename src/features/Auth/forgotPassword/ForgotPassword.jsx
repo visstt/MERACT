@@ -51,7 +51,7 @@ export default function ForgotPassword() {
     const ok = await changePassword(userId, password);
     if (ok) {
       setStep(4);
-      setTimeout(() => navigate("/"), 1500);
+      setTimeout(() => navigate("/acts"), 1500);
     }
   };
 

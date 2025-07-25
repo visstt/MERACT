@@ -4,15 +4,16 @@ import Login from "../../features/Auth/Login/Login";
 import RequireAuth from "../../features/Auth/RequireAuth";
 import ForgotPassword from "../../features/Auth/forgotPassword/ForgotPassword";
 import SignUp from "../../features/Auth/registration/SignUp";
-import HomePage from "../../pages/homePage/HomePage";
+import ActsPage from "../../pages/acts/ActsPage";
+import StartStream from "../../pages/StartStream";
 
 export const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/acts",
     element: (
-      <RequireAuth>
-        <HomePage />
-      </RequireAuth>
+      // <RequireAuth>
+        <ActsPage />
+      // </RequireAuth>
     ),
   },
   {
@@ -26,5 +27,9 @@ export const router = createBrowserRouter([
   {
     path: "/forgot-password",
     element: <ForgotPassword />,
+  },
+  {
+    path: "/start-stream",
+    element: <StartStream />,
   },
 ]);
