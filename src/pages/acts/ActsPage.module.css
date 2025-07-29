@@ -61,6 +61,21 @@
   gap: 7px;
   flex-wrap: wrap;
 }
+
+.streamsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.loading {
+  text-align: center;
+  color: #fff;
+  font-size: 18px;
+  margin-top: 40px;
+}
+
 .addActButton {
   display: flex;
   align-items: center;
