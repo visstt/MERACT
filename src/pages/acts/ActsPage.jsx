@@ -1,6 +1,7 @@
 import React from "react";
 
 import CustomSelect from "../../shared/ui/CustomSelect";
+import NavBar from "../../shared/ui/NavBar/NavBar";
 import styles from "./ActsPage.module.css";
 import ActCard from "./components/ActCard";
 
@@ -84,6 +85,7 @@ export default function ActsPage() {
             }}
           />
         </div>
+        <NavBar />
       </div>
     </div>
   );
