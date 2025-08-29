@@ -1,40 +1,13 @@
-import { useEffect, useState } from "react";
+import React from "react";
 
-import { getActiveStreams } from "../../services/streamApi.js";
 import CustomSelect from "../../shared/ui/CustomSelect";
 import styles from "./ActsPage.module.css";
 import ActCard from "./components/ActCard";
 
 export default function ActsPage() {
-  const [streams, setStreams] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   const handleSortChange = (option) => {
     console.log("Selected sort option:", option);
   };
-
-  useEffect(() => {
-    const loadStreams = async () => {
-      try {
-        setLoading(true);
-        const activeStreams = await getActiveStreams();
-        console.log("Loaded active streams:", activeStreams);
-        setStreams(activeStreams);
-      } catch (error) {
-        console.error("Error loading streams:", error);
-        // Показываем mock карточку если не удалось загрузить
-        setStreams([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadStreams();
-
-    // Обновляем список каждые 30 секунд
-    const interval = setInterval(loadStreams, 30000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <div>
@@ -92,28 +65,25 @@ export default function ActsPage() {
           <button className={styles.addActButton}>ADD ACT</button>
         </form>
 
-        {loading ? (
-          <div className={styles.loading}>Загрузка стримов...</div>
-        ) : (
-          <div className={styles.streamsList}>
-            {streams.length > 0 ? (
-              streams.map((stream) => (
-                <ActCard
-                  key={stream.id}
-                  streamData={{
-                    ...stream,
-                    streamId: stream.id, // Маппим id в streamId для совместимости
-                    status: "ONLINE", // Добавляем статус, так как все активные стримы онлайн
-                    previewFileName: null, // Пока нет превью
-                  }}
-                />
-              ))
-            ) : (
-              // Показываем mock карточку если нет активных стримов
-              <ActCard />
-            )}
-          </div>
-        )}
+        <div className={styles.streamsList}>
+          {/* Моковые карточки для примера */}
+          <ActCard
+            streamData={{
+              streamName: "Voices in the Crowd",
+              status: "ONLINE",
+              startedAt: new Date().toISOString(),
+              previewFileName: null,
+            }}
+          />
+          <ActCard
+            streamData={{
+              streamName: "Another Stream",
+              status: "ONLINE",
+              startedAt: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+              previewFileName: null,
+            }}
+          />
+        </div>
       </div>
     </div>
   );
