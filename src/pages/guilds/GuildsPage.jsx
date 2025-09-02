@@ -1,21 +1,17 @@
-import React from "react";
-
 import CustomSelect from "../../shared/ui/CustomSelect";
-import NavBar from "../../shared/ui/NavBar/NavBar";
-import styles from "./ActsPage.module.css";
-import ActCard from "./components/ActCard";
+import styles from "./GuildsPage.module.css";
+import GuildCard from "./components/GuildCard";
 
-export default function ActsPage() {
+export default function GuildsPage() {
   const handleSortChange = (option) => {
     console.log("Selected sort option:", option);
   };
-
   return (
     <div>
       <div className="header">
         <div className="name">
           <img src="/icons/back_arrow.svg" alt="back_arrow" />
-          <h1>ACTS</h1>
+          <h1>GUILDS</h1>
         </div>
         <div className="nav">
           <input type="text" placeholder="Search..." />
@@ -24,7 +20,7 @@ export default function ActsPage() {
       </div>
       <div className="stripe"></div>
 
-      <div className={styles.actsPage}>
+      <div className={styles.guildsPage}>
         <form className={styles.form}>
           <CustomSelect
             defaultValue="Language"
@@ -63,28 +59,17 @@ export default function ActsPage() {
             options={["Active", "Inactive"]}
             onChange={handleSortChange}
           />
-          <button className={styles.addActButton}>ADD ACT</button>
         </form>
 
-        <div className={styles.streamsList}>
-          <ActCard
-            streamData={{
-              streamName: "Voices in the Crowd",
-              status: "ONLINE",
-              startedAt: new Date().toISOString(),
-              previewFileName: null,
-            }}
-          />
-          <ActCard
-            streamData={{
-              streamName: "Another Stream",
-              status: "ONLINE",
-              startedAt: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
-              previewFileName: null,
-            }}
-          />
+        <div className={styles.recommendations}>
+          <div className={styles.stripeDefault}></div>
+          <p>Recommended for You</p>
+          <div className={styles.stripeDefault}></div>
         </div>
-        <NavBar />
+
+        <div className={styles.guildCards}>
+          <GuildCard />
+        </div>
       </div>
     </div>
   );
