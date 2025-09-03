@@ -1,4 +1,5 @@
 import CustomSelect from "../../shared/ui/CustomSelect";
+import NavBar from "../../shared/ui/NavBar/NavBar";
 import styles from "./GuildsPage.module.css";
 import GuildCard from "./components/GuildCard";
 
@@ -73,6 +74,7 @@ export default function GuildsPage() {
           <GuildCard />
         </div>
       </div>
+      <NavBar />
     </div>
   );
 }
