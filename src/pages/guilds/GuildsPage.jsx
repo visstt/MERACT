@@ -69,6 +69,8 @@ export default function GuildsPage() {
 
         <div className={styles.guildCards}>
           <GuildCard />
+          <GuildCard />
+          <GuildCard />
         </div>
       </div>
     </div>

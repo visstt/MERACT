@@ -34,7 +34,7 @@ export default function ActCard() {
       </div>
 
       <img
-        src="/icons/link_icon.png"
+        src="/icons/link_icon.svg"
         alt="link_icon"
         className={styles.linkIcon}
       />
