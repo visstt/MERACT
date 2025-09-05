@@ -14,7 +14,7 @@
   justify-content: space-between;
 }
 .name img {
-  width: 10px;
+  width: 16px;
   height: 20px;
 }
 .name h1 {
@@ -52,4 +52,9 @@
     0 0 16px rgba(0, 168, 255, 0.5),
     0 0 24px rgba(0, 168, 255, 0.3);
   border-radius: 1px;
+}
+.stripe2 {
+  margin-top: -7px;
+  height: 1px;
+  background: rgb(241, 241, 241);
 }

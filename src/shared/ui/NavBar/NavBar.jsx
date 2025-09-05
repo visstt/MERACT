@@ -2,7 +2,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import styles from "./NavBar.module.css";
 
-// Acts
 function ActIcon(props) {
   return (
     <svg width="28" height="29" viewBox="0 0 28 29" fill="none" {...props}>
@@ -14,7 +13,6 @@ function ActIcon(props) {
   );
 }
 
-// Chat
 function ChatIcon(props) {
   return (
     <svg width="28" height="29" viewBox="0 0 28 29" fill="none" {...props}>
@@ -26,7 +24,6 @@ function ChatIcon(props) {
   );
 }
 
-// Guilds
 function GuildIcon(props) {
   return (
     <svg width="28" height="29" viewBox="0 0 28 29" fill="none" {...props}>
@@ -38,7 +35,6 @@ function GuildIcon(props) {
   );
 }
 
-// Rank
 function RankIcon(props) {
   return (
     <svg width="29" height="29" viewBox="0 0 29 29" fill="none" {...props}>
@@ -61,9 +57,18 @@ export default function NavBar() {
     { label: "Rank", icon: RankIcon, path: "/rank" },
   ];
 
+  const handlePlayClick = () => {
+    navigate("/create-act");
+  };
+
   return (
     <div style={{ position: "relative", width: "100%" }}>
-      <div className={styles.playBtn + " " + styles.playBtnFloating}>
+      <div
+        className={styles.playBtn + " " + styles.playBtnFloating}
+        onClick={() => {
+          handlePlayClick();
+        }}
+      >
         <img src="/icons/NavBar/playBtn.svg" alt="playBtn" />
       </div>
       <div className={styles.navBar}>
