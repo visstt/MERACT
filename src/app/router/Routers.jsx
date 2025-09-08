@@ -7,6 +7,7 @@ import SignUp from "../../features/Auth/registration/SignUp";
 import ActsPage from "../../pages/acts/ActsPage";
 import CreateAct from "../../pages/createAct/CreateAct";
 import GuildsPage from "../../pages/guilds/GuildsPage";
+import SceneControl from "../../pages/sceneControl/SceneControl";
 
 export const router = createBrowserRouter([
   {
@@ -26,8 +27,12 @@ export const router = createBrowserRouter([
     element: <GuildsPage />,
   },
   {
+    path: "/scene-control",
+    element: <SceneControl />,
+  },
+  {
     path: "/create-act",
-    element: <CreateAct  />,
+    element: <CreateAct />,
   },
   {
     path: "/login",

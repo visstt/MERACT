@@ -23,7 +23,7 @@ export default function CreateAct() {
       newTime = Math.max(5, biddingTime - 5);
     }
 
-    if (newTime === biddingTime) return; // Не анимируем если значение не изменилось
+    if (newTime === biddingTime) return; 
 
     setIsAnimating(true);
     setBiddingTime(newTime);
