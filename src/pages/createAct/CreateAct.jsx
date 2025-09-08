@@ -60,11 +60,20 @@ export default function CreateAct() {
     setSettingsType(type);
   };
 
+  const handleGoBack = () => {
+    window.history.back();
+  };
+
   return (
     <div className={styles.glass}>
       <div className={styles.header}>
         <div className={styles.name}>
-          <img src="/icons/back_arrowV2.svg" alt="back_arrow" />
+          <img
+            src="/icons/back_arrowV2.svg"
+            alt="back_arrow"
+            style={{ cursor: "pointer" }}
+            onClick={handleGoBack}
+          />
           <h1>Create ACT</h1>
         </div>
       </div>
