@@ -391,6 +391,11 @@ export default function CreateAct() {
           </div>
         </div>
       </div>
+      <div className={styles.btnContainer}>
+        <button type="button" className={styles.createBtn}>
+          Create
+        </button>
+      </div>
     </div>
   );
 }
