@@ -73,7 +73,9 @@
   border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 4px;
   height: 65px;
-  min-width: 82px;
+  flex: 1;
+  min-width: 60px;
+  max-width: 120px;
   background-color: rgba(255, 255, 255, 0.06);
   background: linear-gradient(
     180deg,
@@ -88,7 +90,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
-  padding-top: 7px;
+  padding: 4px 2px 0;
 }
 .selectBtnActive {
   box-shadow:
@@ -220,4 +222,120 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+@media (max-width: 375px) {
+  .glass {
+    padding: 0 4px;
+  }
+  .content {
+    padding: 12px;
+  }
+  .samplePhoto {
+    width: 200px;
+    height: 320px;
+  }
+  .samplePhotoMusic {
+    width: 200px;
+    height: 240px;
+  }
+  .btnRow {
+    gap: 6px;
+    width: calc(100vw - 40px);
+  }
+  .selectBtn {
+    min-width: 55px;
+    height: 55px;
+    padding: 3px 2px 0;
+    font-size: 12px;
+  }
+  .wrapper_content {
+    width: 280px;
+    gap: 6px;
+  }
+  .wrapperContentImg {
+    width: 65px;
+    height: 65px;
+    margin-bottom: 6px;
+  }
+  .select_music_btn {
+    width: 95vw;
+    height: 32px;
+    gap: 4px;
+    font-size: 11px;
+  }
+  .music_block {
+    width: 95vw;
+    height: 42px;
+    gap: 12px;
+  }
+  .music_block h3 {
+    font-size: 11px;
+  }
+  .music_block p {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 340px) {
+  .glass {
+    padding: 0 2px;
+  }
+  .content {
+    padding: 8px;
+  }
+  .samplePhoto,
+  .samplePhotoMusic {
+    width: 180px;
+    height: 180px;
+  }
+  .btnRow {
+    gap: 2px;
+    width: calc(100vw - 32px);
+  }
+  .selectBtn {
+    min-width: 50px;
+    height: 48px;
+    padding: 2px 1px 0;
+    font-size: 11px;
+  }
+  .wrapper_content {
+    width: 220px;
+    gap: 4px;
+  }
+  .wrapperContentImg {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 4px;
+  }
+  .select_music_btn {
+    width: 98vw;
+    height: 28px;
+    gap: 2px;
+  }
+  .music_block {
+    width: 98vw;
+    height: 32px;
+    gap: 6px;
+  }
+  .back_arrow {
+    margin-left: 15px;
+    width: 15px;
+    height: 25px;
+  }
+}
+
+@media (max-width: 280px) {
+  .btnRow {
+    gap: 1px;
+    width: calc(100vw - 24px);
+  }
+  .selectBtn {
+    min-width: 40px;
+    height: 44px;
+    padding: 1px 0px 0;
+    font-size: 10px;
+  }
+  .content {
+    padding: 4px;
+  }
 }
