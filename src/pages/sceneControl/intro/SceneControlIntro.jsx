@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import styles from "./SceneControl.module.css";
+import styles from "../SceneControl.module.css";
 
 export default function SceneControlMusic() {
   const [heroMethod, setHeroMethod] = useState("Intro");

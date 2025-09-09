@@ -8,6 +8,7 @@ import ActsPage from "../../pages/acts/ActsPage";
 import CreateAct from "../../pages/createAct/CreateAct";
 import GuildsPage from "../../pages/guilds/GuildsPage";
 import SceneControlIntro from "../../pages/sceneControl/intro/SceneControlIntro";
+import SceneControlMusic from "../../pages/sceneControl/music/SceneControlMusic";
 
 export const router = createBrowserRouter([
   {
@@ -29,6 +30,10 @@ export const router = createBrowserRouter([
   {
     path: "/scene-control-intro",
     element: <SceneControlIntro />,
+  },
+  {
+    path: "/scene-control-music",
+    element: <SceneControlMusic />,
   },
   {
     path: "/create-act",
