@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import styles from "./SceneControl.module.css";
 
-export default function SceneControl() {
+export default function SceneControlMusic() {
   const [heroMethod, setHeroMethod] = useState("Intro");
 
   const handleGoBack = () => {
