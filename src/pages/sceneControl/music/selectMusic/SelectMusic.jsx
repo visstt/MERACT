@@ -1,0 +1,270 @@
+import { useState } from "react";
+
+import styles from "./SelectMusic.module.css";
+
+export default function SelectMusic() {
+  const [selectedMusic, setSelectedMusic] = useState([]);
+
+  const handleGoBack = () => {
+    window.history.back();
+  };
+
+  const handleSelectMusic = (musicId) => {
+    setSelectedMusic((prev) => {
+      if (prev.includes(musicId)) {
+        // Если музыка уже выбрана, убираем её из списка
+        return prev.filter((id) => id !== musicId);
+      } else {
+        // Если музыка не выбрана, добавляем её в список
+        return [...prev, musicId];
+      }
+    });
+  };
+  const UploadIcon = () => {
+    return (
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 20 20"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M7.50008 13.3333H12.5001V8.33333H15.8334L10.0001 2.5L4.16675 8.33333H7.50008V13.3333ZM4.16675 15H15.8334V16.6667H4.16675V15Z"
+          fill="white"
+        />
+      </svg>
+    );
+  };
+
+  const Stripe = () => {
+    return (
+      <svg
+        width="1"
+        height="30"
+        viewBox="0 0 1 30"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M0.5 0C0.5 11.7157 0.5 18.2843 0.5 30"
+          stroke="white"
+          stroke-opacity="0.7"
+          stroke-dasharray="2 2"
+        />
+      </svg>
+    );
+  };
+  const SearchIcon = () => {
+    return (
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 18 18"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M16.6 18L10.3 11.7C9.8 12.1 9.225 12.4167 8.575 12.65C7.925 12.8833 7.23333 13 6.5 13C4.68333 13 3.146 12.3707 1.888 11.112C0.63 9.85333 0.000667196 8.316 5.29101e-07 6.5C-0.000666138 4.684 0.628667 3.14667 1.888 1.888C3.14733 0.629333 4.68467 0 6.5 0C8.31533 0 9.853 0.629333 11.113 1.888C12.373 3.14667 13.002 4.684 13 6.5C13 7.23333 12.8833 7.925 12.65 8.575C12.4167 9.225 12.1 9.8 11.7 10.3L18 16.6L16.6 18ZM6.5 11C7.75 11 8.81267 10.5627 9.688 9.688C10.5633 8.81333 11.0007 7.75067 11 6.5C10.9993 5.24933 10.562 4.187 9.688 3.313C8.814 2.439 7.75133 2.00133 6.5 2C5.24867 1.99867 4.18633 2.43633 3.313 3.313C2.43967 4.18967 2.002 5.252 2 6.5C1.998 7.748 2.43567 8.81067 3.313 9.688C4.19033 10.5653 5.25267 11.0027 6.5 11Z"
+          fill="white"
+        />
+      </svg>
+    );
+  };
+  const Play = () => {
+    return (
+      <svg
+        width="13"
+        height="16"
+        viewBox="0 0 13 16"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M1.524 0.937344L11.616 7.14734C11.7616 7.23681 11.8818 7.3621 11.9653 7.51126C12.0487 7.66041 12.0925 7.82845 12.0925 7.99934C12.0925 8.17024 12.0487 8.33828 11.9653 8.48743C11.8818 8.63659 11.7616 8.76187 11.616 8.85134L1.524 15.0613C1.37245 15.1546 1.19878 15.2057 1.02088 15.2094C0.842993 15.2131 0.667332 15.1693 0.512025 15.0825C0.356717 14.9957 0.227388 14.869 0.137382 14.7155C0.0473748 14.562 -5.0094e-05 14.3873 3.97067e-08 14.2093V1.78934C-5.0094e-05 1.61141 0.0473748 1.43669 0.137382 1.28321C0.227388 1.12972 0.356717 1.00303 0.512025 0.916205C0.667332 0.82938 0.842993 0.785565 1.02088 0.789281C1.19878 0.792997 1.37245 0.844109 1.524 0.937344Z"
+          fill="white"
+        />
+      </svg>
+    );
+  };
+  return (
+    <div>
+      <div className={styles.glass}>
+        <div className={styles.header}>
+          <div className={styles.name}>
+            <img
+              src="/icons/back_arrowV2.svg"
+              alt="back_arrow"
+              style={{ cursor: "pointer" }}
+              onClick={handleGoBack}
+            />
+            <h1>Select Music</h1>
+          </div>
+        </div>
+        <div className="stripe2"></div>
+        <div className={styles.upload_section}>
+          <button className={styles.upload_button}>
+            <UploadIcon />
+            Upload
+          </button>
+          <Stripe />
+          <div className={styles.input_container}>
+            <input
+              type="text"
+              placeholder="Paste Link to add"
+              className={styles.music_input}
+            />
+            <button className={styles.add_button}>Add</button>
+          </div>
+        </div>
+        <div className="stripe2" style={{ margin: 0 }}></div>
+
+        <div className={styles.list_section}>
+          <div className={styles.search_container}>
+            <SearchIcon />
+            <input
+              type="text"
+              placeholder="Search"
+              className={styles.search_input}
+            />
+          </div>
+          <div className={styles.music_block}>
+            <div className={styles.music_name}>
+              <Play />
+              <p>Music 01</p>
+            </div>
+            <div className={styles.music_info}>
+              <p>02:21</p>
+              <button
+                className={
+                  selectedMusic.includes("music1")
+                    ? `${styles.select_btn} ${styles.active}`
+                    : styles.select_btn
+                }
+                onClick={() => handleSelectMusic("music1")}
+              >
+                {selectedMusic.includes("music1") ? "Selected" : "Select"}
+              </button>
+            </div>
+          </div>
+          <div className={styles.music_block}>
+            <div className={styles.music_name}>
+              <Play />
+              <p>Music 02</p>
+            </div>
+            <div className={styles.music_info}>
+              <p>02:21</p>
+              <button
+                className={
+                  selectedMusic.includes("music2")
+                    ? `${styles.select_btn} ${styles.active}`
+                    : styles.select_btn
+                }
+                onClick={() => handleSelectMusic("music2")}
+              >
+                {selectedMusic.includes("music2") ? "Selected" : "Select"}
+              </button>
+            </div>
+          </div>
+          <div className={styles.music_block}>
+            <div className={styles.music_name}>
+              <Play />
+              <p>Music 03</p>
+            </div>
+            <div className={styles.music_info}>
+              <p>02:21</p>
+              <button
+                className={
+                  selectedMusic.includes("music3")
+                    ? `${styles.select_btn} ${styles.active}`
+                    : styles.select_btn
+                }
+                onClick={() => handleSelectMusic("music3")}
+              >
+                {selectedMusic.includes("music3") ? "Selected" : "Select"}
+              </button>
+            </div>
+          </div>
+          <div className={styles.music_block}>
+            <div className={styles.music_name}>
+              <Play />
+              <p>Music 04</p>
+            </div>
+            <div className={styles.music_info}>
+              <p>02:21</p>
+              <button
+                className={
+                  selectedMusic.includes("music4")
+                    ? `${styles.select_btn} ${styles.active}`
+                    : styles.select_btn
+                }
+                onClick={() => handleSelectMusic("music4")}
+              >
+                {selectedMusic.includes("music4") ? "Selected" : "Select"}
+              </button>
+            </div>
+          </div>
+          <div className={styles.music_block}>
+            <div className={styles.music_name}>
+              <Play />
+              <p>Music 05</p>
+            </div>
+            <div className={styles.music_info}>
+              <p>02:21</p>
+              <button
+                className={
+                  selectedMusic.includes("music5")
+                    ? `${styles.select_btn} ${styles.active}`
+                    : styles.select_btn
+                }
+                onClick={() => handleSelectMusic("music5")}
+              >
+                {selectedMusic.includes("music5") ? "Selected" : "Select"}
+              </button>
+            </div>
+          </div>
+          <div className={styles.music_block}>
+            <div className={styles.music_name}>
+              <Play />
+              <p>Music 06</p>
+            </div>
+            <div className={styles.music_info}>
+              <p>02:21</p>
+              <button
+                className={
+                  selectedMusic.includes("music6")
+                    ? `${styles.select_btn} ${styles.active}`
+                    : styles.select_btn
+                }
+                onClick={() => handleSelectMusic("music6")}
+              >
+                {selectedMusic.includes("music6") ? "Selected" : "Select"}
+              </button>
+            </div>
+          </div>
+          <div className={styles.music_block}>
+            <div className={styles.music_name}>
+              <Play />
+              <p>Music 07</p>
+            </div>
+            <div className={styles.music_info}>
+              <p>02:21</p>
+              <button
+                className={
+                  selectedMusic.includes("music7")
+                    ? `${styles.select_btn} ${styles.active}`
+                    : styles.select_btn
+                }
+                onClick={() => handleSelectMusic("music7")}
+              >
+                {selectedMusic.includes("music7") ? "Selected" : "Select"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
