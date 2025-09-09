@@ -1,5 +1,7 @@
 import { useRef, useState } from "react";
 
+import { useNavigate } from "react-router-dom";
+
 import styles from "./CreateAct.module.css";
 
 export default function CreateAct() {
@@ -12,6 +14,10 @@ export default function CreateAct() {
   const [navigatorMethod, setNavigatorMethod] = useState("voting");
   const [biddingTime, setBiddingTime] = useState(5);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sequelCoverPreview, setSequelCoverPreview] = useState(null);
+
+  const navigate = useNavigate();
 
   const handleTimeChange = (direction) => {
     if (isAnimating) return;
@@ -23,7 +29,7 @@ export default function CreateAct() {
       newTime = Math.max(5, biddingTime - 5);
     }
 
-    if (newTime === biddingTime) return; 
+    if (newTime === biddingTime) return;
 
     setIsAnimating(true);
     setBiddingTime(newTime);
@@ -62,6 +68,41 @@ export default function CreateAct() {
 
   const handleGoBack = () => {
     window.history.back();
+  };
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleSequelCoverChange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setSequelCoverPreview(ev.target.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setSequelCoverPreview(null);
+    }
+  };
+
+  const ModalStripe = () => {
+    return (
+      <svg
+        width="297"
+        height="2"
+        viewBox="0 0 297 2"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M0 1H297" stroke="#3ABAFF" stroke-opacity="0.5" />
+      </svg>
+    );
   };
 
   return (
@@ -128,10 +169,18 @@ export default function CreateAct() {
         <div className={styles.block}>
           <p>Sequel?</p>
           <div className={styles.fileRow}>
-            <button type="button" className={styles.browseBtn}>
+            <button
+              type="button"
+              className={styles.browseBtn}
+              onClick={openModal}
+            >
               Create Sequel
             </button>
-            <button type="button" className={styles.browseBtn}>
+            <button
+              type="button"
+              className={styles.browseBtn}
+              onClick={() => navigate("/scene-control-sequel-select")}
+            >
               Add to existing
             </button>
           </div>
@@ -385,7 +434,10 @@ export default function CreateAct() {
         <div className={styles.block}>
           <div className={styles.fileColumn}>
             <p>Scene Control</p>
-            <button className={styles.controlBtn}>
+            <button
+              className={styles.controlBtn}
+              onClick={() => navigate("/scene-control-intro")}
+            >
               Tap to Open Control panel
             </button>
           </div>
@@ -396,6 +448,74 @@ export default function CreateAct() {
           Create
         </button>
       </div>
+
+      {/* Modal */}
+      {isModalOpen && (
+        <div className={styles.modalOverlay} onClick={closeModal}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>Create Sequel</h2>
+              <ModalStripe />
+            </div>
+            <div className={styles.modalContent}>
+              <form className={styles.sequelForm}>
+                <div className={styles.inputBlock}>
+                  <label htmlFor="title">Sequel title</label>
+                  <input type="text" id="title" placeholder="Sequel title" />
+                </div>
+
+                <div className={styles.inputBlock}>
+                  <label htmlFor="episode">Number of Episode</label>
+                  <input
+                    type="text"
+                    id="episode"
+                    placeholder="Number of Episode"
+                  />
+                </div>
+
+                <div className={styles.inputBlock}>
+                  <label htmlFor="cover">Sequel Cover</label>
+                  <div className={styles.coverUpload}>
+                    <input
+                      type="file"
+                      id="cover"
+                      accept="image/*"
+                      onChange={handleSequelCoverChange}
+                      className={styles.hiddenFileInput}
+                    />
+                    <div
+                      className={styles.coverPreview}
+                      onClick={() => document.getElementById("cover").click()}
+                      style={
+                        sequelCoverPreview
+                          ? {
+                              backgroundImage: `url(${sequelCoverPreview})`,
+                              backgroundSize: "cover",
+                              backgroundPosition: "center",
+                              backgroundRepeat: "no-repeat",
+                            }
+                          : undefined
+                      }
+                    >
+                      {!sequelCoverPreview && (
+                        <div className={styles.uploadPlaceholder}>
+                          <span>+</span>
+                          <p>Upload Cover</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.btnContainer}>
+                  <button>Save</button>
+                  <button>Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

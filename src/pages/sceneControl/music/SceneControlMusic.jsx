@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import { useNavigate } from "react-router-dom";
+
 import styles from "../SceneControl.module.css";
 
 const RefreshIcon = () => {
@@ -55,6 +57,9 @@ const Menu = () => {
 
 export default function SceneControlMusic() {
   const [heroMethod, setHeroMethod] = useState("Music");
+
+  const navigate = useNavigate();
+
   const handleGoBack = () => {
     window.history.back();
   };
@@ -88,7 +93,7 @@ export default function SceneControlMusic() {
                   ? `${styles.selectBtn} ${styles.selectBtnActive}`
                   : styles.selectBtn
               }
-              onClick={() => setHeroMethod("Intro")}
+              onClick={() => navigate("/scene-control-intro")}
             >
               <img src="/icons/intro.svg" alt="voting" />
               Intro
@@ -141,7 +146,10 @@ export default function SceneControlMusic() {
             </button>
           </div>
           <div className={styles.wrapper_music}>
-            <button className={styles.select_music_btn}>
+            <button
+              className={styles.select_music_btn}
+              onClick={() => navigate("/scene-control-music-select")}
+            >
               <img src="/icons/plus.svg" alt="plus" />
               Select Playlist Music
             </button>

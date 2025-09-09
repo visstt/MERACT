@@ -266,3 +266,141 @@
   justify-content: center;
   padding-bottom: 15px;
 }
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 10px;
+  width: 352px;
+  height: 450px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 24px 10px 20px;
+}
+
+.modalHeader h2 {
+  font-weight: 700;
+  font-size: 16px;
+  text-align: center;
+  color: #fff;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.sequelForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 0 30px;
+  color: #fff;
+  text-align: center;
+  align-items: center;
+}
+.sequelForm input {
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  width: 268px;
+  height: 34px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(46, 50, 59, 0.1) 100%
+  );
+  text-align: center;
+}
+.inputBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.coverUpload {
+  position: relative;
+}
+
+.coverPreview {
+  width: 110px;
+  height: 110px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(46, 50, 59, 0.1) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.coverPreview:hover {
+  border-color: rgba(58, 186, 255, 0.6);
+}
+
+.uploadPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+}
+
+.uploadPlaceholder span {
+  font-size: 24px;
+  font-weight: 300;
+  margin-bottom: 4px;
+}
+
+.uploadPlaceholder p {
+  font-size: 10px;
+  margin: 0;
+}
+.btnContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+}
+.btnContainer button {
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  width: 129px;
+  height: 34px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(46, 50, 59, 0.1) 100%
+  );
+  font-weight: 400;
+  font-size: 12px;
+  text-align: center;
+  color: #fff;
+}

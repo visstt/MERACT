@@ -1,10 +1,13 @@
 import { useState } from "react";
 
+import { useNavigate } from "react-router-dom";
+
 import styles from "../SceneControl.module.css";
 
 export default function SceneControlMusic() {
   const [heroMethod, setHeroMethod] = useState("Intro");
 
+  const navigate = useNavigate();
   const handleGoBack = () => {
     window.history.back();
   };
@@ -62,7 +65,7 @@ export default function SceneControlMusic() {
                   ? `${styles.selectBtn} ${styles.selectBtnActive}`
                   : styles.selectBtn
               }
-              onClick={() => setHeroMethod("Music")}
+              onClick={() => navigate("/scene-control-music")}
             >
               <img src="/icons/music.svg" alt="voting" />
               Music
