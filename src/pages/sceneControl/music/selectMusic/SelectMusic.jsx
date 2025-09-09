@@ -12,10 +12,8 @@ export default function SelectMusic() {
   const handleSelectMusic = (musicId) => {
     setSelectedMusic((prev) => {
       if (prev.includes(musicId)) {
-        // Если музыка уже выбрана, убираем её из списка
         return prev.filter((id) => id !== musicId);
       } else {
-        // Если музыка не выбрана, добавляем её в список
         return [...prev, musicId];
       }
     });

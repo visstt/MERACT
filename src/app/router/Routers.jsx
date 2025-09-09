@@ -10,6 +10,7 @@ import GuildsPage from "../../pages/guilds/GuildsPage";
 import SceneControlIntro from "../../pages/sceneControl/intro/SceneControlIntro";
 import SceneControlMusic from "../../pages/sceneControl/music/SceneControlMusic";
 import SelectMusic from "../../pages/sceneControl/music/selectMusic/SelectMusic";
+import SelectSequel from "../../pages/sceneControl/intro/SelectSequel/SelectSequel";
 
 export const router = createBrowserRouter([
   {
@@ -39,6 +40,10 @@ export const router = createBrowserRouter([
   {
     path: "/scene-control-music-select",
     element: <SelectMusic />,
+  },
+  {
+    path: "/scene-control-sequel-select",
+    element: <SelectSequel />,
   },
   {
     path: "/create-act",
