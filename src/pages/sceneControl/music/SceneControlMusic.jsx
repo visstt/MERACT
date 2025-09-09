@@ -80,7 +80,7 @@ export default function SceneControlMusic() {
             alt=""
             className={styles.samplePhotoMusic}
           />
-          <div className={styles.btnRow}>
+          <div className="btnRow">
             <button
               type="button"
               className={

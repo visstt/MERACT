@@ -29,7 +29,7 @@ export default function SceneControlMusic() {
             alt=""
             className={styles.samplePhoto}
           />
-          <div className={styles.btnRow}>
+          <div className="btnRow">
             <button
               type="button"
               className={

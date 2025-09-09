@@ -28,6 +28,7 @@
   z-index: 0;
   background: transparent;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  min-height: 100vh;
 }
 
 .glass::before {
@@ -60,14 +61,6 @@
   height: 285px;
 }
 
-.btnRow {
-  margin-top: 15px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-}
 .selectBtn {
   outline: none;
   border: 1px solid rgba(255, 255, 255, 0.4);
@@ -98,6 +91,12 @@
     inset 0 0 44px 0 #2eabff;
   background: rgba(0, 89, 145, 0.6);
   border: 1px solid #63d4ff !important;
+}
+.wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .wrapper_header {
   margin-top: 20px;
@@ -238,15 +237,34 @@
     width: 200px;
     height: 240px;
   }
-  .btnRow {
-    gap: 6px;
-    width: calc(100vw - 40px);
-  }
   .selectBtn {
     min-width: 55px;
     height: 55px;
     padding: 3px 2px 0;
     font-size: 12px;
+  }
+  .wrapper_header {
+    width: 90vw;
+    margin-top: 15px;
+    margin-bottom: 15px;
+  }
+  .wrapper_header p {
+    font-size: 13px;
+  }
+  .wrapper_header button {
+    height: 24px;
+    padding: 0 10px;
+    font-size: 11px;
+    gap: 8px;
+  }
+  .wrapper_content {
+    width: 280px;
+    gap: 6px;
+  }
+  .wrapperContentImg {
+    width: 65px;
+    height: 65px;
+    margin-bottom: 6px;
   }
   .wrapper_content {
     width: 280px;
@@ -258,13 +276,13 @@
     margin-bottom: 6px;
   }
   .select_music_btn {
-    width: 95vw;
+    width: 90vw;
     height: 32px;
     gap: 4px;
     font-size: 11px;
   }
   .music_block {
-    width: 95vw;
+    width: 90vw;
     height: 42px;
     gap: 12px;
   }
@@ -283,20 +301,29 @@
   .content {
     padding: 8px;
   }
-  .samplePhoto,
   .samplePhotoMusic {
     width: 180px;
     height: 180px;
-  }
-  .btnRow {
-    gap: 2px;
-    width: calc(100vw - 32px);
   }
   .selectBtn {
     min-width: 50px;
     height: 48px;
     padding: 2px 1px 0;
     font-size: 11px;
+  }
+  .wrapper_header {
+    width: 90vw;
+    margin-top: 12px;
+    margin-bottom: 12px;
+  }
+  .wrapper_header p {
+    font-size: 12px;
+  }
+  .wrapper_header button {
+    height: 22px;
+    padding: 0 8px;
+    font-size: 10px;
+    gap: 6px;
   }
   .wrapper_content {
     width: 220px;
@@ -308,12 +335,12 @@
     margin-bottom: 4px;
   }
   .select_music_btn {
-    width: 98vw;
+    width: 93vw;
     height: 28px;
     gap: 2px;
   }
   .music_block {
-    width: 98vw;
+    width: 93vw;
     height: 32px;
     gap: 6px;
   }
@@ -325,15 +352,35 @@
 }
 
 @media (max-width: 280px) {
-  .btnRow {
-    gap: 1px;
-    width: calc(100vw - 24px);
-  }
   .selectBtn {
     min-width: 40px;
     height: 44px;
     padding: 1px 0px 0;
     font-size: 10px;
+  }
+  .wrapper_header {
+    width: 90vw;
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+  .wrapper_header p {
+    font-size: 11px;
+  }
+  .wrapper_header button {
+    height: 20px;
+    padding: 0 6px;
+    font-size: 9px;
+    gap: 4px;
+  }
+  .wrapper_content {
+    width: 180px;
+    gap: 2px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .wrapperContentImg {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 2px;
   }
   .content {
     padding: 4px;

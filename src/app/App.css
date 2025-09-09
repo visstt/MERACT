@@ -58,3 +58,33 @@
   height: 1px;
   background: rgb(241, 241, 241);
 }
+
+.btnRow {
+  margin-top: 15px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+@media (max-width: 375px) {
+  .btnRow {
+    gap: 6px;
+    width: calc(100vw - 40px);
+  }
+}
+
+@media (max-width: 340px) {
+  .btnRow {
+    gap: 2px;
+    width: calc(100vw - 32px);
+  }
+}
+
+@media (max-width: 280px) {
+  .btnRow {
+    gap: 1px;
+    width: calc(100vw - 24px);
+  }
+}
