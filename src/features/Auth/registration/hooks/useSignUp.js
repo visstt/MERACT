@@ -1,18 +1,26 @@
 import { useState } from "react";
 
 import api from "../../../../shared/api/api";
+import { useAuthStore } from "../../../../shared/stores/authStore";
 
 export function useSignUp() {
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const { login, setLoading, isLoading } = useAuthStore();
 
   async function signUp(email, password) {
     setLoading(true);
     setError("");
     setSuccess(false);
     try {
-      await api.post("/auth/sign-up", { email, password });
+      const res = await api.post("/auth/sign-up", { email, password });
+
+      // Если регистрация возвращает данные пользователя и токен,
+      // сохраняем их в стор (опционально)
+      if (res.data && (res.data.token || res.data.user)) {
+        login(res.data);
+      }
+
       setSuccess(true);
       setLoading(false);
       return true;
@@ -23,5 +31,5 @@ export function useSignUp() {
     }
   }
 
-  return { signUp, loading, error, success };
+  return { signUp, loading: isLoading, error, success };
 }

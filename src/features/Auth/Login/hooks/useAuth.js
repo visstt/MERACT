@@ -1,16 +1,22 @@
 import { useState } from "react";
 
 import api from "../../../../shared/api/api";
+import { useAuthStore } from "../../../../shared/stores/authStore";
 
 export function useAuth() {
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { login, setLoading, logout, isLoading, isAuthenticated, user } =
+    useAuthStore();
 
   const signIn = async (email, password) => {
     setLoading(true);
     setError(null);
     try {
       const res = await api.post("/auth/sign-in", { email, password });
+
+      // Сохраняем данные пользователя в стор и localStorage
+      login(res.data);
+
       setLoading(false);
       return res.data;
     } catch (err) {
@@ -20,5 +26,17 @@ export function useAuth() {
     }
   };
 
-  return { signIn, loading, error };
+  const signOut = () => {
+    logout();
+    setError(null);
+  };
+
+  return {
+    signIn,
+    signOut,
+    loading: isLoading,
+    error,
+    isAuthenticated,
+    user,
+  };
 }

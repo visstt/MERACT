@@ -2,22 +2,36 @@ import { useRef, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
+import { useAuthStore } from "../../shared/stores/authStore";
+import { ActFormat, ActType, SelectionMethods } from "../../shared/types/act";
 import styles from "./CreateAct.module.css";
+import StreamHost from "./components/StreamHost";
+import { useCreateAct } from "./hooks/useCreateAct";
 
 export default function CreateAct() {
   const fileInputRef = useRef(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [actType, setActType] = useState("single");
-  const [formatType, setFormatType] = useState("single");
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [title, setTitle] = useState("");
+  const [actType, setActType] = useState(ActType.SINGLE);
+  const [formatType, setFormatType] = useState(ActFormat.SINGLE);
   const [settingsType, setSettingsType] = useState("option1");
-  const [heroMethod, setHeroMethod] = useState("voting");
-  const [navigatorMethod, setNavigatorMethod] = useState("voting");
+  const [heroMethod, setHeroMethod] = useState(SelectionMethods.VOTING);
+  const [navigatorMethod, setNavigatorMethod] = useState(
+    SelectionMethods.VOTING,
+  );
   const [biddingTime, setBiddingTime] = useState(5);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sequelCoverPreview, setSequelCoverPreview] = useState(null);
 
+  // Состояние для созданного act
+  const [createdAct, setCreatedAct] = useState(null);
+  const [showStream, setShowStream] = useState(false);
+
   const navigate = useNavigate();
+  const { user } = useAuthStore();
+  const { createAct, loading, error, success } = useCreateAct();
 
   const handleTimeChange = (direction) => {
     if (isAnimating) return;
@@ -40,15 +54,76 @@ export default function CreateAct() {
   const handleFileChange = (e) => {
     const file = e.target.files && e.target.files[0];
     if (file) {
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onload = (ev) => {
         setImagePreview(ev.target.result);
       };
       reader.readAsDataURL(file);
     } else {
+      setSelectedFile(null);
       setImagePreview(null);
     }
   };
+
+  const handleCreateAct = async () => {
+    // Валидация
+    if (!title.trim()) {
+      alert("Please enter a title for your act");
+      return;
+    }
+
+    if (!user?.id) {
+      alert("You must be logged in to create an act");
+      return;
+    }
+
+    // Подготавливаем данные для отправки
+    const actData = {
+      title: title.trim(),
+      type: actType,
+      format: formatType,
+      heroMethods: heroMethod,
+      navigatorMethods: navigatorMethod,
+      biddingTime: new Date(Date.now() + biddingTime * 60 * 1000).toISOString(), // Добавляем время в минутах к текущему времени
+      photo: selectedFile,
+    };
+
+    console.log("Creating act with data:", actData);
+
+    const result = await createAct(actData);
+
+    if (result) {
+      console.log("Act created successfully:", result);
+
+      // Сохраняем данные созданного act
+      setCreatedAct({
+        id: result.actId,
+        title: title.trim(),
+      });
+
+      // Показываем компонент стрима
+      setShowStream(true);
+    }
+  };
+
+  const handleStopStream = () => {
+    setShowStream(false);
+    setCreatedAct(null);
+    // Перенаправляем на страницу актов
+    navigate("/acts");
+  };
+
+  // Если показываем стрим, рендерим StreamHost
+  if (showStream && createdAct) {
+    return (
+      <StreamHost
+        actId={createdAct.id}
+        actTitle={createdAct.title}
+        onStopStream={handleStopStream}
+      />
+    );
+  }
 
   const openFileDialog = () => {
     if (fileInputRef.current) {
@@ -59,11 +134,21 @@ export default function CreateAct() {
   const handleActType = (type) => {
     setActType(type);
   };
+
   const handleFormatType = (type) => {
     setFormatType(type);
   };
+
   const handleSettingsType = (type) => {
     setSettingsType(type);
+  };
+
+  const handleHeroMethod = (method) => {
+    setHeroMethod(method);
+  };
+
+  const handleNavigatorMethod = (method) => {
+    setNavigatorMethod(method);
   };
 
   const handleGoBack = () => {
@@ -127,6 +212,8 @@ export default function CreateAct() {
             type="text"
             placeholder="Act Title"
             className={styles.ActTitle}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
           />
         </div>
         <div className={styles.block}>
@@ -191,11 +278,11 @@ export default function CreateAct() {
             <button
               type="button"
               className={
-                actType === "single"
+                actType === ActType.SINGLE
                   ? `${styles.typeBtn} ${styles.active}`
                   : styles.typeBtn
               }
-              onClick={() => handleActType("single")}
+              onClick={() => handleActType(ActType.SINGLE)}
             >
               <img src="/icons/singleHero.svg" alt="" />
               Single Hero
@@ -203,11 +290,11 @@ export default function CreateAct() {
             <button
               type="button"
               className={
-                actType === "multi"
+                actType === ActType.MULTI
                   ? `${styles.typeBtn} ${styles.active}`
                   : styles.typeBtn
               }
-              onClick={() => handleActType("multi")}
+              onClick={() => handleActType(ActType.MULTI)}
             >
               <img src="/icons/multiHero.svg" alt="" />
               Multi Hero
@@ -220,22 +307,22 @@ export default function CreateAct() {
             <button
               type="button"
               className={
-                formatType === "single"
+                formatType === ActFormat.SINGLE
                   ? `${styles.typeBtn} ${styles.active}`
                   : styles.typeBtn
               }
-              onClick={() => handleFormatType("single")}
+              onClick={() => handleFormatType(ActFormat.SINGLE)}
             >
               Single
             </button>
             <button
               type="button"
               className={
-                formatType === "several"
+                formatType === ActFormat.SEVERAL
                   ? `${styles.typeBtn} ${styles.active}`
                   : styles.typeBtn
               }
-              onClick={() => handleFormatType("several")}
+              onClick={() => handleFormatType(ActFormat.SEVERAL)}
             >
               Several feed
             </button>
@@ -248,11 +335,11 @@ export default function CreateAct() {
               <button
                 type="button"
                 className={
-                  heroMethod === "voting"
+                  heroMethod === SelectionMethods.VOTING
                     ? `${styles.selectBtn} ${styles.selectBtnActive}`
                     : styles.selectBtn
                 }
-                onClick={() => setHeroMethod("voting")}
+                onClick={() => handleHeroMethod(SelectionMethods.VOTING)}
               >
                 <img src="/icons/voting.svg" alt="voting" />
                 Voting
@@ -260,12 +347,12 @@ export default function CreateAct() {
               <button
                 type="button"
                 className={
-                  heroMethod === "bidding"
+                  heroMethod === SelectionMethods.BIDDING
                     ? `${styles.selectBtn} ${styles.selectBtnActive}`
                     : styles.selectBtn
                 }
                 style={{ paddingBottom: "7px" }}
-                onClick={() => setHeroMethod("bidding")}
+                onClick={() => handleHeroMethod(SelectionMethods.BIDDING)}
               >
                 <img src="/icons/hummer.svg" alt="voting" />
                 Bidding
@@ -273,11 +360,11 @@ export default function CreateAct() {
               <button
                 type="button"
                 className={
-                  heroMethod === "manual"
+                  heroMethod === SelectionMethods.MANUAL
                     ? `${styles.selectBtn} ${styles.selectBtnActive}`
                     : styles.selectBtn
                 }
-                onClick={() => setHeroMethod("manual")}
+                onClick={() => handleHeroMethod(SelectionMethods.MANUAL)}
               >
                 <img src="/icons/manual.svg" alt="voting" />
                 Manual
@@ -292,11 +379,11 @@ export default function CreateAct() {
               <button
                 type="button"
                 className={
-                  navigatorMethod === "voting"
+                  navigatorMethod === SelectionMethods.VOTING
                     ? `${styles.selectBtn} ${styles.selectBtnActive}`
                     : styles.selectBtn
                 }
-                onClick={() => setNavigatorMethod("voting")}
+                onClick={() => handleNavigatorMethod(SelectionMethods.VOTING)}
               >
                 <img src="/icons/voting.svg" alt="voting" />
                 Voting
@@ -304,12 +391,12 @@ export default function CreateAct() {
               <button
                 type="button"
                 className={
-                  navigatorMethod === "bidding"
+                  navigatorMethod === SelectionMethods.BIDDING
                     ? `${styles.selectBtn} ${styles.selectBtnActive}`
                     : styles.selectBtn
                 }
                 style={{ paddingBottom: "7px" }}
-                onClick={() => setNavigatorMethod("bidding")}
+                onClick={() => handleNavigatorMethod(SelectionMethods.BIDDING)}
               >
                 <img src="/icons/hummer.svg" alt="voting" />
                 Bidding
@@ -317,11 +404,11 @@ export default function CreateAct() {
               <button
                 type="button"
                 className={
-                  navigatorMethod === "manual"
+                  navigatorMethod === SelectionMethods.MANUAL
                     ? `${styles.selectBtn} ${styles.selectBtnActive}`
                     : styles.selectBtn
                 }
-                onClick={() => setNavigatorMethod("manual")}
+                onClick={() => handleNavigatorMethod(SelectionMethods.MANUAL)}
               >
                 <img src="/icons/manual.svg" alt="voting" />
                 Manual
@@ -444,10 +531,29 @@ export default function CreateAct() {
         </div>
       </div>
       <div className={styles.btnContainer}>
-        <button type="button" className={styles.createBtn}>
-          Create
+        <button
+          type="button"
+          className={styles.createBtn}
+          onClick={handleCreateAct}
+          disabled={loading}
+        >
+          {loading ? "Creating..." : "Create"}
         </button>
       </div>
+
+      {/* Показываем ошибки */}
+      {error && (
+        <div style={{ color: "red", textAlign: "center", marginTop: "10px" }}>
+          Error: {error}
+        </div>
+      )}
+
+      {/* Показываем успех */}
+      {success && (
+        <div style={{ color: "green", textAlign: "center", marginTop: "10px" }}>
+          Act created successfully! Redirecting...
+        </div>
+      )}
 
       {/* Modal */}
       {isModalOpen && (

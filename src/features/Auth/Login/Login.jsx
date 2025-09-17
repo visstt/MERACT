@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
@@ -8,8 +8,15 @@ import { useAuth } from "./hooks/useAuth";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { signIn, loading, error } = useAuth();
+  const { signIn, loading, error, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  // Перенаправляем если пользователь уже авторизован
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/acts");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
