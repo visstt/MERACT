@@ -51,9 +51,13 @@ export default function ActCard({ act }) {
   }
 
   // Для новых актов показываем реальные данные
-  const cardStyle = act.imageUrl
+  let imageUrl = act.imageUrl;
+  if (!imageUrl && act.previewFileName) {
+    imageUrl = `/uploads/${act.previewFileName}`;
+  }
+  const cardStyle = imageUrl
     ? {
-        backgroundImage: `url(${act.imageUrl})`,
+        backgroundImage: `url(${imageUrl})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
@@ -62,7 +66,7 @@ export default function ActCard({ act }) {
 
   return (
     <div className={styles.actCard} style={cardStyle}>
-      {act.imageUrl && <div className={styles.overlay} />}
+      {imageUrl && <div className={styles.overlay} />}
       <h1>{act.title}</h1>
       <h3>{act.description}</h3>
       <p>

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import axios from "axios";
-
+import api from "../../shared/api/api";
 import CustomSelect from "../../shared/ui/CustomSelect";
 import NavBar from "../../shared/ui/NavBar/NavBar";
 import styles from "./ActsPage.module.css";
@@ -29,7 +28,7 @@ export default function ActsPage() {
 
   useEffect(() => {
     setLoading(true);
-    axios
+    api
       .get("/act/get-acts")
       .then((res) => {
         if (Array.isArray(res.data)) {
@@ -118,9 +117,34 @@ export default function ActsPage() {
         </form>
 
         <div className={styles.streamsList}>
-          {acts.map((act) => (
-            <ActCard key={act.id} act={act} />
-          ))}
+          {acts && acts.length > 0 ? (
+            acts.map((act) => (
+              <ActCard
+                key={act.id || Math.random()}
+                act={{
+                  ...act,
+                  title: act.title || act.name || "Без названия",
+                  description: act.description || act.status || "Нет описания",
+                  navigator: act.navigator || act.user || "Не указан",
+                  location: act.location || act.category || "Не указано",
+                  distance: act.distance || act.duration || "Не указано",
+                  previewFileName: act.previewFileName || "",
+                  imageUrl:
+                    act.imageUrl ||
+                    (act.previewFileName
+                      ? `/uploads/${act.previewFileName}`
+                      : undefined),
+                  upvotes: typeof act.upvotes === "number" ? act.upvotes : 0,
+                  downvotes:
+                    typeof act.downvotes === "number" ? act.downvotes : 0,
+                  liveIn: act.liveIn || act.duration || "Скоро...",
+                  isMock: act.isMock || false,
+                }}
+              />
+            ))
+          ) : (
+            <div>Нет доступных актов</div>
+          )}
         </div>
         <NavBar />
       </div>
