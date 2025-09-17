@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+
+import axios from "axios";
 
 import CustomSelect from "../../shared/ui/CustomSelect";
 import NavBar from "../../shared/ui/NavBar/NavBar";
@@ -6,6 +8,55 @@ import styles from "./ActsPage.module.css";
 import ActCard from "./components/ActCard";
 
 export default function ActsPage() {
+  const [acts, setActs] = useState([
+    {
+      id: 1,
+      title: "Voices in the Crowd",
+      description:
+        "Lorem ipsum is a dummy or placeholder text commonly used in graphic design, publishing",
+      navigator: "Graphite8",
+      heroes: ["Graphite8", "NeonFox", "ShadowWeave", "EchoStorm1"],
+      location: "Puerto de la Cruz (ES)",
+      distance: "2,500km Away",
+      upvotes: 12,
+      downvotes: 12,
+      liveIn: "2h 15m",
+      isMock: true,
+    },
+  ]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    setLoading(true);
+    axios
+      .get("/act/get-acts")
+      .then((res) => {
+        if (Array.isArray(res.data)) {
+          setActs((prev) => [
+            prev[0],
+            ...res.data.map((act) => ({
+              ...act,
+              title: act.name,
+              description: act.status,
+              navigator: act.user,
+              location: act.category,
+              distance: act.duration,
+              upvotes: 0,
+              downvotes: 0,
+              liveIn: act.duration,
+              isMock: false,
+            })),
+          ]);
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError("Ошибка загрузки актов");
+        setLoading(false);
+      });
+  }, []);
+
   const handleSortChange = (option) => {
     console.log("Selected sort option:", option);
   };
@@ -67,22 +118,9 @@ export default function ActsPage() {
         </form>
 
         <div className={styles.streamsList}>
-          <ActCard
-            streamData={{
-              streamName: "Voices in the Crowd",
-              status: "ONLINE",
-              startedAt: new Date().toISOString(),
-              previewFileName: null,
-            }}
-          />
-          <ActCard
-            streamData={{
-              streamName: "Another Stream",
-              status: "ONLINE",
-              startedAt: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
-              previewFileName: null,
-            }}
-          />
+          {acts.map((act) => (
+            <ActCard key={act.id} act={act} />
+          ))}
         </div>
         <NavBar />
       </div>

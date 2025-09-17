@@ -1,6 +1,9 @@
 import { useState } from "react";
 
+import { useNavigate } from "react-router-dom";
+
 import api from "../../../shared/api/api";
+import { useActsStore } from "../../../shared/stores/actsStore";
 import { useAuthStore } from "../../../shared/stores/authStore";
 import { validateActData } from "../../../shared/types/act";
 
@@ -9,6 +12,8 @@ export function useCreateAct() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const { user } = useAuthStore();
+  const { addAct } = useActsStore();
+  const navigate = useNavigate();
 
   const createAct = async (actData) => {
     setLoading(true);
@@ -71,6 +76,18 @@ export function useCreateAct() {
       setLoading(false);
 
       console.log("Act created successfully:", response.data);
+
+      // Добавляем созданный акт в store
+      addAct({
+        ...actData,
+        userId: user.id,
+        actId: response.data.actId,
+        imageUrl: actData.photo ? URL.createObjectURL(actData.photo) : null,
+      });
+
+      // Перенаправляем на страницу актов
+      navigate("/acts");
+
       return response.data; // { message: 'Stream launched successfully', actId: number }
     } catch (err) {
       const errorMessage =
