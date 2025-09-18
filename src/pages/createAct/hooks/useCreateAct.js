@@ -85,8 +85,8 @@ export function useCreateAct() {
         imageUrl: actData.photo ? URL.createObjectURL(actData.photo) : null,
       });
 
-      // Перенаправляем на страницу актов
-      navigate("/acts");
+      // Перенаправляем на страницу стримера
+      navigate(`/stream-host/${response.data.actId}`);
 
       return response.data; // { message: 'Stream launched successfully', actId: number }
     } catch (err) {

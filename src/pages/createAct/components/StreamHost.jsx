@@ -1,17 +1,65 @@
 import React, { useEffect, useRef, useState } from "react";
 
-import api from "../../../shared/api/api";
+import AgoraRTC from "agora-rtc-sdk-ng";
 
-// Заглушки для Agora (установите agora-rtc-sdk-ng если нужно)
-// import AgoraRTC from 'agora-rtc-sdk-ng';
+import api from "../../../shared/api/api";
+import { useAuthStore } from "../../../shared/stores/authStore";
+
+// Функция для извлечения данных из JWT токена
+const parseJWT = (token) => {
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map(function (c) {
+          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join(""),
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error("Error parsing JWT:", error);
+    return null;
+  }
+};
 
 const StreamHost = ({ actId, actTitle, onStopStream }) => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState(null);
   const [token, setToken] = useState(null);
   const localVideoRef = useRef(null);
-  // const clientRef = useRef(null); // Закомментировано для будущего использования с Agora
-  // const localTracksRef = useRef({}); // Закомментировано для будущего использования с Agora
+  const clientRef = useRef(null);
+  const localTracksRef = useRef({});
+  const isInitializingRef = useRef(false); // Флаг для предотвращения множественной инициализации
+  const isStreamingStartedRef = useRef(false); // Флаг для предотвращения множественного запуска стрима
+
+  // Получаем пользователя из auth store
+  const { user } = useAuthStore();
+
+  // Извлекаем ID пользователя (используем сначала user.id, потом из токена)
+  let baseUserId;
+  if (user?.id) {
+    baseUserId = user.id;
+  } else if (user?.token) {
+    const tokenData = parseJWT(user.token);
+    baseUserId = tokenData?.sub || tokenData?.id || 999999;
+  } else {
+    baseUserId = 999999; // Фиксированный fallback
+  }
+
+  // Создаем уникальный UID для стримера: актId + userId + роль
+  const userId = parseInt(`${actId}${baseUserId}2`); // актId + userId + роль(2=publisher)
+
+  console.log(
+    "StreamHost user data:",
+    user,
+    "baseUserId:",
+    baseUserId,
+    "userId:",
+    userId,
+  );
 
   // Генерируем channel ID на основе actId
   const channelName = `act_${actId}`;
@@ -19,19 +67,41 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
   useEffect(() => {
     // Получаем токен для стрима
     const getStreamToken = async () => {
+      // Предотвращаем множественную инициализацию
+      if (isInitializingRef.current) {
+        console.log("Already initializing, skipping...");
+        return;
+      }
+
+      isInitializingRef.current = true;
+
       try {
-        console.log("Getting stream token for channel:", channelName);
+        console.log(
+          "Getting stream token for channel:",
+          channelName,
+          "userId:",
+          userId,
+        );
 
         // Получаем токен с вашего бэкенда для publisher (стример)
         const response = await api.get(
-          `/act/token/${channelName}/PUBLISHER/uid?uid=2&expiry=3600`,
+          `/act/token/${channelName}/PUBLISHER/uid?uid=${userId}&expiry=3600`,
         );
         setToken(response.data.token);
 
         console.log("Token received:", response.data.token);
+
+        // Автоматически запускаем стрим только один раз
+        if (!isStreamingStartedRef.current) {
+          isStreamingStartedRef.current = true;
+          console.log("Starting stream automatically...");
+          await startStreaming();
+        }
       } catch (err) {
         console.error("Error getting stream token:", err);
         setError("Failed to get stream token");
+      } finally {
+        isInitializingRef.current = false;
       }
     };
 
@@ -39,11 +109,57 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
 
     // Cleanup при размонтировании
     return () => {
+      isInitializingRef.current = false;
+      isStreamingStartedRef.current = false;
       if (isStreaming) {
         stopStreaming();
       }
+      stopCameraPreview();
     };
-  }, [actId, channelName]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [actId, channelName, userId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Функция для запуска превью камеры
+  const startCameraPreview = async () => {
+    try {
+      console.log("Starting camera preview...");
+
+      // Проверяем разрешения и создаем превью
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
+
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
+        console.log("Camera preview started successfully");
+      }
+
+      // Сохраняем поток для последующей остановки
+      localTracksRef.current.previewStream = stream;
+    } catch (err) {
+      console.error("Error starting camera preview:", err);
+      setError("Failed to access camera: " + err.message);
+    }
+  };
+
+  // Функция для остановки превью камеры
+  const stopCameraPreview = () => {
+    try {
+      if (localTracksRef.current.previewStream) {
+        localTracksRef.current.previewStream.getTracks().forEach((track) => {
+          track.stop();
+        });
+        localTracksRef.current.previewStream = null;
+        console.log("Camera preview stopped");
+      }
+
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = null;
+      }
+    } catch (err) {
+      console.error("Error stopping camera preview:", err);
+    }
+  };
 
   const startStreaming = async () => {
     if (!token) {
@@ -57,75 +173,41 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
 
       console.log("Starting stream for act:", actId, "channel:", channelName);
 
-      // ЗДЕСЬ ДОЛЖНА БЫТЬ ИНТЕГРАЦИЯ С AGORA
-      // Пока что это заглушка
+      // Останавливаем превью камеры
+      stopCameraPreview();
 
-      /* 
-      Пример интеграции с Agora:
-      
-      // Создаем клиент
-      const client = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+      // Создаем Agora клиент
+      const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
       clientRef.current = client;
-      
+
+      console.log("Agora client created, joining channel...");
+
       // Подключаемся к каналу
       await client.join(
-        process.env.REACT_APP_AGORA_APP_ID,
+        import.meta.env.VITE_AGORA_APP_ID,
         channelName,
         token,
-        0 // uid
+        userId, // uid пользователя из auth store
       );
-      
+
+      console.log("Joined channel successfully");
+
       // Создаем треки
+      console.log("Creating camera and microphone tracks...");
       const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
       const videoTrack = await AgoraRTC.createCameraVideoTrack();
-      
+
       localTracksRef.current = { audioTrack, videoTrack };
-      
-      // Публикуем треки
-      await client.publish([audioTrack, videoTrack]);
-      
+
       // Воспроизводим локальное видео
       if (localVideoRef.current) {
+        console.log("Playing local video...");
         videoTrack.play(localVideoRef.current);
       }
-      */
 
-      // Заглушка для демонстрации - запускаем реальную камеру
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true,
-        });
-
-        if (localVideoRef.current) {
-          localVideoRef.current.srcObject = stream;
-          localVideoRef.current.play();
-        }
-
-        console.log("Camera started successfully");
-      } catch (cameraError) {
-        console.error("Failed to start camera:", cameraError);
-
-        if (localVideoRef.current) {
-          localVideoRef.current.innerHTML = `
-            <div style="
-              width: 100%; 
-              height: 100%; 
-              background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
-              display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 18px;
-            text-align: center;
-          ">
-            🎥 CAMERA ERROR<br/>
-            Failed to access camera<br/>
-            <small>Check camera permissions</small>
-          </div>
-        `;
-        }
-      }
+      // Публикуем треки
+      console.log("Publishing tracks...");
+      await client.publish([audioTrack, videoTrack]);
 
       console.log("Stream started successfully");
     } catch (err) {
@@ -139,9 +221,6 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
     try {
       console.log("Stopping stream for act:", actId);
 
-      // ЗДЕСЬ ДОЛЖНА БЫТЬ ЛОГИКА ОСТАНОВКИ AGORA
-
-      /*
       // Останавливаем и закрываем треки
       if (localTracksRef.current.audioTrack) {
         localTracksRef.current.audioTrack.stop();
@@ -151,21 +230,15 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
         localTracksRef.current.videoTrack.stop();
         localTracksRef.current.videoTrack.close();
       }
-      
+
       // Покидаем канал
       if (clientRef.current) {
         await clientRef.current.leave();
       }
-      */
 
-      // Очищаем видео и останавливаем поток камеры
-      if (localVideoRef.current) {
-        const stream = localVideoRef.current.srcObject;
-        if (stream) {
-          stream.getTracks().forEach((track) => track.stop());
-          localVideoRef.current.srcObject = null;
-        }
-      }
+      // Очищаем ссылки
+      localTracksRef.current = {};
+      clientRef.current = null;
 
       setIsStreaming(false);
 
@@ -175,6 +248,9 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
       }
 
       console.log("Stream stopped successfully");
+
+      // Возвращаемся к превью камеры
+      startCameraPreview();
     } catch (err) {
       console.error("Error stopping stream:", err);
       setError("Failed to stop stream: " + err.message);
@@ -214,7 +290,8 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
           <strong>Channel:</strong> {channelName}
         </p>
         <p>
-          <strong>Status:</strong> {isStreaming ? "🔴 LIVE" : "⚫ OFFLINE"}
+          <strong>Status:</strong>{" "}
+          {isStreaming ? "🔴 LIVE ON AIR" : "⚪ PREPARING..."}
         </p>
         <p>
           <strong>Token:</strong> {token ? "✅ Ready" : "❌ Loading..."}
@@ -261,7 +338,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
               fontSize: "16px",
             }}
           >
-            🎥 Start Streaming
+            🔴 Go Live!
           </button>
         ) : (
           <button
@@ -276,11 +353,12 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
               fontSize: "16px",
             }}
           >
-            ⏹️ Stop Stream
+            ⏹️ End Stream
           </button>
         )}
       </div>
 
+      {/* Информация для пользователя */}
       <div
         style={{
           marginTop: "20px",
@@ -290,9 +368,8 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
         }}
       >
         <p>
-          <strong>Note:</strong> This is a demo implementation. To enable real
-          streaming, install agora-rtc-sdk-ng and implement the Agora
-          integration.
+          <strong>� Auto-Stream Active:</strong> Your stream started
+          automatically. Viewers can now watch your broadcast!
         </p>
       </div>
     </div>

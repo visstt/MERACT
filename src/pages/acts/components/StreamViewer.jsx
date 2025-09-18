@@ -1,37 +1,109 @@
 import React, { useEffect, useRef, useState } from "react";
 
+import AgoraRTC from "agora-rtc-sdk-ng";
+import { useNavigate } from "react-router-dom";
+
 import api from "../../../shared/api/api";
+import { useAuthStore } from "../../../shared/stores/authStore";
+
+// Функция для извлечения данных из JWT токена
+const parseJWT = (token) => {
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map(function (c) {
+          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join(""),
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error("Error parsing JWT:", error);
+    return null;
+  }
+};
 
 const StreamViewer = ({ channelName, streamData, onClose }) => {
+  const navigate = useNavigate();
   const [isConnected, setIsConnected] = useState(false);
-  const [error, setError] = useState(null);
-  const [token, setToken] = useState(null);
+  const [, setError] = useState(null);
+  const [, setToken] = useState(null);
   const [remoteUsers, setRemoteUsers] = useState([]);
   const remoteVideoRef = useRef(null);
-  // const clientRef = useRef(null); // Для будущего использования с Agora
+  const clientRef = useRef(null);
+  const isConnectingRef = useRef(false); // Флаг для предотвращения двойного подключения
 
-  // Используем переданный channelName напрямую
-  const actualChannelName = channelName || `act_${streamData?.id || "default"}`;
+  // Получаем пользователя из auth store
+  const { user } = useAuthStore();
+
+  // Извлекаем ID пользователя (используем сначала user.id, потом из токена)
+  let baseUserId;
+  if (user?.id) {
+    baseUserId = user.id;
+  } else if (user?.token) {
+    const tokenData = parseJWT(user.token);
+    baseUserId = tokenData?.sub || tokenData?.id || 888888;
+  } else {
+    baseUserId = 888888; // Фиксированный fallback для анонимных пользователей
+  }
+
+  // Создаем уникальный UID для зрителя: streamId + userId + роль
+  const streamId =
+    channelName?.replace("act_", "") || streamData?.id || "default";
+  const userId = parseInt(`${streamId}${baseUserId}1`); // streamId + userId + роль(1=subscriber)
+
+  console.log(
+    "StreamViewer user data:",
+    user,
+    "baseUserId:",
+    baseUserId,
+    "userId:",
+    userId,
+  );
+
+  // Используем переданный channelName или создаем из streamData
+  const actualChannelName = channelName?.startsWith("act_")
+    ? channelName
+    : `act_${channelName || streamData?.id || "default"}`;
 
   useEffect(() => {
     // Получаем токен для просмотра
     const getViewerToken = async () => {
+      // Предотвращаем двойное подключение
+      if (isConnectingRef.current) {
+        console.log("Already connecting, skipping...");
+        return;
+      }
+
+      isConnectingRef.current = true;
+
       try {
-        console.log("Getting viewer token for channel:", actualChannelName);
+        console.log(
+          "Getting viewer token for channel:",
+          actualChannelName,
+          "userId:",
+          userId,
+        );
 
         // Получаем токен с вашего бэкенда для subscriber (зритель)
+        // Используем userId из auth store
         const response = await api.get(
-          `/act/token/${actualChannelName}/SUBSCRIBER/uid?uid=2&expiry=3600`,
+          `/act/token/${actualChannelName}/SUBSCRIBER/uid?uid=${userId}&expiry=3600`,
         );
         setToken(response.data.token);
 
         console.log("Viewer token received:", response.data.token);
 
         // Автоматически подключаемся после получения токена
-        connectToStream(response.data.token);
+        await connectToStream(response.data.token);
       } catch (err) {
         console.error("Error getting viewer token:", err);
         setError("Failed to get viewer token");
+      } finally {
+        isConnectingRef.current = false;
       }
     };
 
@@ -39,11 +111,12 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
 
     // Cleanup при размонтировании
     return () => {
-      if (isConnected) {
+      isConnectingRef.current = false;
+      if (isConnected && clientRef.current) {
         disconnectFromStream();
       }
     };
-  }, [streamData?.id, actualChannelName]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [streamData?.id, actualChannelName, userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const connectToStream = async (streamToken) => {
     if (!streamToken) {
@@ -52,7 +125,7 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
     }
 
     try {
-      setIsConnected(true);
+      setIsConnected(false);
       setError(null);
 
       console.log(
@@ -60,73 +133,51 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
         streamData?.id,
         "channel:",
         actualChannelName,
+        "token:",
+        streamToken,
       );
 
-      // ЗДЕСЬ ДОЛЖНА БЫТЬ ИНТЕГРАЦИЯ С AGORA ДЛЯ ПОДКЛЮЧЕНИЯ ЗРИТЕЛЯ
-      // Пока что это заглушка
-
-      /* 
-      Пример интеграции с Agora для зрителя:
-      
-      // Создаем клиент
-      const client = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+      // Создаем Agora клиент для зрителя
+      const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
       clientRef.current = client;
-      
+
+      console.log("Agora client created, attempting to join...");
+
       // Подключаемся к каналу как зритель
       await client.join(
-        process.env.REACT_APP_AGORA_APP_ID,
-        channelName,
+        import.meta.env.VITE_AGORA_APP_ID,
+        actualChannelName,
         streamToken,
-        0 // uid
+        userId, // uid пользователя из auth store
       );
-      
+
+      console.log("Successfully joined channel as viewer");
+      setIsConnected(true);
+
       // Слушаем события пользователей
-      client.on('user-published', async (user, mediaType) => {
-        console.log('User published:', user.uid, mediaType);
-        
+      client.on("user-published", async (user, mediaType) => {
+        console.log("User published:", user.uid, mediaType);
+
         // Подписываемся на пользователя
         await client.subscribe(user, mediaType);
-        
-        if (mediaType === 'video' && remoteVideoRef.current) {
+
+        if (mediaType === "video" && remoteVideoRef.current) {
           user.videoTrack?.play(remoteVideoRef.current);
         }
-        if (mediaType === 'audio') {
+        if (mediaType === "audio") {
           user.audioTrack?.play();
         }
-        
-        setRemoteUsers(prev => [...prev.filter(u => u.uid !== user.uid), user]);
-      });
-      
-      client.on('user-unpublished', (user) => {
-        console.log('User unpublished:', user.uid);
-        setRemoteUsers(prev => prev.filter(u => u.uid !== user.uid));
-      });
-      */
 
-      // Заглушка для демонстрации
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.innerHTML = `
-          <div style="
-            width: 100%; 
-            height: 100%; 
-            background: linear-gradient(45deg, #4CAF50 0%, #45a049 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 18px;
-            text-align: center;
-          ">
-            👀 WATCHING STREAM<br/>
-            Act: ${streamData?.title || streamData?.name || "Unknown"}<br/>
-            Channel: ${actualChannelName}<br/>
-            <small style="font-size: 14px;">Demo mode - no real video stream</small>
-          </div>
-        `;
-      }
+        setRemoteUsers((prev) => [
+          ...prev.filter((u) => u.uid !== user.uid),
+          user,
+        ]);
+      });
 
-      // Имитируем получение удаленного пользователя
-      setRemoteUsers([{ uid: "demo_streamer", username: "Streamer" }]);
+      client.on("user-unpublished", (user) => {
+        console.log("User unpublished:", user.uid);
+        setRemoteUsers((prev) => prev.filter((u) => u.uid !== user.uid));
+      });
 
       console.log("Connected to stream successfully");
     } catch (err) {
@@ -140,19 +191,13 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
     try {
       console.log("Disconnecting from stream:", streamData?.id);
 
-      // ЗДЕСЬ ДОЛЖНА БЫТЬ ЛОГИКА ОТКЛЮЧЕНИЯ AGORA
-
-      /*
       // Покидаем канал
       if (clientRef.current) {
         await clientRef.current.leave();
       }
-      */
 
-      // Очищаем видео
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.innerHTML = "";
-      }
+      // Очищаем ссылки
+      clientRef.current = null;
 
       setIsConnected(false);
       setRemoteUsers([]);
@@ -164,129 +209,140 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
     }
   };
 
-  const handleClose = () => {
-    disconnectFromStream();
+  const handleClose = async () => {
+    // Отключаемся от стрима
+    await disconnectFromStream();
+
+    // Вызываем callback если есть
     if (onClose) {
       onClose();
     }
+
+    // Переходим на страницу acts
+    navigate("/acts");
   };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100vw",
+        height: "100vh",
+        backgroundColor: "#000",
+        zIndex: 1000,
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      {/* Заголовок с кнопкой закрытия */}
       <div
         style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1001,
+          background:
+            "linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)",
+          padding: "15px 20px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: "20px",
         }}
       >
-        <h2>
-          👀 Watching:{" "}
-          {streamData?.title || streamData?.name || "Unknown Stream"}
+        <h2
+          style={{
+            color: "white",
+            margin: 0,
+            fontSize: "18px",
+            fontWeight: 600,
+            textShadow: "0 1px 3px rgba(0,0,0,0.5)",
+          }}
+        >
+          🔴 {streamData?.title || streamData?.name || "Live Stream"}
         </h2>
         <button
           onClick={handleClose}
           style={{
-            background: "#f44336",
+            background: "rgba(255, 255, 255, 0.2)",
             color: "white",
-            border: "none",
-            padding: "8px 16px",
-            borderRadius: "4px",
+            border: "1px solid rgba(255, 255, 255, 0.3)",
+            width: "40px",
+            height: "40px",
+            borderRadius: "50%",
             cursor: "pointer",
+            fontSize: "18px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backdropFilter: "blur(10px)",
           }}
         >
-          ✕ Close
+          ✕
         </button>
       </div>
 
-      {error && (
-        <div
-          style={{
-            color: "red",
-            background: "#ffebee",
-            padding: "10px",
-            borderRadius: "4px",
-            marginBottom: "20px",
-          }}
-        >
-          Error: {error}
-        </div>
-      )}
-
+      {/* Полноэкранное видео */}
       <div
         style={{
-          background: "#f5f5f5",
-          padding: "15px",
-          borderRadius: "8px",
-          marginBottom: "20px",
-        }}
-      >
-        <p>
-          <strong>Act ID:</strong> {streamData?.id || "Unknown"}
-        </p>
-        <p>
-          <strong>Channel:</strong> {actualChannelName}
-        </p>
-        <p>
-          <strong>Status:</strong>{" "}
-          {isConnected ? "🟢 CONNECTED" : "🔴 DISCONNECTED"}
-        </p>
-        <p>
-          <strong>Token:</strong> {token ? "✅ Ready" : "❌ Loading..."}
-        </p>
-        <p>
-          <strong>Remote Users:</strong> {remoteUsers.length}
-        </p>
-      </div>
-
-      {/* Видео контейнер */}
-      <div
-        style={{
+          flex: 1,
           width: "100%",
-          height: "400px",
-          background: "#000",
-          borderRadius: "8px",
-          marginBottom: "20px",
+          height: "100%",
+          position: "relative",
           overflow: "hidden",
         }}
       >
-        <div ref={remoteVideoRef} style={{ width: "100%", height: "100%" }} />
+        <div
+          ref={remoteVideoRef}
+          style={{
+            width: "100%",
+            height: "100%",
+            background: "linear-gradient(45deg, #1a1a1a 0%, #2d2d2d 100%)",
+          }}
+        />
       </div>
 
-      {/* Информация о пользователях */}
-      {remoteUsers.length > 0 && (
-        <div
-          style={{
-            background: "#e8f5e8",
-            padding: "10px",
-            borderRadius: "4px",
-            marginBottom: "20px",
-          }}
-        >
-          <strong>Connected Users:</strong>
-          <ul style={{ margin: "5px 0", paddingLeft: "20px" }}>
-            {remoteUsers.map((user) => (
-              <li key={user.uid}>
-                User ID: {user.uid} {user.username && `(${user.username})`}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
+      {/* Статус панель (внизу экрана) */}
       <div
         style={{
-          textAlign: "center",
-          color: "#666",
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          background:
+            "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)",
+          padding: "20px",
+          color: "white",
           fontSize: "14px",
+          zIndex: 1001,
         }}
       >
-        <p>
-          <strong>Note:</strong> This is a demo implementation. To enable real
-          streaming, install agora-rtc-sdk-ng and implement the Agora
-          integration.
-        </p>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <div>
+            <span
+              style={{
+                background: isConnected ? "#4CAF50" : "#f44336",
+                padding: "4px 8px",
+                borderRadius: "12px",
+                fontSize: "12px",
+                fontWeight: 600,
+              }}
+            >
+              {isConnected ? "🟢 LIVE" : "🔴 OFFLINE"}
+            </span>
+          </div>
+          <div style={{ fontSize: "12px", color: "#ccc" }}>
+            👥 {remoteUsers.length} streaming
+          </div>
+        </div>
       </div>
     </div>
   );

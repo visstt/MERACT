@@ -118,9 +118,13 @@ export default function ActsPage() {
 
         <div className={styles.streamsList}>
           {acts && acts.length > 0 ? (
-            acts.map((act) => (
+            acts.map((act, index) => (
               <ActCard
-                key={act.id || Math.random()}
+                key={
+                  act.id
+                    ? `act-${act.id}`
+                    : `fallback-${index}-${Math.random()}`
+                }
                 act={{
                   ...act,
                   title: act.title || act.name || "Без названия",

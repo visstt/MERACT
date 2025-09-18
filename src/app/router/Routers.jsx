@@ -12,18 +12,26 @@ import SelectSequel from "../../pages/sceneControl/intro/SelectSequel/SelectSequ
 import SceneControlMusic from "../../pages/sceneControl/music/SceneControlMusic";
 import SelectMusic from "../../pages/sceneControl/music/selectMusic/SelectMusic";
 import StreamPage from "../../pages/stream/StreamPage";
+import StreamHostPage from "../../pages/streamHost/StreamHostPage";
+import { useAuthStore } from "../../shared/stores/authStore";
+
+// Компонент для умного редиректа
+const HomeRedirect = () => {
+  const { isAuthenticated } = useAuthStore();
+  return <Navigate to={isAuthenticated ? "/acts" : "/login"} replace />;
+};
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/acts" replace />,
+    element: <HomeRedirect />,
   },
   {
     path: "/acts",
     element: (
-      // <RequireAuth>
-      <ActsPage />
-      // </RequireAuth>
+      <RequireAuth>
+        <ActsPage />
+      </RequireAuth>
     ),
   },
   {
@@ -49,6 +57,14 @@ export const router = createBrowserRouter([
   {
     path: "/create-act",
     element: <CreateAct />,
+  },
+  {
+    path: "/stream-host/:id",
+    element: (
+      <RequireAuth>
+        <StreamHostPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/stream/:id",
