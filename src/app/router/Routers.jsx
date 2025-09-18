@@ -8,9 +8,10 @@ import ActsPage from "../../pages/acts/ActsPage";
 import CreateAct from "../../pages/createAct/CreateAct";
 import GuildsPage from "../../pages/guilds/GuildsPage";
 import SceneControlIntro from "../../pages/sceneControl/intro/SceneControlIntro";
+import SelectSequel from "../../pages/sceneControl/intro/SelectSequel/SelectSequel";
 import SceneControlMusic from "../../pages/sceneControl/music/SceneControlMusic";
 import SelectMusic from "../../pages/sceneControl/music/selectMusic/SelectMusic";
-import SelectSequel from "../../pages/sceneControl/intro/SelectSequel/SelectSequel";
+import StreamPage from "../../pages/stream/StreamPage";
 
 export const router = createBrowserRouter([
   {
@@ -48,6 +49,10 @@ export const router = createBrowserRouter([
   {
     path: "/create-act",
     element: <CreateAct />,
+  },
+  {
+    path: "/stream/:id",
+    element: <StreamPage />,
   },
   {
     path: "/login",

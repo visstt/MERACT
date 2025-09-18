@@ -24,7 +24,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
 
         // Получаем токен с вашего бэкенда для publisher (стример)
         const response = await api.get(
-          `/act/token/${channelName}/publisher/uid/0?expiry=3600`,
+          `/act/token/${channelName}/PUBLISHER/uid?uid=2&expiry=3600`,
         );
         setToken(response.data.token);
 
@@ -90,25 +90,41 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
       }
       */
 
-      // Заглушка для демонстрации
-      if (localVideoRef.current) {
-        localVideoRef.current.innerHTML = `
-          <div style="
-            width: 100%; 
-            height: 100%; 
-            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
-            display: flex;
+      // Заглушка для демонстрации - запускаем реальную камеру
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true,
+        });
+
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream;
+          localVideoRef.current.play();
+        }
+
+        console.log("Camera started successfully");
+      } catch (cameraError) {
+        console.error("Failed to start camera:", cameraError);
+
+        if (localVideoRef.current) {
+          localVideoRef.current.innerHTML = `
+            <div style="
+              width: 100%; 
+              height: 100%; 
+              background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+              display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-size: 18px;
             text-align: center;
           ">
-            🎥 LIVE STREAMING<br/>
-            Act: ${actTitle}<br/>
-            Channel: ${channelName}
+            🎥 CAMERA ERROR<br/>
+            Failed to access camera<br/>
+            <small>Check camera permissions</small>
           </div>
         `;
+        }
       }
 
       console.log("Stream started successfully");
@@ -142,9 +158,13 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
       }
       */
 
-      // Очищаем видео
+      // Очищаем видео и останавливаем поток камеры
       if (localVideoRef.current) {
-        localVideoRef.current.innerHTML = "";
+        const stream = localVideoRef.current.srcObject;
+        if (stream) {
+          stream.getTracks().forEach((track) => track.stop());
+          localVideoRef.current.srcObject = null;
+        }
       }
 
       setIsStreaming(false);
@@ -212,7 +232,17 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
           overflow: "hidden",
         }}
       >
-        <div ref={localVideoRef} style={{ width: "100%", height: "100%" }} />
+        <video
+          ref={localVideoRef}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+          autoPlay
+          muted
+          playsInline
+        />
       </div>
 
       {/* Кнопки управления */}

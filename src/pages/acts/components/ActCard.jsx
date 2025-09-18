@@ -1,10 +1,19 @@
+import { useNavigate } from "react-router-dom";
+
 import styles from "./ActCard.module.css";
 
 export default function ActCard({ act }) {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    // Открываем страницу просмотра стрима с ID акта
+    navigate(`/stream/${act.id}`, { state: { act } });
+  };
+
   // Если это моковая карточка, показываем оригинальные данные
   if (act.isMock) {
     return (
-      <div className={styles.actCard}>
+      <div className={styles.actCard} onClick={handleCardClick}>
         <h1>Voices in the Crowd </h1>
         <h3>
           Lorem ipsum is a dummy or placeholder text commonly used in graphic
@@ -65,7 +74,7 @@ export default function ActCard({ act }) {
     : {};
 
   return (
-    <div className={styles.actCard} style={cardStyle}>
+    <div className={styles.actCard} style={cardStyle} onClick={handleCardClick}>
       {imageUrl && <div className={styles.overlay} />}
       <h1>{act.title}</h1>
       <h3>{act.description}</h3>

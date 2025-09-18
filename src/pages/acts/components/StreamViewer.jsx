@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import api from "../../../shared/api/api";
 
-const StreamViewer = ({ actId, actTitle, onClose }) => {
+const StreamViewer = ({ channelName, streamData, onClose }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState(null);
   const [token, setToken] = useState(null);
@@ -10,18 +10,18 @@ const StreamViewer = ({ actId, actTitle, onClose }) => {
   const remoteVideoRef = useRef(null);
   // const clientRef = useRef(null); // Для будущего использования с Agora
 
-  // Генерируем channel ID на основе actId
-  const channelName = `act_${actId}`;
+  // Используем переданный channelName напрямую
+  const actualChannelName = channelName || `act_${streamData?.id || "default"}`;
 
   useEffect(() => {
     // Получаем токен для просмотра
     const getViewerToken = async () => {
       try {
-        console.log("Getting viewer token for channel:", channelName);
+        console.log("Getting viewer token for channel:", actualChannelName);
 
         // Получаем токен с вашего бэкенда для subscriber (зритель)
         const response = await api.get(
-          `/act/token/${channelName}/subscriber/uid/0?expiry=3600`,
+          `/act/token/${actualChannelName}/SUBSCRIBER/uid?uid=2&expiry=3600`,
         );
         setToken(response.data.token);
 
@@ -43,7 +43,7 @@ const StreamViewer = ({ actId, actTitle, onClose }) => {
         disconnectFromStream();
       }
     };
-  }, [actId, channelName]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [streamData?.id, actualChannelName]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const connectToStream = async (streamToken) => {
     if (!streamToken) {
@@ -57,9 +57,9 @@ const StreamViewer = ({ actId, actTitle, onClose }) => {
 
       console.log(
         "Connecting to stream for act:",
-        actId,
+        streamData?.id,
         "channel:",
-        channelName,
+        actualChannelName,
       );
 
       // ЗДЕСЬ ДОЛЖНА БЫТЬ ИНТЕГРАЦИЯ С AGORA ДЛЯ ПОДКЛЮЧЕНИЯ ЗРИТЕЛЯ
@@ -118,8 +118,8 @@ const StreamViewer = ({ actId, actTitle, onClose }) => {
             text-align: center;
           ">
             👀 WATCHING STREAM<br/>
-            Act: ${actTitle}<br/>
-            Channel: ${channelName}<br/>
+            Act: ${streamData?.title || streamData?.name || "Unknown"}<br/>
+            Channel: ${actualChannelName}<br/>
             <small style="font-size: 14px;">Demo mode - no real video stream</small>
           </div>
         `;
@@ -138,7 +138,7 @@ const StreamViewer = ({ actId, actTitle, onClose }) => {
 
   const disconnectFromStream = async () => {
     try {
-      console.log("Disconnecting from stream:", actId);
+      console.log("Disconnecting from stream:", streamData?.id);
 
       // ЗДЕСЬ ДОЛЖНА БЫТЬ ЛОГИКА ОТКЛЮЧЕНИЯ AGORA
 
@@ -181,7 +181,10 @@ const StreamViewer = ({ actId, actTitle, onClose }) => {
           marginBottom: "20px",
         }}
       >
-        <h2>👀 Watching: {actTitle}</h2>
+        <h2>
+          👀 Watching:{" "}
+          {streamData?.title || streamData?.name || "Unknown Stream"}
+        </h2>
         <button
           onClick={handleClose}
           style={{
@@ -220,10 +223,10 @@ const StreamViewer = ({ actId, actTitle, onClose }) => {
         }}
       >
         <p>
-          <strong>Act ID:</strong> {actId}
+          <strong>Act ID:</strong> {streamData?.id || "Unknown"}
         </p>
         <p>
-          <strong>Channel:</strong> {channelName}
+          <strong>Channel:</strong> {actualChannelName}
         </p>
         <p>
           <strong>Status:</strong>{" "}
