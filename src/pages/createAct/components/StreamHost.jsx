@@ -107,7 +107,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
 
     getStreamToken();
 
-    // Cleanup при размонтировании
+    // Cleanup on unmount
     return () => {
       isInitializingRef.current = false;
       isStreamingStartedRef.current = false;
@@ -118,12 +118,12 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
     };
   }, [actId, channelName, userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Функция для запуска превью камеры
+  // Function to start camera preview
   const startCameraPreview = async () => {
     try {
       console.log("Starting camera preview...");
 
-      // Проверяем разрешения и создаем превью
+      // Check permissions and create preview
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: true,
@@ -134,7 +134,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
         console.log("Camera preview started successfully");
       }
 
-      // Сохраняем поток для последующей остановки
+      // Save stream for later stopping
       localTracksRef.current.previewStream = stream;
     } catch (err) {
       console.error("Error starting camera preview:", err);
@@ -142,7 +142,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
     }
   };
 
-  // Функция для остановки превью камеры
+  // Function to stop camera preview
   const stopCameraPreview = () => {
     try {
       if (localTracksRef.current.previewStream) {
@@ -173,39 +173,39 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
 
       console.log("Starting stream for act:", actId, "channel:", channelName);
 
-      // Останавливаем превью камеры
+      // Stop camera preview
       stopCameraPreview();
 
-      // Создаем Agora клиент
+      // Create Agora client
       const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
       clientRef.current = client;
 
       console.log("Agora client created, joining channel...");
 
-      // Подключаемся к каналу
+      // Join channel
       await client.join(
         import.meta.env.VITE_AGORA_APP_ID,
         channelName,
         token,
-        userId, // uid пользователя из auth store
+        userId, // user uid from auth store
       );
 
       console.log("Joined channel successfully");
 
-      // Создаем треки
+      // Create tracks
       console.log("Creating camera and microphone tracks...");
       const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
       const videoTrack = await AgoraRTC.createCameraVideoTrack();
 
       localTracksRef.current = { audioTrack, videoTrack };
 
-      // Воспроизводим локальное видео
+      // Play local video
       if (localVideoRef.current) {
         console.log("Playing local video...");
         videoTrack.play(localVideoRef.current);
       }
 
-      // Публикуем треки
+      // Publish tracks
       console.log("Publishing tracks...");
       await client.publish([audioTrack, videoTrack]);
 
@@ -221,7 +221,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
     try {
       console.log("Stopping stream for act:", actId);
 
-      // Останавливаем и закрываем треки
+      // Stop and close tracks
       if (localTracksRef.current.audioTrack) {
         localTracksRef.current.audioTrack.stop();
         localTracksRef.current.audioTrack.close();
@@ -231,26 +231,25 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
         localTracksRef.current.videoTrack.close();
       }
 
-      // Покидаем канал
+      // Leave channel
       if (clientRef.current) {
         await clientRef.current.leave();
       }
 
-      // Очищаем ссылки
+      // Clear references
       localTracksRef.current = {};
       clientRef.current = null;
 
       setIsStreaming(false);
 
-      // Уведомляем родительский компонент
+      // Notify parent component
       if (onStopStream) {
         onStopStream();
       }
 
       console.log("Stream stopped successfully");
 
-      // Возвращаемся к превью камеры
-      startCameraPreview();
+      // Camera and microphone are now fully stopped; do not start preview again
     } catch (err) {
       console.error("Error stopping stream:", err);
       setError("Failed to stop stream: " + err.message);
@@ -298,7 +297,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
         </p>
       </div>
 
-      {/* Видео контейнер */}
+      {/* Video container */}
       <div
         style={{
           width: "100%",
@@ -322,7 +321,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
         />
       </div>
 
-      {/* Кнопки управления */}
+      {/* Control buttons */}
       <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
         {!isStreaming ? (
           <button
@@ -358,7 +357,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
         )}
       </div>
 
-      {/* Информация для пользователя */}
+      {/* User information */}
       <div
         style={{
           marginTop: "20px",

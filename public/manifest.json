@@ -3,7 +3,7 @@
   "short_name": "MERACT",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#181A1B",
   "theme_color": "#000",
   "description": "MERACT Progressive Web App",
   "icons": [
