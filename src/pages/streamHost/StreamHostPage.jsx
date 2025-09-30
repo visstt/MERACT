@@ -6,11 +6,11 @@ import StreamHost from "../createAct/components/StreamHost";
 import styles from "./StreamHostPage.module.css";
 
 const StreamHostPage = () => {
-  const { id } = useParams(); // Получаем ID акта из URL
+  const { id } = useParams(); // Get act ID from URL
   const navigate = useNavigate();
 
   const handleStopStream = () => {
-    // После остановки стрима возвращаемся на главную страницу
+    // After stopping the stream, return to main page
     navigate("/acts");
   };
 

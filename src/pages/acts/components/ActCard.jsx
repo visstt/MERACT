@@ -6,11 +6,11 @@ export default function ActCard({ act }) {
   const navigate = useNavigate();
 
   const handleCardClick = () => {
-    // Открываем страницу просмотра стрима с ID акта
+    // Open stream viewing page with act ID
     navigate(`/stream/${act.id}`, { state: { act } });
   };
 
-  // Если это моковая карточка, показываем оригинальные данные
+  // If this is a mock card, show original data
   if (act.isMock) {
     return (
       <div className={styles.actCard} onClick={handleCardClick}>
@@ -59,7 +59,7 @@ export default function ActCard({ act }) {
     );
   }
 
-  // Для новых актов показываем реальные данные
+  // For new acts, show real data
   let imageUrl = act.imageUrl;
   if (!imageUrl && act.previewFileName) {
     imageUrl = `/uploads/${act.previewFileName}`;

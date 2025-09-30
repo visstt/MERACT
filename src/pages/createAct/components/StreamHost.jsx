@@ -5,7 +5,7 @@ import AgoraRTC from "agora-rtc-sdk-ng";
 import api from "../../../shared/api/api";
 import { useAuthStore } from "../../../shared/stores/authStore";
 
-// Функция для извлечения данных из JWT токена
+// Function to extract data from JWT token
 const parseJWT = (token) => {
   try {
     const base64Url = token.split(".")[1];
@@ -32,13 +32,13 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
   const localVideoRef = useRef(null);
   const clientRef = useRef(null);
   const localTracksRef = useRef({});
-  const isInitializingRef = useRef(false); // Флаг для предотвращения множественной инициализации
-  const isStreamingStartedRef = useRef(false); // Флаг для предотвращения множественного запуска стрима
+  const isInitializingRef = useRef(false); // Flag to prevent multiple initialization
+  const isStreamingStartedRef = useRef(false); // Flag to prevent multiple stream start
 
-  // Получаем пользователя из auth store
+  // Get user from auth store
   const { user } = useAuthStore();
 
-  // Извлекаем ID пользователя (используем сначала user.id, потом из токена)
+  // Extract user ID (use user.id first, then from token)
   let baseUserId;
   if (user?.id) {
     baseUserId = user.id;
@@ -46,11 +46,11 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
     const tokenData = parseJWT(user.token);
     baseUserId = tokenData?.sub || tokenData?.id || 999999;
   } else {
-    baseUserId = 999999; // Фиксированный fallback
+    baseUserId = 999999; // Fixed fallback
   }
 
-  // Создаем уникальный UID для стримера: актId + userId + роль
-  const userId = parseInt(`${actId}${baseUserId}2`); // актId + userId + роль(2=publisher)
+  // Create unique UID for streamer: actId + userId + role
+  const userId = parseInt(`${actId}${baseUserId}2`); // actId + userId + role(2=publisher)
 
   console.log(
     "StreamHost user data:",
@@ -61,13 +61,13 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
     userId,
   );
 
-  // Генерируем channel ID на основе actId
+  // Generate channel ID based on actId
   const channelName = `act_${actId}`;
 
   useEffect(() => {
-    // Получаем токен для стрима
+    // Get token for stream
     const getStreamToken = async () => {
-      // Предотвращаем множественную инициализацию
+      // Prevent multiple initialization
       if (isInitializingRef.current) {
         console.log("Already initializing, skipping...");
         return;
@@ -83,7 +83,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
           userId,
         );
 
-        // Получаем токен с вашего бэкенда для publisher (стример)
+        // Get token from your backend for publisher (streamer)
         const response = await api.get(
           `/act/token/${channelName}/PUBLISHER/uid?uid=${userId}&expiry=3600`,
         );
@@ -91,7 +91,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
 
         console.log("Token received:", response.data.token);
 
-        // Автоматически запускаем стрим только один раз
+        // Automatically start stream only once
         if (!isStreamingStartedRef.current) {
           isStreamingStartedRef.current = true;
           console.log("Starting stream automatically...");

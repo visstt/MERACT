@@ -14,21 +14,21 @@ export default function RequireAuth({ children }) {
   const { isAuthenticated, login } = useAuthStore();
 
   useEffect(() => {
-    // Проверяем аутентификацию из стора
+    // Check authentication from store
     if (!isAuthenticated) {
-      // Дополнительно проверяем cookie (для совместимости)
+      // Additionally check cookie (for compatibility)
       const token = getCookie("access_token");
       if (token) {
-        // Если токен есть в cookie, но не в сторе, обновляем стор
+        // If token exists in cookie but not in store, update store
         login({ token });
       } else {
-        // Если токена нет нигде, перенаправляем на логин
+        // If no token anywhere, redirect to login
         navigate("/login", { replace: true });
       }
     }
   }, [isAuthenticated, navigate, login]);
 
-  // Если пользователь не аутентифицирован, ничего не рендерим
+  // If user is not authenticated, render nothing
   if (!isAuthenticated && !getCookie("access_token")) {
     return null;
   }

@@ -15,7 +15,7 @@ import StreamPage from "../../pages/stream/StreamPage";
 import StreamHostPage from "../../pages/streamHost/StreamHostPage";
 import { useAuthStore } from "../../shared/stores/authStore";
 
-// Компонент для умного редиректа
+// Component for smart redirect
 const HomeRedirect = () => {
   const { isAuthenticated } = useAuthStore();
   return <Navigate to={isAuthenticated ? "/acts" : "/login"} replace />;

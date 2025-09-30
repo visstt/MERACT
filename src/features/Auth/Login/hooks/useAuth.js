@@ -14,7 +14,7 @@ export function useAuth() {
     try {
       const res = await api.post("/auth/sign-in", { email, password });
 
-      // Сохраняем данные пользователя в стор и localStorage
+      // Save user data to store and localStorage
       login(res.data);
 
       setLoading(false);

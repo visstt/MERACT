@@ -7,7 +7,7 @@ import api from "../../../shared/api/api";
 import { useAuthStore } from "../../../shared/stores/authStore";
 import styles from "./StreamViewer.module.css";
 
-// Функция для извлечения данных из JWT токена
+// Function to extract data from JWT token
 const parseJWT = (token) => {
   try {
     const base64Url = token.split(".")[1];
@@ -36,13 +36,13 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
   const [streamDuration, setStreamDuration] = useState(0);
   const remoteVideoRef = useRef(null);
   const clientRef = useRef(null);
-  const isConnectingRef = useRef(false); // Флаг для предотвращения двойного подключения
+  const isConnectingRef = useRef(false); // Flag to prevent double connection
   const streamStartTimeRef = useRef(null);
 
-  // Получаем пользователя из auth store
+  // Get user from auth store
   const { user } = useAuthStore();
 
-  // Извлекаем ID пользователя (используем сначала user.id, потом из токена)
+  // Extract user ID (use user.id first, then from token)
   let baseUserId;
   if (user?.id) {
     baseUserId = user.id;
@@ -50,13 +50,13 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
     const tokenData = parseJWT(user.token);
     baseUserId = tokenData?.sub || tokenData?.id || 888888;
   } else {
-    baseUserId = 888888; // Фиксированный fallback для анонимных пользователей
+    baseUserId = 888888; // Fixed fallback for anonymous users
   }
 
-  // Создаем уникальный UID для зрителя: streamId + userId + роль
+  // Create unique UID for viewer: streamId + userId + role
   const streamId =
     channelName?.replace("act_", "") || streamData?.id || "default";
-  const userId = parseInt(`${streamId}${baseUserId}1`); // streamId + userId + роль(1=subscriber)
+  const userId = parseInt(`${streamId}${baseUserId}1`); // streamId + userId + role(1=subscriber)
 
   console.log(
     "StreamViewer user data:",
@@ -67,15 +67,15 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
     userId,
   );
 
-  // Используем переданный channelName или создаем из streamData
+  // Use passed channelName or create from streamData
   const actualChannelName = channelName?.startsWith("act_")
     ? channelName
     : `act_${channelName || streamData?.id || "default"}`;
 
   useEffect(() => {
-    // Получаем токен для просмотра
+    // Get token for viewing
     const getViewerToken = async () => {
-      // Предотвращаем двойное подключение
+      // Prevent double connection
       if (isConnectingRef.current) {
         console.log("Already connecting, skipping...");
         return;
@@ -91,8 +91,8 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
           userId,
         );
 
-        // Получаем токен с вашего бэкенда для subscriber (зритель)
-        // Используем userId из auth store
+        // Get token from your backend for subscriber (viewer)
+        // Use userId from auth store
         const response = await api.get(
           `/act/token/${actualChannelName}/SUBSCRIBER/uid?uid=${userId}&expiry=3600`,
         );
@@ -100,7 +100,7 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
 
         console.log("Viewer token received:", response.data.token);
 
-        // Автоматически подключаемся после получения токена
+        // Automatically connect after receiving token
         await connectToStream(response.data.token);
       } catch (err) {
         console.error("Error getting viewer token:", err);
@@ -112,7 +112,7 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
 
     getViewerToken();
 
-    // Cleanup при размонтировании
+    // Cleanup on unmounting
     return () => {
       isConnectingRef.current = false;
       if (isConnected && clientRef.current) {
@@ -121,11 +121,11 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
     };
   }, [streamData?.id, actualChannelName, userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Таймер для продолжительности стрима
+  // Timer for stream duration
   useEffect(() => {
     if (!isConnected) return;
 
-    // Устанавливаем время начала стрима
+    // Set stream start time
     if (!streamStartTimeRef.current) {
       streamStartTimeRef.current = Date.now();
     }
@@ -144,7 +144,7 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
     };
   }, [isConnected]);
 
-  // Сброс таймера при отключении
+  // Reset timer on disconnect
   useEffect(() => {
     if (!isConnected) {
       streamStartTimeRef.current = null;
@@ -171,28 +171,28 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
         streamToken,
       );
 
-      // Создаем Agora клиент для зрителя
+      // Create Agora client for viewer
       const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
       clientRef.current = client;
 
       console.log("Agora client created, attempting to join...");
 
-      // Подключаемся к каналу как зритель
+      // Connect to channel as viewer
       await client.join(
         import.meta.env.VITE_AGORA_APP_ID,
         actualChannelName,
         streamToken,
-        userId, // uid пользователя из auth store
+        userId, // user uid from auth store
       );
 
       console.log("Successfully joined channel as viewer");
       setIsConnected(true);
 
-      // Слушаем события пользователей
+      // Listen to user events
       client.on("user-published", async (user, mediaType) => {
         console.log("User published:", user.uid, mediaType);
 
-        // Подписываемся на пользователя
+        // Subscribe to user
         await client.subscribe(user, mediaType);
 
         if (mediaType === "video" && remoteVideoRef.current) {
@@ -225,12 +225,12 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
     try {
       console.log("Disconnecting from stream:", streamData?.id);
 
-      // Покидаем канал
+      // Leave channel
       if (clientRef.current) {
         await clientRef.current.leave();
       }
 
-      // Очищаем ссылки
+      // Clear references
       clientRef.current = null;
 
       setIsConnected(false);
@@ -244,23 +244,23 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
   };
 
   const handleClose = async () => {
-    // Отключаемся от стрима
+    // Disconnect from stream
     await disconnectFromStream();
 
-    // Вызываем callback если есть
+    // Call callback if provided
     if (onClose) {
       onClose();
     }
 
-    // Переходим на страницу acts
+    // Navigate to acts page
     navigate("/acts");
   };
 
   return (
     <div className={styles.container}>
-      {/* Шапка стрима */}
+      {/* Stream header */}
       <div className={styles.header}>
-        {/* Верхняя строка: стрелка назад, заголовок, таймер */}
+        {/* Top row: back arrow, title, timer */}
         <div className={styles.topRow}>
           <button onClick={handleClose} className={styles.backButton}>
             <svg
@@ -299,7 +299,7 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
           </div>
         </div>
 
-        {/* Локация */}
+        {/* Location */}
         <div className={styles.location}>
           <svg
             width="17"
@@ -320,7 +320,7 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
           </span>
         </div>
 
-        {/* Навигационная строка ролей */}
+        {/* Roles navigation row */}
         {(streamData?.navigator ||
           streamData?.hero ||
           streamData?.initiator) && (
@@ -342,12 +342,10 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
         )}
       </div>
 
-      {/* Полноэкранное видео */}
       <div className={styles.videoContainer}>
         <div ref={remoteVideoRef} className={styles.videoElement} />
       </div>
 
-      {/* Статус панель (внизу экрана) */}
       <div className={styles.statusPanel}>
         <div className={styles.statusRow}>
           <div>
