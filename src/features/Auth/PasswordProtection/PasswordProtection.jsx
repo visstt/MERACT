@@ -8,7 +8,6 @@ const PasswordProtection = ({ children }) => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  // Проверяем сохраненную аутентификацию при загрузке
   useEffect(() => {
     const savedAuth = localStorage.getItem("sitePasswordAuth");
     if (savedAuth === "true") {
@@ -20,13 +19,11 @@ const PasswordProtection = ({ children }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Здесь задайте ваш пароль
-    const correctPassword = "meract2025"; // Измените на ваш пароль
+    const correctPassword = "meract2025";
 
     if (password === correctPassword) {
       setIsAuthenticated(true);
       setError("");
-      // Сохраняем аутентификацию в localStorage
       localStorage.setItem("sitePasswordAuth", "true");
     } else {
       setError("Неверный пароль");
@@ -49,7 +46,7 @@ const PasswordProtection = ({ children }) => {
           <div className={styles.header}>
             <h1 className={styles.title}>MERACT</h1>
             <p className={styles.subtitle}>
-              Введите пароль для доступа к сайту
+              Enter your password to access the site
             </p>
           </div>
 
@@ -68,12 +65,12 @@ const PasswordProtection = ({ children }) => {
             {error && <div className={styles.error}>{error}</div>}
 
             <button type="submit" className={styles.button}>
-              Войти
+              Login
             </button>
           </form>
 
           <div className={styles.footer}>
-            <p>Для доступа к сайту требуется пароль</p>
+            <p>A password is required to access the site.</p>
           </div>
         </div>
       </div>

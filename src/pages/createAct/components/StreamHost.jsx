@@ -248,6 +248,15 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
       localTracksRef.current = {};
       clientRef.current = null;
 
+      // Send stop-act request to backend
+      try {
+        await api.post(`/act/stop-act?id=${actId}`);
+        console.log("Stop-act request sent successfully");
+      } catch (apiError) {
+        console.error("Error sending stop-act request:", apiError);
+        // Don't block the UI flow if API fails
+      }
+
       setIsStreaming(false);
 
       // Notify parent component
