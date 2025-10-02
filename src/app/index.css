@@ -5,6 +5,7 @@
   padding: 0;
   font-family: "Oxanium", sans-serif;
 }
+
 body {
   background-image: url("/images/login_background.png");
   background-size: cover;
@@ -44,4 +45,7 @@ body::before {
       rgba(0, 0, 0, 0.4) 40%,
       rgba(0, 0, 0, 0.1) 100%
     );
+}
+body.no-overlay::before {
+  display: none !important;
 }

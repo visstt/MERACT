@@ -4,6 +4,7 @@ import AgoraRTC from "agora-rtc-sdk-ng";
 
 import api from "../../../shared/api/api";
 import { useAuthStore } from "../../../shared/stores/authStore";
+import styles from "./StreamHost.module.css";
 
 // Function to extract data from JWT token
 const parseJWT = (token) => {
@@ -63,6 +64,13 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
 
   // Generate channel ID based on actId
   const channelName = `act_${actId}`;
+
+  useEffect(() => {
+    document.body.classList.add("no-overlay");
+    return () => {
+      document.body.classList.remove("no-overlay");
+    };
+  }, []);
 
   useEffect(() => {
     // Get token for stream
@@ -257,118 +265,43 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
   };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
-      <h2>Stream Control - {actTitle}</h2>
-
-      {error && (
-        <div
-          style={{
-            color: "red",
-            background: "#ffebee",
-            padding: "10px",
-            borderRadius: "4px",
-            marginBottom: "20px",
-          }}
-        >
-          Error: {error}
-        </div>
-      )}
-
-      <div
-        style={{
-          background: "#f5f5f5",
-          padding: "15px",
-          borderRadius: "8px",
-          marginBottom: "20px",
-        }}
-      >
-        <p>
-          <strong>Act ID:</strong> {actId}
-        </p>
-        <p>
-          <strong>Channel:</strong> {channelName}
-        </p>
+    <div className={styles.container}>
+      <div className={styles.infoBox}>
         <p>
           <strong>Status:</strong>{" "}
-          {isStreaming ? "🔴 LIVE ON AIR" : "⚪ PREPARING..."}
+          {isStreaming ? (
+            <span className={styles.statusLive}>🔴 LIVE</span>
+          ) : (
+            <span className={styles.statusPreparing}>⚪ OFFLINE</span>
+          )}
         </p>
+      </div>
+      <div className={styles.videoContainer}>
+        <div ref={localVideoRef} style={{ width: "100%", height: "100%" }} />
+      </div>
+
+      <div className={styles.controls}>
+        <button
+          className={styles.button}
+          onClick={isStreaming ? stopStreaming : startStreaming}
+          disabled={isInitializingRef.current}
+        >
+          {isStreaming ? "Stop Stream" : "Start Stream"}
+        </button>
+        <button
+          className={styles.button}
+          onClick={onStopStream}
+          disabled={isStreaming}
+        >
+          Exit
+        </button>
+      </div>
+
+      <div className={styles.infoText}>
         <p>
-          <strong>Token:</strong> {token ? "✅ Ready" : "❌ Loading..."}
-        </p>
-      </div>
-
-      {/* Video container */}
-      <div
-        style={{
-          width: "100%",
-          height: "400px",
-          background: "#000",
-          borderRadius: "8px",
-          marginBottom: "20px",
-          overflow: "hidden",
-        }}
-      >
-        <video
-          ref={localVideoRef}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-          }}
-          autoPlay
-          muted
-          playsInline
-        />
-      </div>
-
-      {/* Control buttons */}
-      <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-        {!isStreaming ? (
-          <button
-            onClick={startStreaming}
-            disabled={!token}
-            style={{
-              background: "#4CAF50",
-              color: "white",
-              border: "none",
-              padding: "12px 24px",
-              borderRadius: "6px",
-              cursor: token ? "pointer" : "not-allowed",
-              fontSize: "16px",
-            }}
-          >
-            🔴 Go Live!
-          </button>
-        ) : (
-          <button
-            onClick={stopStreaming}
-            style={{
-              background: "#f44336",
-              color: "white",
-              border: "none",
-              padding: "12px 24px",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontSize: "16px",
-            }}
-          >
-            ⏹️ End Stream
-          </button>
-        )}
-      </div>
-
-      {/* User information */}
-      <div
-        style={{
-          marginTop: "20px",
-          textAlign: "center",
-          color: "#666",
-          fontSize: "14px",
-        }}
-      >
-        <p>
-          <strong>� Auto-Stream Active:</strong> Your stream started
-          automatically. Viewers can now watch your broadcast!
+          {isStreaming
+            ? "Your camera and microphone are now live!"
+            : 'Click "Start Stream" to go live. Make sure your camera and microphone are connected.'}
         </p>
       </div>
     </div>

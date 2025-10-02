@@ -17,7 +17,7 @@ export default function ActsPage() {
       heroes: ["Graphite8", "NeonFox", "ShadowWeave", "EchoStorm1"],
       location: "Puerto de la Cruz (ES)",
       distance: "2,500km Away",
-      upvotes: 12,
+      upvotes: 12,  
       downvotes: 12,
       liveIn: "2h 15m",
       isMock: true,
@@ -51,7 +51,7 @@ export default function ActsPage() {
         setLoading(false);
       })
       .catch((err) => {
-        setError("Ошибка загрузки актов");
+        setError("Error loading acts");
         setLoading(false);
       });
   }, []);
@@ -127,27 +127,26 @@ export default function ActsPage() {
                 }
                 act={{
                   ...act,
-                  title: act.title || act.name || "Без названия",
-                  description: act.description || act.status || "Нет описания",
-                  navigator: act.navigator || act.user || "Не указан",
-                  location: act.location || act.category || "Не указано",
-                  distance: act.distance || act.duration || "Не указано",
+                  title: act.title || act.name || "Untitled",
+                  description:
+                    act.description || act.status || "No description",
+                  navigator: act.navigator || act.user || "Not specified",
+                  location: act.location || act.category || "Not specified",
+                  distance: act.distance || act.duration || "Not specified",
                   previewFileName: act.previewFileName || "",
                   imageUrl:
                     act.imageUrl ||
-                    (act.previewFileName
-                      ? `/uploads/${act.previewFileName}`
-                      : undefined),
+                    (act.previewFileName ? act.previewFileName : undefined),
                   upvotes: typeof act.upvotes === "number" ? act.upvotes : 0,
                   downvotes:
                     typeof act.downvotes === "number" ? act.downvotes : 0,
-                  liveIn: act.liveIn || act.duration || "Скоро...",
+                  liveIn: act.liveIn || act.duration || "",
                   isMock: act.isMock || false,
                 }}
               />
             ))
           ) : (
-            <div>Нет доступных актов</div>
+            <div>No acts available</div>
           )}
         </div>
         <NavBar />
