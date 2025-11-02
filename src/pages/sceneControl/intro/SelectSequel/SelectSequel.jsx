@@ -1,9 +1,25 @@
+import { useState } from "react";
+
 import styles from "./SelectSequel.module.css";
+import useSequels from "./hooks/useSequels";
 
 export default function SelectSequel() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const { sequels, loading, error } = useSequels();
+
   const handleGoBack = () => {
     window.history.back();
   };
+
+  const handleSequelSelect = (sequel) => {
+    console.log("Selected sequel:", sequel);
+    // Здесь можно добавить логику для выбора сиквела
+  };
+
+  // Фильтрация сиквелов по поисковому запросу
+  const filteredSequels = sequels.filter((sequel) =>
+    sequel.title.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
   const SearchIcon = () => {
     return (
       <svg
@@ -42,76 +58,57 @@ export default function SelectSequel() {
               type="text"
               placeholder="Search"
               className={styles.search_input}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
         <div className="stripe2" style={{ margin: 0 }}></div>
         <div className={styles.content}>
           <h3>Select Sequel</h3>
-          <div className={styles.sequel_block}>
-            <div className={styles.start}>
-              <img src="/images/samplePhoto.png" alt="sample photo" />
-              <div className={styles.sequel_name}>
-                <h4>Sequel Name</h4>
-                <p>Total Episode: 08</p>
-              </div>
-            </div>
 
-            <img
-              src="/icons/plus.svg"
-              alt="plus"
-              width={15}
-              style={{ marginRight: 10 }}
-            />
-          </div>
-          <div className={styles.sequel_block}>
-            <div className={styles.start}>
-              <img src="/images/samplePhoto.png" alt="sample photo" />
-              <div className={styles.sequel_name}>
-                <h4>Sequel Name</h4>
-                <p>Total Episode: 08</p>
-              </div>
-            </div>
+          {loading && <p>Loading sequels...</p>}
 
-            <img
-              src="/icons/plus.svg"
-              alt="plus"
-              width={15}
-              style={{ marginRight: 10 }}
-            />
-          </div>
-          <div className={styles.sequel_block}>
-            <div className={styles.start}>
-              <img src="/images/samplePhoto.png" alt="sample photo" />
-              <div className={styles.sequel_name}>
-                <h4>Sequel Name</h4>
-                <p>Total Episode: 08</p>
-              </div>
+          {error && (
+            <div className={styles.error}>
+              <p>Error: {error}</p>
             </div>
+          )}
 
-            <img
-              src="/icons/plus.svg"
-              alt="plus"
-              width={15}
-              style={{ marginRight: 10 }}
-            />
-          </div>
-          <div className={styles.sequel_block}>
-            <div className={styles.start}>
-              <img src="/images/samplePhoto.png" alt="sample photo" />
-              <div className={styles.sequel_name}>
-                <h4>Sequel Name</h4>
-                <p>Total Episode: 08</p>
+          {!loading && !error && filteredSequels.length === 0 && (
+            <p>No sequels found</p>
+          )}
+
+          {!loading &&
+            !error &&
+            filteredSequels.map((sequel) => (
+              <div
+                key={sequel.id}
+                className={styles.sequel_block}
+                onClick={() => handleSequelSelect(sequel)}
+              >
+                <div className={styles.start}>
+                  <img
+                    src={sequel.coverFileName || "/images/samplePhoto.png"}
+                    alt={sequel.title}
+                    onError={(e) => {
+                      e.target.src = "/images/samplePhoto.png";
+                    }}
+                  />
+                  <div className={styles.sequel_name}>
+                    <h4>{sequel.title}</h4>
+                    <p>Total Episode: {sequel.episodes}</p>
+                  </div>
+                </div>
+
+                <img
+                  src="/icons/plus.svg"
+                  alt="plus"
+                  width={15}
+                  style={{ marginRight: 10 }}
+                />
               </div>
-            </div>
-
-            <img
-              src="/icons/plus.svg"
-              alt="plus"
-              width={15}
-              style={{ marginRight: 10 }}
-            />
-          </div>
+            ))}
         </div>
       </div>
     </div>

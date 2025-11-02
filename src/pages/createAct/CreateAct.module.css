@@ -332,6 +332,7 @@
     rgba(46, 50, 59, 0.1) 100%
   );
   text-align: center;
+  color: #fff;
 }
 .inputBlock {
   display: flex;

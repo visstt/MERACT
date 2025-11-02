@@ -12,6 +12,7 @@ body {
   background-position: 60% center;
   background-repeat: no-repeat;
   position: relative;
+  min-height: 100vh;
 }
 
 body::before {

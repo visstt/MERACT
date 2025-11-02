@@ -7,6 +7,7 @@ import { ActFormat, ActType, SelectionMethods } from "../../shared/types/act";
 import styles from "./CreateAct.module.css";
 import StreamHost from "./components/StreamHost";
 import { useCreateAct } from "./hooks/useCreateAct";
+import { useCreateSequel } from "./hooks/useCreateSequel";
 
 export default function CreateAct() {
   const fileInputRef = useRef(null);
@@ -25,6 +26,11 @@ export default function CreateAct() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sequelCoverPreview, setSequelCoverPreview] = useState(null);
 
+  // Состояние для формы сиквела
+  const [sequelTitle, setSequelTitle] = useState("");
+  const [sequelEpisodes, setSequelEpisodes] = useState("");
+  const [sequelPhoto, setSequelPhoto] = useState(null);
+
   // Состояние для созданного act
   const [createdAct, setCreatedAct] = useState(null);
   const [showStream, setShowStream] = useState(false);
@@ -32,6 +38,13 @@ export default function CreateAct() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { createAct, loading, error, success } = useCreateAct();
+  const {
+    createSequel,
+    loading: sequelLoading,
+    error: sequelError,
+    success: sequelSuccess,
+    resetState: resetSequelState,
+  } = useCreateSequel();
 
   const handleTimeChange = (direction) => {
     if (isAnimating) return;
@@ -161,18 +174,66 @@ export default function CreateAct() {
 
   const closeModal = () => {
     setIsModalOpen(false);
+    // Сбрасываем состояния при закрытии
+    setSequelTitle("");
+    setSequelEpisodes("");
+    setSequelPhoto(null);
+    setSequelCoverPreview(null);
+    resetSequelState();
   };
 
   const handleSequelCoverChange = (e) => {
     const file = e.target.files && e.target.files[0];
     if (file) {
+      setSequelPhoto(file);
       const reader = new FileReader();
       reader.onload = (ev) => {
         setSequelCoverPreview(ev.target.result);
       };
       reader.readAsDataURL(file);
     } else {
+      setSequelPhoto(null);
       setSequelCoverPreview(null);
+    }
+  };
+
+  const handleCreateSequel = async (e) => {
+    e.preventDefault();
+
+    // Валидация
+    if (!sequelTitle.trim()) {
+      alert("Please enter a sequel title");
+      return;
+    }
+
+    if (!sequelEpisodes.trim() || isNaN(parseInt(sequelEpisodes))) {
+      alert("Please enter a valid episode number");
+      return;
+    }
+
+    if (!sequelPhoto) {
+      alert("Please upload a sequel cover");
+      return;
+    }
+
+    const sequelData = {
+      title: sequelTitle.trim(),
+      episodes: parseInt(sequelEpisodes),
+      photo: sequelPhoto,
+    };
+
+    const result = await createSequel(sequelData);
+
+    if (result) {
+      // Успешное создание сиквела
+      alert("Sequel created successfully!");
+      closeModal();
+      // Сбрасываем форму
+      setSequelTitle("");
+      setSequelEpisodes("");
+      setSequelPhoto(null);
+      setSequelCoverPreview(null);
+      resetSequelState();
     }
   };
 
@@ -564,18 +625,30 @@ export default function CreateAct() {
               <ModalStripe />
             </div>
             <div className={styles.modalContent}>
-              <form className={styles.sequelForm}>
+              <form className={styles.sequelForm} onSubmit={handleCreateSequel}>
                 <div className={styles.inputBlock}>
                   <label htmlFor="title">Sequel title</label>
-                  <input type="text" id="title" placeholder="Sequel title" />
+                  <input
+                    type="text"
+                    id="title"
+                    placeholder="Sequel title"
+                    value={sequelTitle}
+                    onChange={(e) => setSequelTitle(e.target.value)}
+                    required
+                    
+                  />
                 </div>
 
                 <div className={styles.inputBlock}>
                   <label htmlFor="episode">Number of Episode</label>
                   <input
-                    type="text"
+                    type="number"
                     id="episode"
                     placeholder="Number of Episode"
+                    value={sequelEpisodes}
+                    onChange={(e) => setSequelEpisodes(e.target.value)}
+                    min="1"
+                    required
                   />
                 </div>
 
@@ -588,6 +661,7 @@ export default function CreateAct() {
                       accept="image/*"
                       onChange={handleSequelCoverChange}
                       className={styles.hiddenFileInput}
+                      required
                     />
                     <div
                       className={styles.coverPreview}
@@ -613,9 +687,43 @@ export default function CreateAct() {
                   </div>
                 </div>
 
+                {/* Показываем ошибки создания сиквела */}
+                {sequelError && (
+                  <div
+                    style={{
+                      color: "red",
+                      textAlign: "center",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    Error: {sequelError}
+                  </div>
+                )}
+
+                {/* Показываем успех создания сиквела */}
+                {sequelSuccess && (
+                  <div
+                    style={{
+                      color: "green",
+                      textAlign: "center",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    Sequel created successfully!
+                  </div>
+                )}
+
                 <div className={styles.btnContainer}>
-                  <button>Save</button>
-                  <button>Cancel</button>
+                  <button type="submit" disabled={sequelLoading}>
+                    {sequelLoading ? "Creating..." : "Save"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    disabled={sequelLoading}
+                  >
+                    Cancel
+                  </button>
                 </div>
               </form>
             </div>
