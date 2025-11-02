@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import StreamHost from "../createAct/components/StreamHost";
 import styles from "./StreamHostPage.module.css";
 
-const StreamHostPage = () => {
+export default function StreamHostPage() {
   const { id } = useParams(); // Get act ID from URL
   const navigate = useNavigate();
 
@@ -79,6 +79,4 @@ const StreamHostPage = () => {
       </div>
     </div>
   );
-};
-
-export default StreamHostPage;
+}
