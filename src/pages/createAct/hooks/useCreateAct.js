@@ -1,7 +1,5 @@
 import { useState } from "react";
 
-import { useNavigate } from "react-router-dom";
-
 import api from "../../../shared/api/api";
 import { useActsStore } from "../../../shared/stores/actsStore";
 import { useAuthStore } from "../../../shared/stores/authStore";
@@ -13,7 +11,6 @@ export function useCreateAct() {
   const [success, setSuccess] = useState(false);
   const { user } = useAuthStore();
   const { addAct } = useActsStore();
-  const navigate = useNavigate();
 
   const createAct = async (actData) => {
     setLoading(true);
@@ -105,8 +102,8 @@ export function useCreateAct() {
         imageUrl: actData.photo ? URL.createObjectURL(actData.photo) : null,
       });
 
-      // Перенаправляем на страницу стримера
-      navigate(`/stream-host/${response.data.actId}`);
+      // Note: Navigation is handled by the calling component (CreateAct.jsx)
+      // navigate(`/stream-host/${response.data.actId}`);
 
       return response.data; // { message: 'Stream launched successfully', actId: number }
     } catch (err) {

@@ -246,6 +246,7 @@ export default function CreateAct() {
 
     if (result) {
       console.log("Act created successfully:", result);
+      console.log("result.actId:", result.actId);
 
       // Очищаем сохраненное состояние формы
       localStorage.removeItem("createActFormState");
@@ -257,8 +258,11 @@ export default function CreateAct() {
       clearSelectedMusic();
 
       // Сохраняем данные созданного act
+      const newActId = result.actId || result.id;
+      console.log("Setting createdAct with id:", newActId);
+      
       setCreatedAct({
-        id: result.actId,
+        id: newActId,
         title: title.trim(),
       });
 

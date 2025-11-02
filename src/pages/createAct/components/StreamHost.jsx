@@ -27,6 +27,8 @@ const parseJWT = (token) => {
 };
 
 const StreamHost = ({ actId, actTitle, onStopStream }) => {
+  console.log("StreamHost received props:", { actId, actTitle, typeof: typeof actId });
+  
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState(null);
   const [token, setToken] = useState(null);
@@ -51,7 +53,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
   }
 
   // Create unique UID for streamer: actId + userId + role
-  const userId = parseInt(`${actId}${baseUserId}2`); // actId + userId + role(2=publisher)
+  const userId = actId ? parseInt(`${actId}${baseUserId}2`) : parseInt(`${Date.now()}${baseUserId}2`); // actId + userId + role(2=publisher)
 
   console.log(
     "StreamHost user data:",
@@ -60,10 +62,12 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
     baseUserId,
     "userId:",
     userId,
+    "actId:",
+    actId,
   );
 
   // Generate channel ID based on actId
-  const channelName = `act_${actId}`;
+  const channelName = actId ? `act_${actId}` : `temp_${Date.now()}`;
 
   useEffect(() => {
     document.body.classList.add("no-overlay");
@@ -75,6 +79,12 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
   useEffect(() => {
     // Get token for stream
     const getStreamToken = async () => {
+      // Check if actId is valid
+      if (!actId || actId === 'undefined') {
+        console.error("Cannot initialize stream: actId is invalid", actId);
+        return;
+      }
+
       // Prevent multiple initialization
       if (isInitializingRef.current) {
         console.log("Already initializing, skipping...");
@@ -250,8 +260,12 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
 
       // Send stop-act request to backend
       try {
-        await api.post(`/act/stop-act?id=${actId}`);
-        console.log("Stop-act request sent successfully");
+        if (actId && actId !== 'undefined') {
+          await api.post(`/act/stop-act?id=${actId}`);
+          console.log("Stop-act request sent successfully");
+        } else {
+          console.warn("Skipping stop-act request: actId is undefined or invalid:", actId);
+        }
       } catch (apiError) {
         console.error("Error sending stop-act request:", apiError);
         // Don't block the UI flow if API fails
@@ -275,7 +289,18 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.infoBox}>
+      {(!actId || actId === 'undefined') ? (
+        <div className={styles.errorContainer}>
+          <h2>Stream Setup Error</h2>
+          <p>Unable to initialize stream: Act ID is missing or invalid.</p>
+          <p>Please try creating a new act.</p>
+          <button className={styles.button} onClick={onStopStream}>
+            Go Back
+          </button>
+        </div>
+      ) : (
+        <>
+          <div className={styles.infoBox}>
         <p>
           <strong>Status:</strong>{" "}
           {isStreaming ? (
@@ -313,6 +338,8 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
             : 'Click "Start Stream" to go live. Make sure your camera and microphone are connected.'}
         </p>
       </div>
+      </>
+      )}
     </div>
   );
 };
