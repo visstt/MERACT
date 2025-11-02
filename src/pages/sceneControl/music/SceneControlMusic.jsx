@@ -1,7 +1,8 @@
-import { useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
+import { useSequelStore } from "../../../shared/stores/sequelStore";
 import styles from "../SceneControl.module.css";
 import { useMusic } from "./hooks/useMusic";
 import { extractMusicTitle } from "./utils/musicUtils";
@@ -73,8 +74,10 @@ const Menu = () => {
 
 export default function SceneControlMusic() {
   const [heroMethod, setHeroMethod] = useState("Music");
+  const [selectedMusic, setSelectedMusic] = useState(null);
   const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
   const [audioElements, setAudioElements] = useState({});
+  const { setSelectedMusic: setMusicInStore } = useSequelStore();
   const { music, loading, error, refetch } = useMusic();
 
   const navigate = useNavigate();
@@ -82,6 +85,23 @@ export default function SceneControlMusic() {
   const handleGoBack = () => {
     window.history.back();
   };
+
+  const handleMusicSelect = (track) => {
+    setSelectedMusic(track);
+    // Сохраняем выбранную музыку в стор
+    setMusicInStore(track);
+    console.log("Selected music:", track);
+  };
+
+  // Автоматически выбираем первую музыку после загрузки
+  useEffect(() => {
+    if (!loading && !error && music.length > 0 && !selectedMusic) {
+      const firstMusic = music[0];
+      setSelectedMusic(firstMusic);
+      // Сохраняем в стор
+      setMusicInStore(firstMusic);
+    }
+  }, [music, loading, error, selectedMusic, setMusicInStore]);
 
   const handlePlayPause = (track) => {
     const trackId = track.id;
@@ -278,11 +298,19 @@ export default function SceneControlMusic() {
             {!loading &&
               !error &&
               music.map((track, index) => (
-                <div key={track.id} className={styles.music_block}>
+                <div
+                  key={track.id}
+                  className={`${styles.music_block} ${selectedMusic?.id === track.id ? styles.selected : ""}`}
+                  onClick={() => handleMusicSelect(track)}
+                  style={{ cursor: "pointer" }}
+                >
                   <h3>{String(index + 1).padStart(2, "0")}</h3>
                   <div className={styles.music_name}>
                     <div
-                      onClick={() => handlePlayPause(track)}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Предотвращаем вызов handleMusicSelect
+                        handlePlayPause(track);
+                      }}
                       style={{ cursor: "pointer" }}
                     >
                       {currentlyPlaying === track.id ? <Pause /> : <Play />}

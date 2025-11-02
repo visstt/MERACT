@@ -26,6 +26,10 @@ export const useUploadMusic = () => {
       setSuccess(true);
       setUploading(false);
 
+      // Не сохраняем загруженную музыку автоматически в стор
+      // Пользователь должен кликнуть на неё чтобы выбрать
+      console.log("Music uploaded successfully:", response.data.music);
+
       return response.data;
     } catch (err) {
       console.error("Error uploading music:", err);

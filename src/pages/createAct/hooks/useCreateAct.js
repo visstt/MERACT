@@ -61,6 +61,10 @@ export function useCreateAct() {
         formData.append("outroId", actData.outroId.toString());
       }
 
+      if (actData.musicId) {
+        formData.append("musicId", actData.musicId.toString());
+      }
+
       // Добавляем файл если есть
       if (actData.photo) {
         formData.append("photo", actData.photo);
@@ -78,6 +82,7 @@ export function useCreateAct() {
         sequelId: actData.sequelId,
         introId: actData.introId,
         outroId: actData.outroId,
+        musicId: actData.musicId,
       });
 
       // Отправляем запрос

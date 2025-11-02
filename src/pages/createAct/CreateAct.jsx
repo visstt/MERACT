@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
@@ -45,9 +45,12 @@ export default function CreateAct() {
     selectedIntro,
     selectedOutroId,
     selectedOutro,
+    selectedMusicId,
+    selectedMusic,
     clearSelectedSequel,
     clearSelectedIntro,
     clearSelectedOutro,
+    clearSelectedMusic,
   } = useSequelStore();
   const { createAct, loading, error, success } = useCreateAct();
   const {
@@ -66,6 +69,8 @@ export default function CreateAct() {
     console.log("selectedIntro from store:", selectedIntro);
     console.log("selectedOutroId from store:", selectedOutroId);
     console.log("selectedOutro from store:", selectedOutro);
+    console.log("selectedMusicId from store:", selectedMusicId);
+    console.log("selectedMusic from store:", selectedMusic);
   }, [
     selectedSequelId,
     selectedSequel,
@@ -73,11 +78,21 @@ export default function CreateAct() {
     selectedIntro,
     selectedOutroId,
     selectedOutro,
+    selectedMusicId,
+    selectedMusic,
   ]);
 
-  // Восстанавливаем состояние формы при загрузке компонента
-  useEffect(() => {
-    restoreFormState();
+  // Утилитарная функция для конвертации base64 в File
+  const base64ToFile = useCallback((base64, fileName = "image.png") => {
+    const arr = base64.split(",");
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], fileName, { type: mime });
   }, []);
 
   // Функции для сохранения и восстановления состояния формы
@@ -97,7 +112,7 @@ export default function CreateAct() {
     localStorage.setItem("createActFormState", JSON.stringify(formState));
   };
 
-  const restoreFormState = () => {
+  const restoreFormState = useCallback(() => {
     try {
       const savedState = localStorage.getItem("createActFormState");
       console.log("Restoring form state, savedState:", savedState);
@@ -119,6 +134,21 @@ export default function CreateAct() {
           );
           setBiddingTime(formState.biddingTime || 5);
           setImagePreview(formState.imagePreview || null);
+
+          // Восстанавливаем файл из base64 если он есть
+          if (formState.imagePreview) {
+            try {
+              const restoredFile = base64ToFile(
+                formState.imagePreview,
+                "restored-image.png",
+              );
+              setSelectedFile(restoredFile);
+              console.log("Restored file from base64:", restoredFile);
+            } catch (error) {
+              console.error("Error restoring file from base64:", error);
+            }
+          }
+
           // selectedSequelId теперь управляется через стор
         } else {
           console.log("Saved form state is too old, not restoring");
@@ -129,12 +159,12 @@ export default function CreateAct() {
     } catch (error) {
       console.error("Error restoring form state:", error);
     }
-  };
+  }, [base64ToFile]);
 
   // Восстанавливаем состояние формы при загрузке компонента
   useEffect(() => {
     restoreFormState();
-  }, []);
+  }, [restoreFormState]);
 
   // Сохраняем состояние формы при каждом изменении
   useEffect(() => {
@@ -194,6 +224,7 @@ export default function CreateAct() {
     console.log("Selected sequel ID before creating act:", selectedSequelId);
     console.log("Selected intro ID before creating act:", selectedIntroId);
     console.log("Selected outro ID before creating act:", selectedOutroId);
+    console.log("Selected music ID before creating act:", selectedMusicId);
 
     const actData = {
       title: title.trim(),
@@ -206,6 +237,7 @@ export default function CreateAct() {
       ...(selectedSequelId && { sequelId: selectedSequelId }), // Добавляем sequelId если он выбран
       ...(selectedIntroId && { introId: selectedIntroId }), // Добавляем introId если выбрано
       ...(selectedOutroId && { outroId: selectedOutroId }), // Добавляем outroId если выбрано
+      ...(selectedMusicId && { musicId: selectedMusicId }), // Добавляем musicId если выбрано
     };
 
     console.log("Creating act with data:", actData);
@@ -222,6 +254,7 @@ export default function CreateAct() {
       clearSelectedSequel();
       clearSelectedIntro();
       clearSelectedOutro();
+      clearSelectedMusic();
 
       // Сохраняем данные созданного act
       setCreatedAct({

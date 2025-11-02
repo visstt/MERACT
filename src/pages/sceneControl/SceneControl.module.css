@@ -198,6 +198,13 @@
   text-align: center;
   color: #fff;
 }
+.music_block.selected {
+  box-shadow:
+    0 0 10px 1px rgba(58, 186, 255, 0.5),
+    inset 0 0 44px 0 #2eabff;
+  background: rgba(0, 89, 145, 0.6);
+  border: 1px solid #63d4ff !important;
+}
 .music_block p {
   font-weight: 500;
   font-size: 12px;

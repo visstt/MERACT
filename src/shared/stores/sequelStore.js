@@ -16,6 +16,10 @@ export const useSequelStore = create(
       selectedOutroId: null,
       selectedOutro: null,
 
+      // Music
+      selectedMusicId: null,
+      selectedMusic: null,
+
       // Устанавливаем выбранный сиквел
       setSelectedSequel: (sequel) => {
         set({
@@ -64,6 +68,22 @@ export const useSequelStore = create(
         });
       },
 
+      // Устанавливаем выбранную музыку
+      setSelectedMusic: (music) => {
+        set({
+          selectedMusicId: music?.id || null,
+          selectedMusic: music,
+        });
+      },
+
+      // Очищаем выбранную музыку
+      clearSelectedMusic: () => {
+        set({
+          selectedMusicId: null,
+          selectedMusic: null,
+        });
+      },
+
       // Очищаем все выбранные элементы
       clearAll: () => {
         set({
@@ -73,6 +93,8 @@ export const useSequelStore = create(
           selectedIntro: null,
           selectedOutroId: null,
           selectedOutro: null,
+          selectedMusicId: null,
+          selectedMusic: null,
         });
       },
 
@@ -102,6 +124,15 @@ export const useSequelStore = create(
           outro: state.selectedOutro,
         };
       },
+
+      // Получаем выбранную музыку
+      getSelectedMusic: () => {
+        const state = get();
+        return {
+          id: state.selectedMusicId,
+          music: state.selectedMusic,
+        };
+      },
     }),
     {
       name: "meract-scene-store", // переименуем стор для более общего названия
@@ -112,6 +143,8 @@ export const useSequelStore = create(
         selectedIntro: state.selectedIntro,
         selectedOutroId: state.selectedOutroId,
         selectedOutro: state.selectedOutro,
+        selectedMusicId: state.selectedMusicId,
+        selectedMusic: state.selectedMusic,
       }),
     },
   ),
