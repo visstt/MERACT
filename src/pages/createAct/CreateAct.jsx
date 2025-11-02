@@ -38,7 +38,8 @@ export default function CreateAct() {
 
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { selectedSequelId, selectedSequel, clearSelectedSequel } = useSequelStore();
+  const { selectedSequelId, selectedSequel, clearSelectedSequel } =
+    useSequelStore();
   const { createAct, loading, error, success } = useCreateAct();
   const {
     createSequel,
@@ -85,7 +86,9 @@ export default function CreateAct() {
         console.log("Parsed form state:", formState);
         // Проверяем, что данные не старше 30 минут
         if (Date.now() - formState.timestamp < 30 * 60 * 1000) {
-          console.log("Restoring form state from localStorage (excluding selectedSequelId, managed by store)");
+          console.log(
+            "Restoring form state from localStorage (excluding selectedSequelId, managed by store)",
+          );
           setTitle(formState.title || "");
           setActType(formState.actType || ActType.SINGLE);
           setFormatType(formState.formatType || ActFormat.SINGLE);
@@ -190,7 +193,7 @@ export default function CreateAct() {
 
       // Очищаем сохраненное состояние формы
       localStorage.removeItem("createActFormState");
-      
+
       // Очищаем выбранный сиквел из стора
       clearSelectedSequel();
 
