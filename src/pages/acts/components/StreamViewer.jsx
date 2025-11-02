@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 
 import api from "../../../shared/api/api";
 import { useAuthStore } from "../../../shared/stores/authStore";
+import useChat from "../hooks/useChat";
+import EmojiPicker from "./EmojiPicker";
 import styles from "./StreamViewer.module.css";
 
 // Function to extract data from JWT token
@@ -34,21 +36,13 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
   const [, setToken] = useState(null);
   const [remoteUsers, setRemoteUsers] = useState([]);
   const [streamDuration, setStreamDuration] = useState(0);
-  const [chatMessages, setChatMessages] = useState([
-    { id: 1, username: "rcOut", text: "sent a superchat", type: "superchat" },
-    { id: 2, username: "rcOut", text: "sent a superchat", type: "superchat" },
-    { id: 3, username: "rcOut", text: "sent a superchat", type: "superchat" },
-    { id: 4, username: "rcOut", text: "sent a superchat", type: "superchat" },
-    { id: 5, username: "Hater", text: "are op gameplay", type: "normal" },
-    {
-      id: 6,
-      username: "scOut Ka jabra fan",
-      text: "Shout out pls sit big fan",
-      type: "normal",
-    },
-    { id: 7, username: "Yt gamer", text: "This is op", type: "normal" },
-  ]);
   const [chatMessage, setChatMessage] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  // Use chat hook
+  const actId = streamData?.id || channelName?.replace("act_", "");
+  const { messages: chatMessages, sendMessage, sending } = useChat(actId);
+
   const remoteVideoRef = useRef(null);
   const clientRef = useRef(null);
   const isConnectingRef = useRef(false); // Flag to prevent double connection
@@ -158,6 +152,20 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
       clearInterval(timer);
     };
   }, [isConnected]);
+
+  // Close emoji picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showEmojiPicker && !event.target.closest(`.${styles.chatInput}`)) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showEmojiPicker]);
 
   // Reset timer on disconnect
   useEffect(() => {
@@ -271,16 +279,14 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
     navigate("/acts");
   };
 
-  const handleSendMessage = () => {
-    if (chatMessage.trim()) {
-      const newMessage = {
-        id: Date.now(),
-        username: user?.username || "Anonymous",
-        text: chatMessage.trim(),
-        type: "normal",
-      };
-      setChatMessages((prev) => [...prev, newMessage]);
-      setChatMessage("");
+  const handleSendMessage = async () => {
+    if (chatMessage.trim() && !sending) {
+      try {
+        await sendMessage(chatMessage);
+        setChatMessage("");
+      } catch (error) {
+        console.error("Failed to send message:", error);
+      }
     }
   };
 
@@ -288,6 +294,25 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
     if (e.key === "Enter") {
       handleSendMessage();
     }
+  };
+
+  const handleEmojiClick = () => {
+    setShowEmojiPicker(!showEmojiPicker);
+  };
+
+  const handleEmojiSelect = async (emoji) => {
+    if (!sending) {
+      try {
+        await sendMessage(emoji);
+        setShowEmojiPicker(false);
+      } catch (error) {
+        console.error("Failed to send emoji:", error);
+      }
+    }
+  };
+
+  const handleCloseEmojiPicker = () => {
+    setShowEmojiPicker(false);
   };
 
   return (
@@ -386,12 +411,20 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
         <div className={styles.chatPanel}>
           {/* Chat Messages */}
           <div className={styles.chatMessages}>
-            {chatMessages.map((message) => (
-              <div key={message.id} className={styles.chatMessage}>
-                <span className={styles.username}>{message.username}</span>
-                <span className={styles.messageText}>{message.text}</span>
-              </div>
-            ))}
+            {chatMessages && chatMessages.length > 0 ? (
+              chatMessages.map((message) => (
+                <div key={message.id} className={styles.chatMessage}>
+                  <span className={styles.username}>
+                    {message.username || message.user?.username || "Anonymous"}
+                  </span>
+                  <span className={styles.messageText}>
+                    {message.message || message.text}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className={styles.noMessages}>No messages yet...</div>
+            )}
           </div>
 
           {/* Chat Input */}
@@ -403,13 +436,30 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
               onChange={(e) => setChatMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               className={styles.messageInput}
+              disabled={sending}
             />
-            <button className={styles.inputButton}>
+            <button
+              className={styles.inputButton}
+              disabled={sending}
+              onClick={handleEmojiClick}
+            >
               <img src="/icons/chat/smile.png" alt="Emoji" />
             </button>
-            <button className={styles.inputButton} onClick={handleSendMessage}>
+            <button
+              className={styles.inputButton}
+              onClick={handleSendMessage}
+              disabled={sending || !chatMessage.trim()}
+            >
               <img src="/icons/chat/send.png" alt="Send" />
             </button>
+
+            {/* Emoji Picker */}
+            {showEmojiPicker && (
+              <EmojiPicker
+                onEmojiSelect={handleEmojiSelect}
+                onClose={handleCloseEmojiPicker}
+              />
+            )}
           </div>
         </div>
 
