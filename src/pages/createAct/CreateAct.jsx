@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { useAuthStore } from "../../shared/stores/authStore";
+import { useSequelStore } from "../../shared/stores/sequelStore";
 import { ActFormat, ActType, SelectionMethods } from "../../shared/types/act";
 import styles from "./CreateAct.module.css";
 import StreamHost from "./components/StreamHost";
@@ -25,7 +26,6 @@ export default function CreateAct() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sequelCoverPreview, setSequelCoverPreview] = useState(null);
-  const [selectedSequelId, setSelectedSequelId] = useState(null);
 
   // Состояние для формы сиквела
   const [sequelTitle, setSequelTitle] = useState("");
@@ -37,8 +37,8 @@ export default function CreateAct() {
   const [showStream, setShowStream] = useState(false);
 
   const navigate = useNavigate();
-  const location = useLocation();
   const { user } = useAuthStore();
+  const { selectedSequelId, selectedSequel, clearSelectedSequel } = useSequelStore();
   const { createAct, loading, error, success } = useCreateAct();
   const {
     createSequel,
@@ -48,12 +48,16 @@ export default function CreateAct() {
     resetState: resetSequelState,
   } = useCreateSequel();
 
-  // Получаем selectedSequelId из navigation state при загрузке компонента
+  // Отладка изменений selectedSequelId из стора
   useEffect(() => {
-    if (location.state?.selectedSequelId) {
-      setSelectedSequelId(location.state.selectedSequelId);
-    }
-  }, [location.state]);
+    console.log("selectedSequelId from store changed:", selectedSequelId);
+    console.log("selectedSequel from store:", selectedSequel);
+  }, [selectedSequelId, selectedSequel]);
+
+  // Восстанавливаем состояние формы при загрузке компонента
+  useEffect(() => {
+    restoreFormState();
+  }, []);
 
   // Функции для сохранения и восстановления состояния формы
   const saveFormState = () => {
@@ -66,7 +70,7 @@ export default function CreateAct() {
       navigatorMethod,
       biddingTime,
       imagePreview,
-      selectedSequelId,
+      // selectedSequelId управляется через стор, не сохраняем в localStorage
       timestamp: Date.now(),
     };
     localStorage.setItem("createActFormState", JSON.stringify(formState));
@@ -75,10 +79,13 @@ export default function CreateAct() {
   const restoreFormState = () => {
     try {
       const savedState = localStorage.getItem("createActFormState");
+      console.log("Restoring form state, savedState:", savedState);
       if (savedState) {
         const formState = JSON.parse(savedState);
+        console.log("Parsed form state:", formState);
         // Проверяем, что данные не старше 30 минут
         if (Date.now() - formState.timestamp < 30 * 60 * 1000) {
+          console.log("Restoring form state from localStorage (excluding selectedSequelId, managed by store)");
           setTitle(formState.title || "");
           setActType(formState.actType || ActType.SINGLE);
           setFormatType(formState.formatType || ActFormat.SINGLE);
@@ -89,8 +96,12 @@ export default function CreateAct() {
           );
           setBiddingTime(formState.biddingTime || 5);
           setImagePreview(formState.imagePreview || null);
-          // selectedSequelId будет установлен из navigation state
+          // selectedSequelId теперь управляется через стор
+        } else {
+          console.log("Saved form state is too old, not restoring");
         }
+      } else {
+        console.log("No saved form state found");
       }
     } catch (error) {
       console.error("Error restoring form state:", error);
@@ -157,6 +168,8 @@ export default function CreateAct() {
     }
 
     // Подготавливаем данные для отправки
+    console.log("Selected sequel ID before creating act:", selectedSequelId);
+
     const actData = {
       title: title.trim(),
       type: actType,
@@ -177,6 +190,9 @@ export default function CreateAct() {
 
       // Очищаем сохраненное состояние формы
       localStorage.removeItem("createActFormState");
+      
+      // Очищаем выбранный сиквел из стора
+      clearSelectedSequel();
 
       // Сохраняем данные созданного act
       setCreatedAct({

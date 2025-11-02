@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
+import { useSequelStore } from "../../../../shared/stores/sequelStore";
 import styles from "./SelectSequel.module.css";
 import useSequels from "./hooks/useSequels";
 
@@ -9,6 +10,7 @@ export default function SelectSequel() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSequelId, setSelectedSequelId] = useState(null);
   const { sequels, loading, error } = useSequels();
+  const { setSelectedSequel } = useSequelStore();
   const navigate = useNavigate();
 
   const handleGoBack = () => {
@@ -18,16 +20,18 @@ export default function SelectSequel() {
   const handleSequelSelect = (sequel) => {
     console.log("Selected sequel:", sequel);
     setSelectedSequelId(sequel.id);
+    // Сохраняем выбранный сиквел в стор
+    setSelectedSequel(sequel);
   };
 
   const handleAddToAct = (event) => {
     event.stopPropagation(); // Предотвращаем вызов handleSequelSelect
+    console.log("handleAddToAct called, selectedSequelId:", selectedSequelId);
     if (selectedSequelId) {
       console.log("Adding sequel to act:", selectedSequelId);
-      // Переходим на страницу создания акта с выбранным сиквелом
-      navigate("/create-act", {
-        state: { selectedSequelId: selectedSequelId },
-      });
+      console.log("Navigating to /create-act");
+      // Переходим на страницу создания акта (сиквел уже сохранен в сторе)
+      navigate("/create-act");
     } else {
       alert("Please select a sequel first");
     }

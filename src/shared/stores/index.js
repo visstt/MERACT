@@ -1,5 +1,6 @@
 // Экспорт стора для прямого использования вне React компонентов
 export { useAuthStore } from "./authStore";
+export { useSequelStore } from "./sequelStore";
 
 // Утилиты для работы с localStorage напрямую (если понадобится)
 export const authStorageUtils = {
