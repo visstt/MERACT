@@ -1,6 +1,6 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { useAuthStore } from "../../shared/stores/authStore";
 import { ActFormat, ActType, SelectionMethods } from "../../shared/types/act";
@@ -25,6 +25,7 @@ export default function CreateAct() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sequelCoverPreview, setSequelCoverPreview] = useState(null);
+  const [selectedSequelId, setSelectedSequelId] = useState(null);
 
   // Состояние для формы сиквела
   const [sequelTitle, setSequelTitle] = useState("");
@@ -36,6 +37,7 @@ export default function CreateAct() {
   const [showStream, setShowStream] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuthStore();
   const { createAct, loading, error, success } = useCreateAct();
   const {
@@ -45,6 +47,69 @@ export default function CreateAct() {
     success: sequelSuccess,
     resetState: resetSequelState,
   } = useCreateSequel();
+
+  // Получаем selectedSequelId из navigation state при загрузке компонента
+  useEffect(() => {
+    if (location.state?.selectedSequelId) {
+      setSelectedSequelId(location.state.selectedSequelId);
+    }
+  }, [location.state]);
+
+  // Функции для сохранения и восстановления состояния формы
+  const saveFormState = () => {
+    const formState = {
+      title,
+      actType,
+      formatType,
+      settingsType,
+      heroMethod,
+      navigatorMethod,
+      biddingTime,
+      imagePreview,
+      selectedSequelId,
+      timestamp: Date.now(),
+    };
+    localStorage.setItem("createActFormState", JSON.stringify(formState));
+  };
+
+  const restoreFormState = () => {
+    try {
+      const savedState = localStorage.getItem("createActFormState");
+      if (savedState) {
+        const formState = JSON.parse(savedState);
+        // Проверяем, что данные не старше 30 минут
+        if (Date.now() - formState.timestamp < 30 * 60 * 1000) {
+          setTitle(formState.title || "");
+          setActType(formState.actType || ActType.SINGLE);
+          setFormatType(formState.formatType || ActFormat.SINGLE);
+          setSettingsType(formState.settingsType || "option1");
+          setHeroMethod(formState.heroMethod || SelectionMethods.VOTING);
+          setNavigatorMethod(
+            formState.navigatorMethod || SelectionMethods.VOTING,
+          );
+          setBiddingTime(formState.biddingTime || 5);
+          setImagePreview(formState.imagePreview || null);
+          // selectedSequelId будет установлен из navigation state
+        }
+      }
+    } catch (error) {
+      console.error("Error restoring form state:", error);
+    }
+  };
+
+  // Восстанавливаем состояние формы при загрузке компонента
+  useEffect(() => {
+    restoreFormState();
+  }, []);
+
+  // Сохраняем состояние формы при каждом изменении
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      saveFormState();
+    }, 500); // Дебаунс 500мс
+
+    return () => clearTimeout(timeoutId);
+  });
 
   const handleTimeChange = (direction) => {
     if (isAnimating) return;
@@ -100,6 +165,7 @@ export default function CreateAct() {
       navigatorMethods: navigatorMethod,
       biddingTime: new Date(Date.now() + biddingTime * 60 * 1000).toISOString(), // Добавляем время в минутах к текущему времени
       photo: selectedFile,
+      ...(selectedSequelId && { sequelId: selectedSequelId }), // Добавляем sequelId если он выбран
     };
 
     console.log("Creating act with data:", actData);
@@ -108,6 +174,9 @@ export default function CreateAct() {
 
     if (result) {
       console.log("Act created successfully:", result);
+
+      // Очищаем сохраненное состояние формы
+      localStorage.removeItem("createActFormState");
 
       // Сохраняем данные созданного act
       setCreatedAct({
@@ -316,6 +385,7 @@ export default function CreateAct() {
         </div>
         <div className={styles.block}>
           <p>Sequel?</p>
+
           <div className={styles.fileRow}>
             <button
               type="button"
@@ -635,7 +705,6 @@ export default function CreateAct() {
                     value={sequelTitle}
                     onChange={(e) => setSequelTitle(e.target.value)}
                     required
-                    
                   />
                 </div>
 

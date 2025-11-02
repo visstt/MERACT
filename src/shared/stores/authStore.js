@@ -28,6 +28,14 @@ export const useAuthStore = create(
         set({ isLoading: loading });
       },
 
+      setToken: (newToken) => {
+        set({ token: newToken });
+        // Также обновляем токен в localStorage
+        if (newToken) {
+          localStorage.setItem("authToken", newToken);
+        }
+      },
+
       login: (userData) => {
         // Сохраняем данные пользователя и токен
         set({

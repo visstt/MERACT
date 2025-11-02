@@ -1,11 +1,15 @@
 import { useState } from "react";
 
+import { useNavigate } from "react-router-dom";
+
 import styles from "./SelectSequel.module.css";
 import useSequels from "./hooks/useSequels";
 
 export default function SelectSequel() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedSequelId, setSelectedSequelId] = useState(null);
   const { sequels, loading, error } = useSequels();
+  const navigate = useNavigate();
 
   const handleGoBack = () => {
     window.history.back();
@@ -13,7 +17,20 @@ export default function SelectSequel() {
 
   const handleSequelSelect = (sequel) => {
     console.log("Selected sequel:", sequel);
-    // Здесь можно добавить логику для выбора сиквела
+    setSelectedSequelId(sequel.id);
+  };
+
+  const handleAddToAct = (event) => {
+    event.stopPropagation(); // Предотвращаем вызов handleSequelSelect
+    if (selectedSequelId) {
+      console.log("Adding sequel to act:", selectedSequelId);
+      // Переходим на страницу создания акта с выбранным сиквелом
+      navigate("/create-act", { 
+        state: { selectedSequelId: selectedSequelId } 
+      });
+    } else {
+      alert("Please select a sequel first");
+    }
   };
 
   // Фильтрация сиквелов по поисковому запросу
@@ -84,7 +101,7 @@ export default function SelectSequel() {
             filteredSequels.map((sequel) => (
               <div
                 key={sequel.id}
-                className={styles.sequel_block}
+                className={`${styles.sequel_block} ${selectedSequelId === sequel.id ? styles.selected : ''}`}
                 onClick={() => handleSequelSelect(sequel)}
               >
                 <div className={styles.start}>
@@ -105,7 +122,13 @@ export default function SelectSequel() {
                   src="/icons/plus.svg"
                   alt="plus"
                   width={15}
-                  style={{ marginRight: 10 }}
+                  style={{ 
+                    marginRight: 10,
+                    cursor: selectedSequelId ? 'pointer' : 'not-allowed',
+                    opacity: selectedSequelId ? 1 : 0.5,
+                    filter: selectedSequelId === sequel.id ? 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)' : 'none'
+                  }}
+                  onClick={(e) => selectedSequelId && handleAddToAct(e)}
                 />
               </div>
             ))}

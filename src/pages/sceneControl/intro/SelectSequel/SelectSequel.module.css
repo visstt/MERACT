@@ -113,6 +113,14 @@
   color: #fff;
   padding: 0 10px;
   margin-bottom: 5px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.sequel_block.selected {
+  border: 2px solid #007BFF;
+  background: rgba(0, 123, 255, 0.1);
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
 }
 .start img {
   border: 1px solid rgba(255, 255, 255, 0.43);
