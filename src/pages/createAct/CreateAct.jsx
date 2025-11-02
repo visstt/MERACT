@@ -38,16 +38,16 @@ export default function CreateAct() {
 
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { 
-    selectedSequelId, 
-    selectedSequel, 
+  const {
+    selectedSequelId,
+    selectedSequel,
     selectedIntroId,
     selectedIntro,
     selectedOutroId,
     selectedOutro,
     clearSelectedSequel,
     clearSelectedIntro,
-    clearSelectedOutro
+    clearSelectedOutro,
   } = useSequelStore();
   const { createAct, loading, error, success } = useCreateAct();
   const {
@@ -66,7 +66,14 @@ export default function CreateAct() {
     console.log("selectedIntro from store:", selectedIntro);
     console.log("selectedOutroId from store:", selectedOutroId);
     console.log("selectedOutro from store:", selectedOutro);
-  }, [selectedSequelId, selectedSequel, selectedIntroId, selectedIntro, selectedOutroId, selectedOutro]);
+  }, [
+    selectedSequelId,
+    selectedSequel,
+    selectedIntroId,
+    selectedIntro,
+    selectedOutroId,
+    selectedOutro,
+  ]);
 
   // Восстанавливаем состояние формы при загрузке компонента
   useEffect(() => {

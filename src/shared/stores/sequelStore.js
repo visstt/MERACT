@@ -7,11 +7,11 @@ export const useSequelStore = create(
       // Sequel
       selectedSequelId: null,
       selectedSequel: null,
-      
+
       // Intro
       selectedIntroId: null,
       selectedIntro: null,
-      
+
       // Outro
       selectedOutroId: null,
       selectedOutro: null,
