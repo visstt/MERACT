@@ -17,30 +17,35 @@ const StreamHostPage = () => {
     return (
       <div className={styles.container}>
         <div className={styles.header}>
-          <button className={styles.backButton} onClick={() => navigate("/acts")}>
+          <button
+            className={styles.backButton}
+            onClick={() => navigate("/acts")}
+          >
             ← Back to Acts
           </button>
           <h1 className={styles.title}>Live Streaming</h1>
         </div>
         <div className={styles.streamContent}>
-          <div style={{ 
-            color: 'white', 
-            textAlign: 'center', 
-            padding: '2rem',
-            fontSize: '1.2rem' 
-          }}>
+          <div
+            style={{
+              color: "white",
+              textAlign: "center",
+              padding: "2rem",
+              fontSize: "1.2rem",
+            }}
+          >
             <h2>Error: No Act ID provided</h2>
             <p>Please select a valid act to start streaming.</p>
-            <button 
+            <button
               onClick={() => navigate("/acts")}
               style={{
-                padding: '10px 20px',
-                marginTop: '1rem',
-                backgroundColor: '#63d4ff',
-                border: 'none',
-                borderRadius: '4px',
-                color: 'white',
-                cursor: 'pointer'
+                padding: "10px 20px",
+                marginTop: "1rem",
+                backgroundColor: "#63d4ff",
+                border: "none",
+                borderRadius: "4px",
+                color: "white",
+                cursor: "pointer",
               }}
             >
               Go to Acts

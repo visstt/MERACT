@@ -260,7 +260,7 @@ export default function CreateAct() {
       // Сохраняем данные созданного act
       const newActId = result.actId || result.id;
       console.log("Setting createdAct with id:", newActId);
-      
+
       setCreatedAct({
         id: newActId,
         title: title.trim(),

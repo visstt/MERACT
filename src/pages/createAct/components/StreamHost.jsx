@@ -27,8 +27,12 @@ const parseJWT = (token) => {
 };
 
 const StreamHost = ({ actId, actTitle, onStopStream }) => {
-  console.log("StreamHost received props:", { actId, actTitle, typeof: typeof actId });
-  
+  console.log("StreamHost received props:", {
+    actId,
+    actTitle,
+    typeof: typeof actId,
+  });
+
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState(null);
   const [token, setToken] = useState(null);
@@ -53,7 +57,9 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
   }
 
   // Create unique UID for streamer: actId + userId + role
-  const userId = actId ? parseInt(`${actId}${baseUserId}2`) : parseInt(`${Date.now()}${baseUserId}2`); // actId + userId + role(2=publisher)
+  const userId = actId
+    ? parseInt(`${actId}${baseUserId}2`)
+    : parseInt(`${Date.now()}${baseUserId}2`); // actId + userId + role(2=publisher)
 
   console.log(
     "StreamHost user data:",
@@ -80,7 +86,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
     // Get token for stream
     const getStreamToken = async () => {
       // Check if actId is valid
-      if (!actId || actId === 'undefined') {
+      if (!actId || actId === "undefined") {
         console.error("Cannot initialize stream: actId is invalid", actId);
         return;
       }
@@ -260,11 +266,14 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
 
       // Send stop-act request to backend
       try {
-        if (actId && actId !== 'undefined') {
+        if (actId && actId !== "undefined") {
           await api.post(`/act/stop-act?id=${actId}`);
           console.log("Stop-act request sent successfully");
         } else {
-          console.warn("Skipping stop-act request: actId is undefined or invalid:", actId);
+          console.warn(
+            "Skipping stop-act request: actId is undefined or invalid:",
+            actId,
+          );
         }
       } catch (apiError) {
         console.error("Error sending stop-act request:", apiError);
@@ -289,7 +298,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
 
   return (
     <div className={styles.container}>
-      {(!actId || actId === 'undefined') ? (
+      {!actId || actId === "undefined" ? (
         <div className={styles.errorContainer}>
           <h2>Stream Setup Error</h2>
           <p>Unable to initialize stream: Act ID is missing or invalid.</p>
@@ -301,44 +310,47 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
       ) : (
         <>
           <div className={styles.infoBox}>
-        <p>
-          <strong>Status:</strong>{" "}
-          {isStreaming ? (
-            <span className={styles.statusLive}>🔴 LIVE</span>
-          ) : (
-            <span className={styles.statusPreparing}>⚪ OFFLINE</span>
-          )}
-        </p>
-      </div>
-      <div className={styles.videoContainer}>
-        <div ref={localVideoRef} style={{ width: "100%", height: "100%" }} />
-      </div>
+            <p>
+              <strong>Status:</strong>{" "}
+              {isStreaming ? (
+                <span className={styles.statusLive}>🔴 LIVE</span>
+              ) : (
+                <span className={styles.statusPreparing}>⚪ OFFLINE</span>
+              )}
+            </p>
+          </div>
+          <div className={styles.videoContainer}>
+            <div
+              ref={localVideoRef}
+              style={{ width: "100%", height: "100%" }}
+            />
+          </div>
 
-      <div className={styles.controls}>
-        <button
-          className={styles.button}
-          onClick={isStreaming ? stopStreaming : startStreaming}
-          disabled={isInitializingRef.current}
-        >
-          {isStreaming ? "Stop Stream" : "Start Stream"}
-        </button>
-        <button
-          className={styles.button}
-          onClick={onStopStream}
-          disabled={isStreaming}
-        >
-          Exit
-        </button>
-      </div>
+          <div className={styles.controls}>
+            <button
+              className={styles.button}
+              onClick={isStreaming ? stopStreaming : startStreaming}
+              disabled={isInitializingRef.current}
+            >
+              {isStreaming ? "Stop Stream" : "Start Stream"}
+            </button>
+            <button
+              className={styles.button}
+              onClick={onStopStream}
+              disabled={isStreaming}
+            >
+              Exit
+            </button>
+          </div>
 
-      <div className={styles.infoText}>
-        <p>
-          {isStreaming
-            ? "Your camera and microphone are now live!"
-            : 'Click "Start Stream" to go live. Make sure your camera and microphone are connected.'}
-        </p>
-      </div>
-      </>
+          <div className={styles.infoText}>
+            <p>
+              {isStreaming
+                ? "Your camera and microphone are now live!"
+                : 'Click "Start Stream" to go live. Make sure your camera and microphone are connected.'}
+            </p>
+          </div>
+        </>
       )}
     </div>
   );
