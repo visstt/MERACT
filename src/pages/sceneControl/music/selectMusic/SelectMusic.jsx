@@ -1,12 +1,100 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import styles from "./SelectMusic.module.css";
+import { useMusic } from "./hooks/useMusic";
+import { useUploadMusic } from "./hooks/useUploadMusic";
+import { extractMusicTitle } from "./utils/musicUtils";
 
 export default function SelectMusic() {
   const [selectedMusic, setSelectedMusic] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [musicUrl, setMusicUrl] = useState("");
+  const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
+  const [audioElements, setAudioElements] = useState({});
+
+  const fileInputRef = useRef(null);
+
+  const { music, loading, error, refetch } = useMusic();
+  const { uploadMusicFile, uploadMusicFromUrl, isUploading, uploadError } =
+    useUploadMusic();
 
   const handleGoBack = () => {
     window.history.back();
+  };
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const success = await uploadMusicFile(file);
+      if (success) {
+        refetch(); // Обновляем список музыки
+        event.target.value = ""; // Очищаем input
+      }
+    }
+  };
+
+  const handleUrlUpload = async () => {
+    if (musicUrl.trim()) {
+      const success = await uploadMusicFromUrl(musicUrl.trim());
+      if (success) {
+        refetch(); // Обновляем список музыки
+        setMusicUrl(""); // Очищаем URL
+      }
+    }
+  };
+
+  const handleFileButtonClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handlePlayPause = (track) => {
+    const trackId = track.id;
+
+    // Если этот трек уже играет, ставим на паузу
+    if (currentlyPlaying === trackId) {
+      const audio = audioElements[trackId];
+      if (audio && !audio.paused) {
+        audio.pause();
+        setCurrentlyPlaying(null);
+        return;
+      }
+    }
+
+    // Останавливаем все другие треки
+    Object.values(audioElements).forEach((audio) => {
+      if (audio && !audio.paused) {
+        audio.pause();
+      }
+    });
+
+    // Создаем или получаем аудио элемент для этого трека
+    let audio = audioElements[trackId];
+    if (!audio) {
+      audio = new Audio(track.fileName);
+      audio.addEventListener("ended", () => {
+        setCurrentlyPlaying(null);
+      });
+      audio.addEventListener("error", (e) => {
+        console.error("Error playing audio:", e);
+        setCurrentlyPlaying(null);
+      });
+
+      setAudioElements((prev) => ({
+        ...prev,
+        [trackId]: audio,
+      }));
+    }
+
+    // Воспроизводим трек
+    audio
+      .play()
+      .then(() => {
+        setCurrentlyPlaying(trackId);
+      })
+      .catch((error) => {
+        console.error("Error playing audio:", error);
+        setCurrentlyPlaying(null);
+      });
   };
 
   const handleSelectMusic = (musicId) => {
@@ -18,6 +106,12 @@ export default function SelectMusic() {
       }
     });
   };
+
+  // Фильтрация музыки по поисковому запросу
+  const filteredMusic = music.filter((track) => {
+    const title = extractMusicTitle(track.fileName).toLowerCase();
+    return title.includes(searchTerm.toLowerCase());
+  });
   const UploadIcon = () => {
     return (
       <svg
@@ -69,7 +163,24 @@ export default function SelectMusic() {
       </svg>
     );
   };
-  const Play = () => {
+  const Play = ({ isCurrentlyPlaying }) => {
+    if (isCurrentlyPlaying) {
+      // Иконка паузы
+      return (
+        <svg
+          width="13"
+          height="16"
+          viewBox="0 0 13 16"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect x="1" y="1" width="3" height="14" fill="white" />
+          <rect x="8" y="1" width="3" height="14" fill="white" />
+        </svg>
+      );
+    }
+
+    // Иконка play
     return (
       <svg
         width="13"
@@ -79,8 +190,8 @@ export default function SelectMusic() {
         xmlns="http://www.w3.org/2000/svg"
       >
         <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
+          fillRule="evenodd"
+          clipRule="evenodd"
           d="M1.524 0.937344L11.616 7.14734C11.7616 7.23681 11.8818 7.3621 11.9653 7.51126C12.0487 7.66041 12.0925 7.82845 12.0925 7.99934C12.0925 8.17024 12.0487 8.33828 11.9653 8.48743C11.8818 8.63659 11.7616 8.76187 11.616 8.85134L1.524 15.0613C1.37245 15.1546 1.19878 15.2057 1.02088 15.2094C0.842993 15.2131 0.667332 15.1693 0.512025 15.0825C0.356717 14.9957 0.227388 14.869 0.137382 14.7155C0.0473748 14.562 -5.0094e-05 14.3873 3.97067e-08 14.2093V1.78934C-5.0094e-05 1.61141 0.0473748 1.43669 0.137382 1.28321C0.227388 1.12972 0.356717 1.00303 0.512025 0.916205C0.667332 0.82938 0.842993 0.785565 1.02088 0.789281C1.19878 0.792997 1.37245 0.844109 1.524 0.937344Z"
           fill="white"
         />
@@ -103,20 +214,43 @@ export default function SelectMusic() {
         </div>
         <div className="stripe2"></div>
         <div className={styles.upload_section}>
-          <button className={styles.upload_button}>
+          <button
+            className={styles.upload_button}
+            onClick={handleFileButtonClick}
+            disabled={isUploading}
+          >
             <UploadIcon />
-            Upload
+            {isUploading ? "Uploading..." : "Upload"}
           </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="audio/*"
+            onChange={handleFileUpload}
+            style={{ display: "none" }}
+          />
           <Stripe />
           <div className={styles.input_container}>
             <input
               type="text"
               placeholder="Paste Link to add"
               className={styles.music_input}
+              value={musicUrl}
+              onChange={(e) => setMusicUrl(e.target.value)}
+              disabled={isUploading}
             />
-            <button className={styles.add_button}>Add</button>
+            <button
+              className={styles.add_button}
+              onClick={handleUrlUpload}
+              disabled={isUploading || !musicUrl.trim()}
+            >
+              {isUploading ? "Adding..." : "Add"}
+            </button>
           </div>
         </div>
+        {uploadError && (
+          <div className={styles.error_message}>Error: {uploadError}</div>
+        )}
         <div className="stripe2" style={{ margin: 0 }}></div>
 
         <div className={styles.list_section}>
@@ -126,141 +260,106 @@ export default function SelectMusic() {
               type="text"
               placeholder="Search"
               className={styles.search_input}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div className={styles.music_block}>
-            <div className={styles.music_name}>
-              <Play />
-              <p>Music 01</p>
+
+          {/* Показываем состояния загрузки */}
+          {loading && (
+            <div
+              style={{
+                color: "#fff",
+                textAlign: "center",
+                padding: "20px",
+              }}
+            >
+              Loading music...
             </div>
-            <div className={styles.music_info}>
-              <p>02:21</p>
+          )}
+
+          {error && (
+            <div
+              style={{
+                color: "#ff6b6b",
+                textAlign: "center",
+                padding: "20px",
+              }}
+            >
+              <p>Error: {error}</p>
               <button
-                className={
-                  selectedMusic.includes("music1")
-                    ? `${styles.select_btn} ${styles.active}`
-                    : styles.select_btn
-                }
-                onClick={() => handleSelectMusic("music1")}
+                onClick={refetch}
+                style={{
+                  background: "#3ABAFF",
+                  color: "white",
+                  border: "none",
+                  padding: "8px 16px",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  marginTop: "10px",
+                }}
               >
-                {selectedMusic.includes("music1") ? "Selected" : "Select"}
+                Retry
               </button>
             </div>
-          </div>
-          <div className={styles.music_block}>
-            <div className={styles.music_name}>
-              <Play />
-              <p>Music 02</p>
-            </div>
-            <div className={styles.music_info}>
-              <p>02:21</p>
-              <button
-                className={
-                  selectedMusic.includes("music2")
-                    ? `${styles.select_btn} ${styles.active}`
-                    : styles.select_btn
-                }
-                onClick={() => handleSelectMusic("music2")}
+          )}
+
+          {!loading &&
+            !error &&
+            filteredMusic.length === 0 &&
+            music.length > 0 && (
+              <div
+                style={{
+                  color: "#999",
+                  textAlign: "center",
+                  padding: "20px",
+                }}
               >
-                {selectedMusic.includes("music2") ? "Selected" : "Select"}
-              </button>
+                No music found matching your search
+              </div>
+            )}
+
+          {!loading && !error && music.length === 0 && (
+            <div
+              style={{
+                color: "#999",
+                textAlign: "center",
+                padding: "20px",
+              }}
+            >
+              No music available
             </div>
-          </div>
-          <div className={styles.music_block}>
-            <div className={styles.music_name}>
-              <Play />
-              <p>Music 03</p>
-            </div>
-            <div className={styles.music_info}>
-              <p>02:21</p>
-              <button
-                className={
-                  selectedMusic.includes("music3")
-                    ? `${styles.select_btn} ${styles.active}`
-                    : styles.select_btn
-                }
-                onClick={() => handleSelectMusic("music3")}
-              >
-                {selectedMusic.includes("music3") ? "Selected" : "Select"}
-              </button>
-            </div>
-          </div>
-          <div className={styles.music_block}>
-            <div className={styles.music_name}>
-              <Play />
-              <p>Music 04</p>
-            </div>
-            <div className={styles.music_info}>
-              <p>02:21</p>
-              <button
-                className={
-                  selectedMusic.includes("music4")
-                    ? `${styles.select_btn} ${styles.active}`
-                    : styles.select_btn
-                }
-                onClick={() => handleSelectMusic("music4")}
-              >
-                {selectedMusic.includes("music4") ? "Selected" : "Select"}
-              </button>
-            </div>
-          </div>
-          <div className={styles.music_block}>
-            <div className={styles.music_name}>
-              <Play />
-              <p>Music 05</p>
-            </div>
-            <div className={styles.music_info}>
-              <p>02:21</p>
-              <button
-                className={
-                  selectedMusic.includes("music5")
-                    ? `${styles.select_btn} ${styles.active}`
-                    : styles.select_btn
-                }
-                onClick={() => handleSelectMusic("music5")}
-              >
-                {selectedMusic.includes("music5") ? "Selected" : "Select"}
-              </button>
-            </div>
-          </div>
-          <div className={styles.music_block}>
-            <div className={styles.music_name}>
-              <Play />
-              <p>Music 06</p>
-            </div>
-            <div className={styles.music_info}>
-              <p>02:21</p>
-              <button
-                className={
-                  selectedMusic.includes("music6")
-                    ? `${styles.select_btn} ${styles.active}`
-                    : styles.select_btn
-                }
-                onClick={() => handleSelectMusic("music6")}
-              >
-                {selectedMusic.includes("music6") ? "Selected" : "Select"}
-              </button>
-            </div>
-          </div>
-          <div className={styles.music_block}>
-            <div className={styles.music_name}>
-              <Play />
-              <p>Music 07</p>
-            </div>
-            <div className={styles.music_info}>
-              <p>02:21</p>
-              <button
-                className={
-                  selectedMusic.includes("music7")
-                    ? `${styles.select_btn} ${styles.active}`
-                    : styles.select_btn
-                }
-                onClick={() => handleSelectMusic("music7")}
-              >
-                {selectedMusic.includes("music7") ? "Selected" : "Select"}
-              </button>
-            </div>
-          </div>
+          )}
+
+          {/* Отображаем отфильтрованную музыку */}
+          {!loading &&
+            !error &&
+            filteredMusic.map((track) => (
+              <div key={track.id} className={styles.music_block}>
+                <div className={styles.music_name}>
+                  <button
+                    className={styles.play_button}
+                    onClick={() => handlePlayPause(track)}
+                  >
+                    <Play isCurrentlyPlaying={currentlyPlaying === track.id} />
+                  </button>
+                  <p>{extractMusicTitle(track.fileName)}</p>
+                </div>
+                <div className={styles.music_info}>
+                  <p>{track.length}</p>
+                  <button
+                    className={
+                      selectedMusic.includes(track.id)
+                        ? `${styles.select_btn} ${styles.active}`
+                        : styles.select_btn
+                    }
+                    onClick={() => handleSelectMusic(track.id)}
+                  >
+                    {selectedMusic.includes(track.id) ? "Selected" : "Select"}
+                  </button>
+                </div>
+              </div>
+            ))}
         </div>
       </div>
     </div>

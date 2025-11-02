@@ -3,20 +3,20 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import styles from "../SceneControl.module.css";
-import { useIntros } from "./hooks/useIntros";
-import { useUploadIntro } from "./hooks/useUploadIntro";
+import { useOutros } from "./hooks/useOutros";
+import { useUploadOutro } from "./hooks/useUploadOutro";
 
-export default function SceneControlMusic() {
-  const [heroMethod, setHeroMethod] = useState("Intro");
-  const [selectedIntro, setSelectedIntro] = useState(null);
-  const { intros, loading, error, refetch } = useIntros();
+export default function SceneControlOutro() {
+  const [heroMethod, setHeroMethod] = useState("Outro");
+  const [selectedOutro, setSelectedOutro] = useState(null);
+  const { outros, loading, error, refetch } = useOutros();
   const {
-    uploadIntro,
+    uploadOutro,
     uploading,
     error: uploadError,
     success: uploadSuccess,
     resetState,
-  } = useUploadIntro();
+  } = useUploadOutro();
   const fileInputRef = useRef(null);
 
   const navigate = useNavigate();
@@ -38,9 +38,9 @@ export default function SceneControlMusic() {
       return;
     }
 
-    const result = await uploadIntro(file);
+    const result = await uploadOutro(file);
     if (result) {
-      // Успешная загрузка - обновляем список интро
+      // Успешная загрузка - обновляем список outro
       refetch();
       resetState();
     }
@@ -49,16 +49,17 @@ export default function SceneControlMusic() {
     e.target.value = "";
   };
 
-  const handleIntroSelect = (intro) => {
-    setSelectedIntro(intro);
+  const handleOutroSelect = (outro) => {
+    setSelectedOutro(outro);
   };
 
-  // Автоматически выбираем первое интро после загрузки
+  // Автоматически выбираем первое outro после загрузки
   useEffect(() => {
-    if (!loading && !error && intros.length > 0 && !selectedIntro) {
-      setSelectedIntro(intros[0]);
+    if (!loading && !error && outros.length > 0 && !selectedOutro) {
+      setSelectedOutro(outros[0]);
     }
-  }, [intros, loading, error, selectedIntro]);
+  }, [outros, loading, error, selectedOutro]);
+
   return (
     <div>
       <div className={styles.glass}>
@@ -75,9 +76,9 @@ export default function SceneControlMusic() {
         </div>
         <div className="stripe2"></div>
         <div className={styles.content}>
-          {selectedIntro ? (
+          {selectedOutro ? (
             <video
-              src={selectedIntro.fileName}
+              src={selectedOutro.fileName}
               className={styles.samplePhoto}
               autoPlay
               loop
@@ -92,9 +93,9 @@ export default function SceneControlMusic() {
               onError={(e) => {
                 console.error(
                   "Error loading selected video:",
-                  selectedIntro.fileName,
+                  selectedOutro.fileName,
                 );
-                setSelectedIntro(null);
+                setSelectedOutro(null);
               }}
             />
           ) : (
@@ -112,7 +113,7 @@ export default function SceneControlMusic() {
                   ? `${styles.selectBtn} ${styles.selectBtnActive}`
                   : styles.selectBtn
               }
-              onClick={() => setHeroMethod("Intro")}
+              onClick={() => navigate("/scene-control-intro")}
             >
               <img src="/icons/intro.svg" alt="voting" />
               Intro
@@ -149,7 +150,7 @@ export default function SceneControlMusic() {
                   ? `${styles.selectBtn} ${styles.selectBtnActive}`
                   : styles.selectBtn
               }
-              onClick={() => navigate("/scene-control-outro")}
+              onClick={() => setHeroMethod("Outro")}
             >
               <img src="/icons/outro.svg" alt="voting" />
               Outro
@@ -158,7 +159,7 @@ export default function SceneControlMusic() {
 
           <div className={styles.wrapper}>
             <div className={styles.wrapper_header}>
-              <p>Intro</p>
+              <p>Outro</p>
               <button onClick={handleUploadClick} disabled={uploading}>
                 {uploading ? "Загрузка..." : "Upload"}
               </button>
@@ -194,7 +195,7 @@ export default function SceneControlMusic() {
                   fontSize: "14px",
                 }}
               >
-                Интро успешно загружено!
+                Outro успешно загружено!
               </div>
             )}
 
@@ -208,7 +209,7 @@ export default function SceneControlMusic() {
                     width: "100%",
                   }}
                 >
-                  Loading intros...
+                  Loading outros...
                 </div>
               )}
 
@@ -239,7 +240,7 @@ export default function SceneControlMusic() {
                 </div>
               )}
 
-              {!loading && !error && intros.length === 0 && (
+              {!loading && !error && outros.length === 0 && (
                 <div
                   style={{
                     color: "#999",
@@ -248,24 +249,24 @@ export default function SceneControlMusic() {
                     width: "100%",
                   }}
                 >
-                  No intro videos found
+                  No outro videos found
                 </div>
               )}
 
               {!loading &&
                 !error &&
-                intros.length > 0 &&
-                intros.map((intro) => (
+                outros.length > 0 &&
+                outros.map((outro) => (
                   <div
-                    key={intro.id}
+                    key={outro.id}
                     className={styles.wrapperContentItem}
-                    onClick={() => handleIntroSelect(intro)}
+                    onClick={() => handleOutroSelect(outro)}
                     style={{
                       cursor: "pointer",
                     }}
                   >
                     <video
-                      src={intro.fileName}
+                      src={outro.fileName}
                       className={styles.wrapperContentImg}
                       autoPlay
                       loop
@@ -276,14 +277,14 @@ export default function SceneControlMusic() {
                         objectFit: "cover",
                         objectPosition: "center",
                         border:
-                          selectedIntro?.id === intro.id
+                          selectedOutro?.id === outro.id
                             ? "2px solid #3ABAFF"
                             : "2px solid transparent",
                         borderRadius: "5px",
                         transition: "border-color 0.2s ease",
                       }}
                       onError={(e) => {
-                        console.error("Error loading video:", intro.fileName);
+                        console.error("Error loading video:", outro.fileName);
                         e.target.style.display = "none";
                       }}
                     ></video>

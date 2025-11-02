@@ -11,6 +11,8 @@ import SceneControlIntro from "../../pages/sceneControl/intro/SceneControlIntro"
 import SelectSequel from "../../pages/sceneControl/intro/SelectSequel/SelectSequel";
 import SceneControlMusic from "../../pages/sceneControl/music/SceneControlMusic";
 import SelectMusic from "../../pages/sceneControl/music/selectMusic/SelectMusic";
+import SceneControlOutro from "../../pages/sceneControl/outro/SceneControlOutro";
+import SceneControlTransition from "../../pages/sceneControl/transition/SceneControlTransition";
 import StreamPage from "../../pages/stream/StreamPage";
 import StreamHostPage from "../../pages/streamHost/StreamHostPage";
 import { useAuthStore } from "../../shared/stores/authStore";
@@ -43,6 +45,10 @@ export const router = createBrowserRouter([
     element: <SceneControlIntro />,
   },
   {
+    path: "/scene-control-transition",
+    element: <SceneControlTransition />,
+  },
+  {
     path: "/scene-control-music",
     element: <SceneControlMusic />,
   },
@@ -53,6 +59,10 @@ export const router = createBrowserRouter([
   {
     path: "/scene-control-sequel-select",
     element: <SelectSequel />,
+  },
+  {
+    path: "/scene-control-outro",
+    element: <SceneControlOutro />,
   },
   {
     path: "/create-act",

@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
 import styles from "../SceneControl.module.css";
+import { useMusic } from "./hooks/useMusic";
+import { extractMusicTitle } from "./utils/musicUtils";
 
 const RefreshIcon = () => {
   return (
@@ -39,6 +41,20 @@ const Play = () => {
   );
 };
 
+const Pause = () => {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M6 19H10V5H6V19ZM14 5V19H18V5H14Z" fill="white" />
+    </svg>
+  );
+};
+
 const Menu = () => {
   return (
     <svg
@@ -57,11 +73,64 @@ const Menu = () => {
 
 export default function SceneControlMusic() {
   const [heroMethod, setHeroMethod] = useState("Music");
+  const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
+  const [audioElements, setAudioElements] = useState({});
+  const { music, loading, error, refetch } = useMusic();
 
   const navigate = useNavigate();
 
   const handleGoBack = () => {
     window.history.back();
+  };
+
+  const handlePlayPause = (track) => {
+    const trackId = track.id;
+
+    // Если этот трек уже играет, ставим на паузу
+    if (currentlyPlaying === trackId) {
+      const audio = audioElements[trackId];
+      if (audio && !audio.paused) {
+        audio.pause();
+        setCurrentlyPlaying(null);
+        return;
+      }
+    }
+
+    // Останавливаем все другие треки
+    Object.values(audioElements).forEach((audio) => {
+      if (audio && !audio.paused) {
+        audio.pause();
+      }
+    });
+
+    // Создаем или получаем аудио элемент для этого трека
+    let audio = audioElements[trackId];
+    if (!audio) {
+      audio = new Audio(track.fileName);
+      audio.addEventListener("ended", () => {
+        setCurrentlyPlaying(null);
+      });
+      audio.addEventListener("error", (e) => {
+        console.error("Error playing audio:", e);
+        setCurrentlyPlaying(null);
+      });
+
+      setAudioElements((prev) => ({
+        ...prev,
+        [trackId]: audio,
+      }));
+    }
+
+    // Воспроизводим трек
+    audio
+      .play()
+      .then(() => {
+        setCurrentlyPlaying(trackId);
+      })
+      .catch((error) => {
+        console.error("Error playing audio:", error);
+        setCurrentlyPlaying(null);
+      });
   };
 
   return (
@@ -106,7 +175,7 @@ export default function SceneControlMusic() {
                   : styles.selectBtn
               }
               style={{ paddingBottom: "7px" }}
-              onClick={() => setHeroMethod("Transition")}
+              onClick={() => navigate("/scene-control-transition")}
             >
               <img src="/icons/flash.svg" alt="voting" />
               Transition
@@ -130,7 +199,7 @@ export default function SceneControlMusic() {
                   ? `${styles.selectBtn} ${styles.selectBtnActive}`
                   : styles.selectBtn
               }
-              onClick={() => setHeroMethod("Outro")}
+              onClick={() => navigate("/scene-control-outro")}
             >
               <img src="/icons/outro.svg" alt="voting" />
               Outro
@@ -154,62 +223,81 @@ export default function SceneControlMusic() {
               Select Playlist Music
             </button>
 
-            <div className={styles.music_block}>
-              <h3>01</h3>
-              <div className={styles.music_name}>
-                <Play />
-                <p>Sapphire - Ed Shee..</p>
+            {/* Показываем состояния загрузки */}
+            {loading && (
+              <div
+                style={{
+                  color: "#fff",
+                  textAlign: "center",
+                  padding: "20px",
+                }}
+              >
+                Loading music...
               </div>
+            )}
 
-              <p>01:09</p>
-              <Menu />
-              <p className={styles.intro}>Intro</p>
-              <div className={styles.back_arrow}>
-                <img src="/icons/backArrow3.svg" alt="back arrow" />
+            {error && (
+              <div
+                style={{
+                  color: "#ff6b6b",
+                  textAlign: "center",
+                  padding: "20px",
+                }}
+              >
+                <p>Error: {error}</p>
+                <button
+                  onClick={refetch}
+                  style={{
+                    background: "#3ABAFF",
+                    color: "white",
+                    border: "none",
+                    padding: "8px 16px",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    marginTop: "10px",
+                  }}
+                >
+                  Retry
+                </button>
               </div>
-            </div>
-            <div className={styles.music_block}>
-              <h3>01</h3>
-              <div className={styles.music_name}>
-                <Play />
-                <p>Sapphire - Ed Shee..</p>
-              </div>
+            )}
 
-              <p>01:09</p>
-              <Menu />
-              <p className={styles.intro}>Intro</p>
-              <div className={styles.back_arrow}>
-                <img src="/icons/backArrow3.svg" alt="back arrow" />
+            {!loading && !error && music.length === 0 && (
+              <div
+                style={{
+                  color: "#999",
+                  textAlign: "center",
+                  padding: "20px",
+                }}
+              >
+                No music available
               </div>
-            </div>
-            <div className={styles.music_block}>
-              <h3>01</h3>
-              <div className={styles.music_name}>
-                <Play />
-                <p>Sapphire - Ed Shee..</p>
-              </div>
+            )}
 
-              <p>01:09</p>
-              <Menu />
-              <p className={styles.intro}>Intro</p>
-              <div className={styles.back_arrow}>
-                <img src="/icons/backArrow3.svg" alt="back arrow" />
-              </div>
-            </div>
-            <div className={styles.music_block}>
-              <h3>01</h3>
-              <div className={styles.music_name}>
-                <Play />
-                <p>Sapphire - Ed Shee..</p>
-              </div>
+            {/* Отображаем реальную музыку */}
+            {!loading &&
+              !error &&
+              music.map((track, index) => (
+                <div key={track.id} className={styles.music_block}>
+                  <h3>{String(index + 1).padStart(2, "0")}</h3>
+                  <div className={styles.music_name}>
+                    <div
+                      onClick={() => handlePlayPause(track)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      {currentlyPlaying === track.id ? <Pause /> : <Play />}
+                    </div>
+                    <p>{extractMusicTitle(track.fileName)}</p>
+                  </div>
 
-              <p>01:09</p>
-              <Menu />
-              <p className={styles.intro}>Intro</p>
-              <div className={styles.back_arrow}>
-                <img src="/icons/backArrow3.svg" alt="back arrow" />
-              </div>
-            </div>
+                  <p>{track.length}</p>
+                  <Menu />
+                  <p className={styles.intro}>Intro</p>
+                  <div className={styles.back_arrow}>
+                    <img src="/icons/backArrow3.svg" alt="back arrow" />
+                  </div>
+                </div>
+              ))}
           </div>
         </div>
       </div>
