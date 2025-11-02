@@ -25,8 +25,8 @@ export default function SelectSequel() {
     if (selectedSequelId) {
       console.log("Adding sequel to act:", selectedSequelId);
       // Переходим на страницу создания акта с выбранным сиквелом
-      navigate("/create-act", { 
-        state: { selectedSequelId: selectedSequelId } 
+      navigate("/create-act", {
+        state: { selectedSequelId: selectedSequelId },
       });
     } else {
       alert("Please select a sequel first");
@@ -101,7 +101,7 @@ export default function SelectSequel() {
             filteredSequels.map((sequel) => (
               <div
                 key={sequel.id}
-                className={`${styles.sequel_block} ${selectedSequelId === sequel.id ? styles.selected : ''}`}
+                className={`${styles.sequel_block} ${selectedSequelId === sequel.id ? styles.selected : ""}`}
                 onClick={() => handleSequelSelect(sequel)}
               >
                 <div className={styles.start}>
@@ -122,11 +122,14 @@ export default function SelectSequel() {
                   src="/icons/plus.svg"
                   alt="plus"
                   width={15}
-                  style={{ 
+                  style={{
                     marginRight: 10,
-                    cursor: selectedSequelId ? 'pointer' : 'not-allowed',
+                    cursor: selectedSequelId ? "pointer" : "not-allowed",
                     opacity: selectedSequelId ? 1 : 0.5,
-                    filter: selectedSequelId === sequel.id ? 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)' : 'none'
+                    filter:
+                      selectedSequelId === sequel.id
+                        ? "brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)"
+                        : "none",
                   }}
                   onClick={(e) => selectedSequelId && handleAddToAct(e)}
                 />
