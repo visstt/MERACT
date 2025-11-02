@@ -34,6 +34,21 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
   const [, setToken] = useState(null);
   const [remoteUsers, setRemoteUsers] = useState([]);
   const [streamDuration, setStreamDuration] = useState(0);
+  const [chatMessages, setChatMessages] = useState([
+    { id: 1, username: "rcOut", text: "sent a superchat", type: "superchat" },
+    { id: 2, username: "rcOut", text: "sent a superchat", type: "superchat" },
+    { id: 3, username: "rcOut", text: "sent a superchat", type: "superchat" },
+    { id: 4, username: "rcOut", text: "sent a superchat", type: "superchat" },
+    { id: 5, username: "Hater", text: "are op gameplay", type: "normal" },
+    {
+      id: 6,
+      username: "scOut Ka jabra fan",
+      text: "Shout out pls sit big fan",
+      type: "normal",
+    },
+    { id: 7, username: "Yt gamer", text: "This is op", type: "normal" },
+  ]);
+  const [chatMessage, setChatMessage] = useState("");
   const remoteVideoRef = useRef(null);
   const clientRef = useRef(null);
   const isConnectingRef = useRef(false); // Flag to prevent double connection
@@ -256,6 +271,25 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
     navigate("/acts");
   };
 
+  const handleSendMessage = () => {
+    if (chatMessage.trim()) {
+      const newMessage = {
+        id: Date.now(),
+        username: user?.username || "Anonymous",
+        text: chatMessage.trim(),
+        type: "normal",
+      };
+      setChatMessages((prev) => [...prev, newMessage]);
+      setChatMessage("");
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSendMessage();
+    }
+  };
+
   return (
     <div className={styles.container}>
       {/* Stream header */}
@@ -346,18 +380,50 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
         <div ref={remoteVideoRef} className={styles.videoElement} />
       </div>
 
-      <div className={styles.statusPanel}>
-        <div className={styles.statusRow}>
-          <div>
-            <span
-              className={`${styles.statusBadge} ${isConnected ? styles.statusLive : styles.statusOffline}`}
-            >
-              {isConnected ? "🟢 LIVE" : "🔴 OFFLINE"}
-            </span>
+      {/* Chat Container */}
+      <div className={styles.chatContainer}>
+        {/* Chat Panel */}
+        <div className={styles.chatPanel}>
+          {/* Chat Messages */}
+          <div className={styles.chatMessages}>
+            {chatMessages.map((message) => (
+              <div key={message.id} className={styles.chatMessage}>
+                <span className={styles.username}>{message.username}</span>
+                <span className={styles.messageText}>{message.text}</span>
+              </div>
+            ))}
           </div>
-          <div className={styles.viewersCount}>
-            👥 {remoteUsers.length} streaming
+
+          {/* Chat Input */}
+          <div className={styles.chatInput}>
+            <input
+              type="text"
+              placeholder="Write your message..."
+              value={chatMessage}
+              onChange={(e) => setChatMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              className={styles.messageInput}
+            />
+            <button className={styles.inputButton}>
+              <img src="/icons/chat/smile.png" alt="Emoji" />
+            </button>
+            <button className={styles.inputButton} onClick={handleSendMessage}>
+              <img src="/icons/chat/send.png" alt="Send" />
+            </button>
           </div>
+        </div>
+
+        {/* Chat Action Buttons */}
+        <div className={styles.chatActions}>
+          <button className={styles.actionButton}>
+            <img src="/icons/chat/geo.png" alt="Location" />
+          </button>
+          <button className={styles.actionButton}>
+            <img src="/icons/chat/file.png" alt="File" />
+          </button>
+          <button className={styles.actionButton}>
+            <img src="/icons/chat/chat.png" alt="Chat" />
+          </button>
         </div>
       </div>
     </div>
