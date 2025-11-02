@@ -53,6 +53,14 @@ export function useCreateAct() {
         formData.append("sequelId", actData.sequelId.toString());
       }
 
+      if (actData.introId) {
+        formData.append("introId", actData.introId.toString());
+      }
+
+      if (actData.outroId) {
+        formData.append("outroId", actData.outroId.toString());
+      }
+
       // Добавляем файл если есть
       if (actData.photo) {
         formData.append("photo", actData.photo);
@@ -68,6 +76,8 @@ export function useCreateAct() {
         userId: user.id,
         hasPhoto: !!actData.photo,
         sequelId: actData.sequelId,
+        introId: actData.introId,
+        outroId: actData.outroId,
       });
 
       // Отправляем запрос

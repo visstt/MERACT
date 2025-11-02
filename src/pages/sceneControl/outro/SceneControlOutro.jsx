@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
+import { useSequelStore } from "../../../shared/stores/sequelStore";
 import styles from "../SceneControl.module.css";
 import { useOutros } from "./hooks/useOutros";
 import { useUploadOutro } from "./hooks/useUploadOutro";
@@ -9,6 +10,7 @@ import { useUploadOutro } from "./hooks/useUploadOutro";
 export default function SceneControlOutro() {
   const [heroMethod, setHeroMethod] = useState("Outro");
   const [selectedOutro, setSelectedOutro] = useState(null);
+  const { setSelectedOutro: setOutroInStore } = useSequelStore();
   const { outros, loading, error, refetch } = useOutros();
   const {
     uploadOutro,
@@ -51,14 +53,19 @@ export default function SceneControlOutro() {
 
   const handleOutroSelect = (outro) => {
     setSelectedOutro(outro);
+    // Сохраняем выбранное outro в стор
+    setOutroInStore(outro);
   };
 
   // Автоматически выбираем первое outro после загрузки
   useEffect(() => {
     if (!loading && !error && outros.length > 0 && !selectedOutro) {
-      setSelectedOutro(outros[0]);
+      const firstOutro = outros[0];
+      setSelectedOutro(firstOutro);
+      // Сохраняем в стор
+      setOutroInStore(firstOutro);
     }
-  }, [outros, loading, error, selectedOutro]);
+  }, [outros, loading, error, selectedOutro, setOutroInStore]);
 
   return (
     <div>
@@ -90,7 +97,7 @@ export default function SceneControlOutro() {
                 width: "240px",
                 height: "400px",
               }}
-              onError={(e) => {
+              onError={() => {
                 console.error(
                   "Error loading selected video:",
                   selectedOutro.fileName,

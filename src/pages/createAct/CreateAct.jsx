@@ -38,8 +38,17 @@ export default function CreateAct() {
 
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { selectedSequelId, selectedSequel, clearSelectedSequel } =
-    useSequelStore();
+  const { 
+    selectedSequelId, 
+    selectedSequel, 
+    selectedIntroId,
+    selectedIntro,
+    selectedOutroId,
+    selectedOutro,
+    clearSelectedSequel,
+    clearSelectedIntro,
+    clearSelectedOutro
+  } = useSequelStore();
   const { createAct, loading, error, success } = useCreateAct();
   const {
     createSequel,
@@ -53,7 +62,11 @@ export default function CreateAct() {
   useEffect(() => {
     console.log("selectedSequelId from store changed:", selectedSequelId);
     console.log("selectedSequel from store:", selectedSequel);
-  }, [selectedSequelId, selectedSequel]);
+    console.log("selectedIntroId from store:", selectedIntroId);
+    console.log("selectedIntro from store:", selectedIntro);
+    console.log("selectedOutroId from store:", selectedOutroId);
+    console.log("selectedOutro from store:", selectedOutro);
+  }, [selectedSequelId, selectedSequel, selectedIntroId, selectedIntro, selectedOutroId, selectedOutro]);
 
   // Восстанавливаем состояние формы при загрузке компонента
   useEffect(() => {
@@ -172,6 +185,8 @@ export default function CreateAct() {
 
     // Подготавливаем данные для отправки
     console.log("Selected sequel ID before creating act:", selectedSequelId);
+    console.log("Selected intro ID before creating act:", selectedIntroId);
+    console.log("Selected outro ID before creating act:", selectedOutroId);
 
     const actData = {
       title: title.trim(),
@@ -182,6 +197,8 @@ export default function CreateAct() {
       biddingTime: new Date(Date.now() + biddingTime * 60 * 1000).toISOString(), // Добавляем время в минутах к текущему времени
       photo: selectedFile,
       ...(selectedSequelId && { sequelId: selectedSequelId }), // Добавляем sequelId если он выбран
+      ...(selectedIntroId && { introId: selectedIntroId }), // Добавляем introId если выбрано
+      ...(selectedOutroId && { outroId: selectedOutroId }), // Добавляем outroId если выбрано
     };
 
     console.log("Creating act with data:", actData);
@@ -194,8 +211,10 @@ export default function CreateAct() {
       // Очищаем сохраненное состояние формы
       localStorage.removeItem("createActFormState");
 
-      // Очищаем выбранный сиквел из стора
+      // Очищаем выбранные элементы из стора
       clearSelectedSequel();
+      clearSelectedIntro();
+      clearSelectedOutro();
 
       // Сохраняем данные созданного act
       setCreatedAct({

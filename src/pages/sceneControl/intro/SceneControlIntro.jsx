@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
+import { useSequelStore } from "../../../shared/stores/sequelStore";
 import styles from "../SceneControl.module.css";
 import { useIntros } from "./hooks/useIntros";
 import { useUploadIntro } from "./hooks/useUploadIntro";
@@ -9,6 +10,7 @@ import { useUploadIntro } from "./hooks/useUploadIntro";
 export default function SceneControlMusic() {
   const [heroMethod, setHeroMethod] = useState("Intro");
   const [selectedIntro, setSelectedIntro] = useState(null);
+  const { setSelectedIntro: setIntroInStore } = useSequelStore();
   const { intros, loading, error, refetch } = useIntros();
   const {
     uploadIntro,
@@ -51,14 +53,19 @@ export default function SceneControlMusic() {
 
   const handleIntroSelect = (intro) => {
     setSelectedIntro(intro);
+    // Сохраняем выбранное intro в стор
+    setIntroInStore(intro);
   };
 
   // Автоматически выбираем первое интро после загрузки
   useEffect(() => {
     if (!loading && !error && intros.length > 0 && !selectedIntro) {
-      setSelectedIntro(intros[0]);
+      const firstIntro = intros[0];
+      setSelectedIntro(firstIntro);
+      // Сохраняем в стор
+      setIntroInStore(firstIntro);
     }
-  }, [intros, loading, error, selectedIntro]);
+  }, [intros, loading, error, selectedIntro, setIntroInStore]);
   return (
     <div>
       <div className={styles.glass}>
@@ -89,7 +96,7 @@ export default function SceneControlMusic() {
                 width: "240px",
                 height: "400px",
               }}
-              onError={(e) => {
+              onError={() => {
                 console.error(
                   "Error loading selected video:",
                   selectedIntro.fileName,
