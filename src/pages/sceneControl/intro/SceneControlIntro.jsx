@@ -57,12 +57,16 @@ export default function SceneControlMusic() {
     setIntroInStore(intro);
   };
 
-  // Автоматически выбираем первое интро после загрузки
+  // Автоматический выбор первого интро (если есть). Если интро нет, ничего не делаем.
   useEffect(() => {
-    if (!loading && !error && intros.length > 0 && !selectedIntro) {
-      const firstIntro = intros[0];
+    // Если ещё идёт загрузка или есть ошибка - не выбираем
+    if (loading || error) return;
+    // Нет интро или уже есть выбранное - выходим
+    if (!Array.isArray(intros) || intros.length === 0 || selectedIntro) return;
+
+    const firstIntro = intros[0];
+    if (firstIntro) {
       setSelectedIntro(firstIntro);
-      // Сохраняем в стор
       setIntroInStore(firstIntro);
     }
   }, [intros, loading, error, selectedIntro, setIntroInStore]);
@@ -109,6 +113,7 @@ export default function SceneControlMusic() {
               src="/images/samplePhoto.png"
               alt=""
               className={styles.samplePhoto}
+              style={{ cursor: intros?.length ? "pointer" : "default" }}
             />
           )}
           <div className="btnRow">
