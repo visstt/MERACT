@@ -52,7 +52,7 @@ export default function CreateAct() {
     clearSelectedOutro,
     clearSelectedMusic,
   } = useSequelStore();
-  const { createAct, loading, error, success } = useCreateAct();
+  const { createAct, loading, error, success, resetState } = useCreateAct();
   const {
     createSequel,
     loading: sequelLoading,
@@ -754,17 +754,44 @@ export default function CreateAct() {
         </button>
       </div>
 
-      {/* Показываем ошибки */}
+      {/* Error Display */}
       {error && (
-        <div style={{ color: "red", textAlign: "center", marginTop: "10px" }}>
-          Error: {error}
+        <div className={styles.errorOverlay} onClick={() => resetState()}>
+          <div className={styles.errorModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.errorHeader}>
+              <h3>Unable to Create Act</h3>
+            </div>
+            <div className={styles.errorContent}>
+              <div className={styles.errorDescription}>
+                Please check the following:
+              </div>
+              <ul className={styles.errorList}>
+                {error.split('\n').map((line, index) => (
+                  <li key={index} className={styles.errorItem}>
+                    {line}
+                  </li>
+                ))}
+              </ul>
+              <div className={styles.errorActions}>
+                <button 
+                  className={styles.errorButton}
+                  onClick={() => resetState()}
+                >
+                  Got it
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
       {/* Показываем успех */}
       {success && (
-        <div style={{ color: "green", textAlign: "center", marginTop: "10px" }}>
-          Act created successfully! Redirecting...
+        <div className={styles.successContainer}>
+          <div className={styles.successIcon}>✅</div>
+          <div className={styles.successMessage}>
+            Act created successfully! Redirecting...
+          </div>
         </div>
       )}
 
