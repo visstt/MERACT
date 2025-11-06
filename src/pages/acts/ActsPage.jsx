@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 
+import { Navigate, useNavigate } from "react-router-dom";
+
 import api from "../../shared/api/api";
 import CustomSelect from "../../shared/ui/CustomSelect";
 import NavBar from "../../shared/ui/NavBar/NavBar";
@@ -17,7 +19,7 @@ export default function ActsPage() {
       heroes: ["Graphite8", "NeonFox", "ShadowWeave", "EchoStorm1"],
       location: "Puerto de la Cruz (ES)",
       distance: "2,500km Away",
-      upvotes: 12,  
+      upvotes: 12,
       downvotes: 12,
       liveIn: "2h 15m",
       isMock: true,
@@ -58,6 +60,11 @@ export default function ActsPage() {
 
   const handleSortChange = (option) => {
     console.log("Selected sort option:", option);
+  };
+  const navigate = useNavigate();
+
+  const handleAddAct = () => {
+    navigate("/create-act");
   };
 
   return (
@@ -113,7 +120,14 @@ export default function ActsPage() {
             options={["Active", "Inactive"]}
             onChange={handleSortChange}
           />
-          <button className={styles.addActButton}>ADD ACT</button>
+          <button
+            onClick={() => {
+              handleAddAct();
+            }}
+            className={styles.addActButton}
+          >
+            ADD ACT
+          </button>
         </form>
 
         <div className={styles.streamsList}>
