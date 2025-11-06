@@ -757,7 +757,10 @@ export default function CreateAct() {
       {/* Error Display */}
       {error && (
         <div className={styles.errorOverlay} onClick={() => resetState()}>
-          <div className={styles.errorModal} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={styles.errorModal}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className={styles.errorHeader}>
               <h3>Unable to Create Act</h3>
             </div>
@@ -766,14 +769,14 @@ export default function CreateAct() {
                 Please check the following:
               </div>
               <ul className={styles.errorList}>
-                {error.split('\n').map((line, index) => (
+                {error.split("\n").map((line, index) => (
                   <li key={index} className={styles.errorItem}>
                     {line}
                   </li>
                 ))}
               </ul>
               <div className={styles.errorActions}>
-                <button 
+                <button
                   className={styles.errorButton}
                   onClick={() => resetState()}
                 >
