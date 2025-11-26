@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 
 import api from "../../shared/api/api";
+import { useSequelStore } from "../../shared/stores/sequelStore";
 import CustomSelect from "../../shared/ui/CustomSelect";
 import NavBar from "../../shared/ui/NavBar/NavBar";
 import styles from "./ActsPage.module.css";
@@ -27,6 +28,12 @@ export default function ActsPage() {
   ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { clearAll } = useSequelStore();
+
+  useEffect(() => {
+    localStorage.removeItem("createActFormState");
+    clearAll();
+  }, [clearAll]);
 
   useEffect(() => {
     setLoading(true);

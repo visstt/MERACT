@@ -74,34 +74,22 @@ const Menu = () => {
 
 export default function SceneControlMusic() {
   const [heroMethod, setHeroMethod] = useState("Music");
-  const [selectedMusic, setSelectedMusic] = useState(null);
   const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
   const [audioElements, setAudioElements] = useState({});
-  const { setSelectedMusic: setMusicInStore } = useSequelStore();
+  const { selectedMusic = [], toggleSelectedMusic } = useSequelStore();
   const { music, loading, error, refetch } = useMusic();
 
   const navigate = useNavigate();
 
   const handleGoBack = () => {
-    window.history.back();
+    navigate("/create-act");
   };
 
   const handleMusicSelect = (track) => {
-    setSelectedMusic(track);
-    // Сохраняем выбранную музыку в стор
-    setMusicInStore(track);
-    console.log("Selected music:", track);
+    // Добавляем или удаляем трек из выбранных
+    toggleSelectedMusic(track);
+    console.log("Toggled music:", track);
   };
-
-  // Автоматически выбираем первую музыку после загрузки
-  useEffect(() => {
-    if (!loading && !error && music.length > 0 && !selectedMusic) {
-      const firstMusic = music[0];
-      setSelectedMusic(firstMusic);
-      // Сохраняем в стор
-      setMusicInStore(firstMusic);
-    }
-  }, [music, loading, error, selectedMusic, setMusicInStore]);
 
   const handlePlayPause = (track) => {
     const trackId = track.id;
@@ -300,7 +288,7 @@ export default function SceneControlMusic() {
               music.map((track, index) => (
                 <div
                   key={track.id}
-                  className={`${styles.music_block} ${selectedMusic?.id === track.id ? styles.selected : ""}`}
+                  className={`${styles.music_block} ${selectedMusic.some((m) => m.id === track.id) ? styles.selected : ""}`}
                   onClick={() => handleMusicSelect(track)}
                   style={{ cursor: "pointer" }}
                 >

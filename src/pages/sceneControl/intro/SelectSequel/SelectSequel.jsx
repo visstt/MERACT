@@ -14,7 +14,7 @@ export default function SelectSequel() {
   const navigate = useNavigate();
 
   const handleGoBack = () => {
-    window.history.back();
+    navigate("/create-act");
   };
 
   const handleSequelSelect = (sequel) => {

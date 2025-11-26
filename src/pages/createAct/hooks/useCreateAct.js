@@ -40,7 +40,7 @@ const translateSingleError = (error) => {
   }
 
   // Group music-related validation errors
-  if (errorStr.includes("music id must be")) {
+  if (errorStr.includes("music id") || errorStr.includes("music ids")) {
     return "Please select valid background music from Scene Control";
   }
 
@@ -151,8 +151,13 @@ export function useCreateAct() {
         formData.append("outroId", actData.outroId.toString());
       }
 
-      if (actData.musicId) {
-        formData.append("musicId", actData.musicId.toString());
+      // Добавляем массив musicIds
+      if (actData.musicIds && Array.isArray(actData.musicIds)) {
+        // Для FormData массивы нужно добавлять либо через запятую, либо каждый элемент отдельно
+        // Способ 1: Отправляем каждый ID отдельно с одинаковым ключом
+        actData.musicIds.forEach(id => {
+          formData.append("musicIds", id.toString());
+        });
       }
 
       // Добавляем файл если есть
@@ -172,7 +177,7 @@ export function useCreateAct() {
         sequelId: actData.sequelId,
         introId: actData.introId,
         outroId: actData.outroId,
-        musicId: actData.musicId,
+        musicIds: actData.musicIds,
       });
 
       // Отправляем запрос

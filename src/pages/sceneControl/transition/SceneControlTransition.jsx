@@ -6,7 +6,7 @@ export default function SceneControlTransition() {
   const navigate = useNavigate();
 
   const handleGoBack = () => {
-    window.history.back();
+    navigate("/create-act");
   };
 
   return (

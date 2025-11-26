@@ -1,5 +1,7 @@
 import { useRef, useState } from "react";
 
+import { useNavigate } from "react-router-dom";
+
 import styles from "./SelectMusic.module.css";
 import { useMusic } from "./hooks/useMusic";
 import { useUploadMusic } from "./hooks/useUploadMusic";
@@ -13,13 +15,14 @@ export default function SelectMusic() {
   const [audioElements, setAudioElements] = useState({});
 
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
 
   const { music, loading, error, refetch } = useMusic();
   const { uploadMusicFile, uploadMusicFromUrl, isUploading, uploadError } =
     useUploadMusic();
 
   const handleGoBack = () => {
-    window.history.back();
+    navigate("/create-act");
   };
 
   const handleFileUpload = async (event) => {

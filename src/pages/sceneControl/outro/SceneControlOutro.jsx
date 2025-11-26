@@ -23,7 +23,7 @@ export default function SceneControlOutro() {
 
   const navigate = useNavigate();
   const handleGoBack = () => {
-    window.history.back();
+    navigate("/create-act");
   };
 
   const handleUploadClick = () => {

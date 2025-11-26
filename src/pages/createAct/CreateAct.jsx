@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import { useAuthStore } from "../../shared/stores/authStore";
 import { useSequelStore } from "../../shared/stores/sequelStore";
@@ -45,7 +46,7 @@ export default function CreateAct() {
     selectedIntro,
     selectedOutroId,
     selectedOutro,
-    selectedMusicId,
+    selectedMusicIds,
     selectedMusic,
     clearSelectedSequel,
     clearSelectedIntro,
@@ -69,7 +70,7 @@ export default function CreateAct() {
     console.log("selectedIntro from store:", selectedIntro);
     console.log("selectedOutroId from store:", selectedOutroId);
     console.log("selectedOutro from store:", selectedOutro);
-    console.log("selectedMusicId from store:", selectedMusicId);
+    console.log("selectedMusicIds from store:", selectedMusicIds);
     console.log("selectedMusic from store:", selectedMusic);
   }, [
     selectedSequelId,
@@ -78,7 +79,7 @@ export default function CreateAct() {
     selectedIntro,
     selectedOutroId,
     selectedOutro,
-    selectedMusicId,
+    selectedMusicIds,
     selectedMusic,
   ]);
 
@@ -224,7 +225,7 @@ export default function CreateAct() {
     console.log("Selected sequel ID before creating act:", selectedSequelId);
     console.log("Selected intro ID before creating act:", selectedIntroId);
     console.log("Selected outro ID before creating act:", selectedOutroId);
-    console.log("Selected music ID before creating act:", selectedMusicId);
+    console.log("Selected music IDs before creating act:", selectedMusicIds);
 
     const actData = {
       title: title.trim(),
@@ -234,10 +235,10 @@ export default function CreateAct() {
       navigatorMethods: navigatorMethod,
       biddingTime: new Date(Date.now() + biddingTime * 60 * 1000).toISOString(), // Добавляем время в минутах к текущему времени
       photo: selectedFile,
+      musicIds: selectedMusicIds.length > 0 ? selectedMusicIds : [], // Всегда отправляем массив, пустой если ничего не выбрано
       ...(selectedSequelId && { sequelId: selectedSequelId }), // Добавляем sequelId если он выбран
       ...(selectedIntroId && { introId: selectedIntroId }), // Добавляем introId если выбрано
       ...(selectedOutroId && { outroId: selectedOutroId }), // Добавляем outroId если выбрано
-      ...(selectedMusicId && { musicId: selectedMusicId }), // Добавляем musicId если выбрано
     };
 
     console.log("Creating act with data:", actData);
@@ -316,7 +317,7 @@ export default function CreateAct() {
   };
 
   const handleGoBack = () => {
-    window.history.back();
+    navigate("/acts");
   };
 
   const openModal = () => {
@@ -377,7 +378,7 @@ export default function CreateAct() {
 
     if (result) {
       // Успешное создание сиквела
-      alert("Sequel created successfully!");
+      toast.success("Sequel created successfully!");
       closeModal();
       // Сбрасываем форму
       setSequelTitle("");
@@ -791,7 +792,25 @@ export default function CreateAct() {
       {/* Показываем успех */}
       {success && (
         <div className={styles.successContainer}>
-          <div className={styles.successIcon}>✅</div>
+          <div className={styles.successIcon}>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <circle
+                cx="10"
+                cy="10"
+                r="9"
+                stroke="white"
+                strokeWidth="2"
+                fill="rgba(255, 255, 255, 0.2)"
+              />
+              <path
+                d="M6 10L9 13L14 7"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
           <div className={styles.successMessage}>
             Act created successfully! Redirecting...
           </div>

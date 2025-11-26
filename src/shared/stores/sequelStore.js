@@ -16,9 +16,9 @@ export const useSequelStore = create(
       selectedOutroId: null,
       selectedOutro: null,
 
-      // Music
-      selectedMusicId: null,
-      selectedMusic: null,
+      // Music (массив для множественного выбора)
+      selectedMusicIds: [],
+      selectedMusic: [],
 
       // Устанавливаем выбранный сиквел
       setSelectedSequel: (sequel) => {
@@ -68,19 +68,42 @@ export const useSequelStore = create(
         });
       },
 
-      // Устанавливаем выбранную музыку
-      setSelectedMusic: (music) => {
+      // Добавляем или удаляем музыку из выбранных
+      toggleSelectedMusic: (music) => {
+        const state = get();
+        const isSelected = state.selectedMusicIds.includes(music.id);
+
+        if (isSelected) {
+          // Удаляем музыку из выбранных
+          set({
+            selectedMusicIds: state.selectedMusicIds.filter(
+              (id) => id !== music.id,
+            ),
+            selectedMusic: state.selectedMusic.filter((m) => m.id !== music.id),
+          });
+        } else {
+          // Добавляем музыку к выбранным
+          set({
+            selectedMusicIds: [...state.selectedMusicIds, music.id],
+            selectedMusic: [...state.selectedMusic, music],
+          });
+        }
+      },
+
+      // Устанавливаем массив выбранной музыки
+      setSelectedMusic: (musicArray) => {
+        const musicList = Array.isArray(musicArray) ? musicArray : [musicArray];
         set({
-          selectedMusicId: music?.id || null,
-          selectedMusic: music,
+          selectedMusicIds: musicList.map((m) => m?.id).filter(Boolean),
+          selectedMusic: musicList.filter(Boolean),
         });
       },
 
       // Очищаем выбранную музыку
       clearSelectedMusic: () => {
         set({
-          selectedMusicId: null,
-          selectedMusic: null,
+          selectedMusicIds: [],
+          selectedMusic: [],
         });
       },
 
@@ -93,8 +116,8 @@ export const useSequelStore = create(
           selectedIntro: null,
           selectedOutroId: null,
           selectedOutro: null,
-          selectedMusicId: null,
-          selectedMusic: null,
+          selectedMusicIds: [],
+          selectedMusic: [],
         });
       },
 
@@ -129,13 +152,26 @@ export const useSequelStore = create(
       getSelectedMusic: () => {
         const state = get();
         return {
-          id: state.selectedMusicId,
+          ids: state.selectedMusicIds,
           music: state.selectedMusic,
         };
       },
     }),
     {
-      name: "meract-scene-store", // переименуем стор для более общего названия
+      name: "meract-scene-store",
+      version: 1, // Добавляем версию для миграции
+      migrate: (persistedState, version) => {
+        // Миграция старых данных: если selectedMusic не массив, конвертируем
+        if (persistedState && !Array.isArray(persistedState.selectedMusic)) {
+          const oldMusic = persistedState.selectedMusic;
+          return {
+            ...persistedState,
+            selectedMusicIds: oldMusic ? [oldMusic.id] : [],
+            selectedMusic: oldMusic ? [oldMusic] : [],
+          };
+        }
+        return persistedState;
+      },
       partialize: (state) => ({
         selectedSequelId: state.selectedSequelId,
         selectedSequel: state.selectedSequel,
@@ -143,7 +179,7 @@ export const useSequelStore = create(
         selectedIntro: state.selectedIntro,
         selectedOutroId: state.selectedOutroId,
         selectedOutro: state.selectedOutro,
-        selectedMusicId: state.selectedMusicId,
+        selectedMusicIds: state.selectedMusicIds,
         selectedMusic: state.selectedMusic,
       }),
     },
