@@ -46,6 +46,17 @@ function RankIcon(props) {
   );
 }
 
+function AchievementIcon(props) {
+  return (
+    <svg width="28" height="29" viewBox="0 0 28 29" fill="none" {...props}>
+      <path
+        d="M14 28.3147C10.2879 28.3106 6.72838 26.8504 4.10357 24.2546C1.47877 21.6588 0.00295815 18.1397 0 14.4277C0.00395588 10.7158 1.48045 7.19764 4.10515 4.60209C6.72985 2.00654 10.2887 0.546726 14 0.542969C17.7113 0.546726 21.2702 2.00654 23.8949 4.60209C26.5195 7.19764 27.9961 10.7158 28 14.4277C27.997 18.1397 26.5212 21.6588 23.8964 24.2546C21.2716 26.8504 17.7121 28.3106 14 28.3147ZM14 5.54297C11.5717 5.54297 9.2427 6.50747 7.52208 8.22809C5.80146 9.94871 4.83696 12.2777 4.83696 14.706C4.83696 17.1343 5.80146 19.4633 7.52208 21.1839C9.2427 22.9045 11.5717 23.869 14 23.869C16.4283 23.869 18.7573 22.9045 20.4779 21.1839C22.1985 19.4633 23.163 17.1343 23.163 14.706C23.163 12.2777 22.1985 9.94871 20.4779 8.22809C18.7573 6.50747 16.4283 5.54297 14 5.54297ZM14 10.5447L15.7083 13.9863L19.5217 14.5391L16.7608 17.236L17.4167 21.0353L14 19.2412L10.5833 21.0353L11.2392 17.236L8.47833 14.5391L12.2917 13.9863L14 10.5447Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
 export default function NavBar() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -54,6 +65,7 @@ export default function NavBar() {
     { label: "Acts", icon: ActIcon, path: "/acts" },
     { label: "Chat", icon: ChatIcon, path: "/chat" },
     { label: "Guilds", icon: GuildIcon, path: "/guilds" },
+    { label: "Achievements", icon: AchievementIcon, path: "/achievements" },
     { label: "Rank", icon: RankIcon, path: "/rank" },
   ];
 

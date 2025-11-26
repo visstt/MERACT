@@ -38,7 +38,7 @@ export default function CreateAct() {
   const [showStream, setShowStream] = useState(false);
 
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const {
     selectedSequelId,
     selectedSequel,
@@ -216,8 +216,9 @@ export default function CreateAct() {
       return;
     }
 
-    if (!user?.id) {
+    if (!isAuthenticated) {
       alert("You must be logged in to create an act");
+      navigate("/login");
       return;
     }
 
@@ -236,9 +237,12 @@ export default function CreateAct() {
       biddingTime: new Date(Date.now() + biddingTime * 60 * 1000).toISOString(), // Добавляем время в минутах к текущему времени
       photo: selectedFile,
       musicIds: selectedMusicIds.length > 0 ? selectedMusicIds : [], // Всегда отправляем массив, пустой если ничего не выбрано
-      ...(selectedSequelId && { sequelId: selectedSequelId }), // Добавляем sequelId если он выбран
-      ...(selectedIntroId && { introId: selectedIntroId }), // Добавляем introId если выбрано
-      ...(selectedOutroId && { outroId: selectedOutroId }), // Добавляем outroId если выбрано
+      ...(selectedSequelId !== null &&
+        selectedSequelId !== undefined && { sequelId: selectedSequelId }), // Добавляем sequelId если он выбран
+      ...(selectedIntroId !== null &&
+        selectedIntroId !== undefined && { introId: selectedIntroId }), // Добавляем introId если выбрано
+      ...(selectedOutroId !== null &&
+        selectedOutroId !== undefined && { outroId: selectedOutroId }), // Добавляем outroId если выбрано
     };
 
     console.log("Creating act with data:", actData);

@@ -102,7 +102,7 @@ export function useCreateAct() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const { user } = useAuthStore();
+  const { user, isAuthenticated, getToken } = useAuthStore();
   const { addAct } = useActsStore();
 
   const createAct = async (actData) => {
@@ -118,9 +118,17 @@ export function useCreateAct() {
       }
 
       // Проверяем что пользователь авторизован
-      if (!user?.id) {
+      console.log("Auth check - isAuthenticated:", isAuthenticated);
+      console.log("Auth check - user object:", user);
+      console.log("Auth check - token:", getToken());
+
+      if (!isAuthenticated) {
         throw new Error("User not authenticated");
       }
+
+      // Получаем user ID, если есть в объекте user, иначе извлекаем из токена
+      const userId = user?.id || user?.sub;
+      console.log("Extracted userId:", userId);
 
       // Подготавливаем FormData для отправки файла
       const formData = new FormData();
@@ -132,37 +140,64 @@ export function useCreateAct() {
       formData.append("heroMethods", actData.heroMethods);
       formData.append("navigatorMethods", actData.navigatorMethods);
       formData.append("biddingTime", actData.biddingTime);
-      formData.append("userId", user.id.toString());
+      if (userId) {
+        formData.append("userId", userId.toString());
+      }
 
       // Добавляем опциональные поля
+      // Важно: не отправляем поля со значением null, т.к. бэкенд может их неправильно обработать
       if (actData.sequel) {
         formData.append("sequel", actData.sequel);
       }
 
-      if (actData.sequelId) {
+      // Отправляем sequelId ТОЛЬКО если он есть и не равен null/undefined
+      if (actData.sequelId && typeof actData.sequelId === "number") {
         formData.append("sequelId", actData.sequelId.toString());
+        console.log("Adding sequelId to FormData:", actData.sequelId);
+      } else {
+        console.log("Skipping sequelId - value is:", actData.sequelId);
       }
 
-      if (actData.introId) {
+      if (actData.introId !== null && actData.introId !== undefined) {
         formData.append("introId", actData.introId.toString());
       }
 
-      if (actData.outroId) {
+      if (actData.outroId !== null && actData.outroId !== undefined) {
         formData.append("outroId", actData.outroId.toString());
       }
 
       // Добавляем массив musicIds
-      if (actData.musicIds && Array.isArray(actData.musicIds)) {
-        // Для FormData массивы нужно добавлять либо через запятую, либо каждый элемент отдельно
-        // Способ 1: Отправляем каждый ID отдельно с одинаковым ключом
-        actData.musicIds.forEach((id) => {
-          formData.append("musicIds", id.toString());
-        });
+      if (actData.musicIds) {
+        // Приводим к массиву, если это не массив (на случай одиночного значения)
+        const musicIdsArray = Array.isArray(actData.musicIds)
+          ? actData.musicIds
+          : [actData.musicIds];
+
+        // Фильтруем null и undefined
+        const validMusicIds = musicIdsArray.filter(
+          (id) => id !== null && id !== undefined,
+        );
+
+        console.log("Adding musicIds to FormData:", validMusicIds);
+
+        if (validMusicIds.length > 0) {
+          // Отправляем каждый ID отдельно с одинаковым ключом
+          // Это стандартный способ для FormData
+          validMusicIds.forEach((id) => {
+            formData.append("musicIds[]", id.toString());
+          });
+        }
       }
 
       // Добавляем файл если есть
       if (actData.photo) {
         formData.append("photo", actData.photo);
+      }
+
+      // Логируем все данные из FormData для отладки
+      console.log("FormData entries:");
+      for (let [key, value] of formData.entries()) {
+        console.log(`  ${key}:`, value);
       }
 
       console.log("Creating act with data:", {
@@ -172,7 +207,7 @@ export function useCreateAct() {
         heroMethods: actData.heroMethods,
         navigatorMethods: actData.navigatorMethods,
         biddingTime: actData.biddingTime,
-        userId: user.id,
+        userId: userId,
         hasPhoto: !!actData.photo,
         sequelId: actData.sequelId,
         introId: actData.introId,

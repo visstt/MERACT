@@ -1,9 +1,16 @@
-import { Navigate, createBrowserRouter } from "react-router-dom";
+import { useEffect } from "react";
+
+import {
+  Navigate,
+  createBrowserRouter,
+  useSearchParams,
+} from "react-router-dom";
 
 import Login from "../../features/Auth/Login/Login";
 import RequireAuth from "../../features/Auth/RequireAuth";
 import ForgotPassword from "../../features/Auth/forgotPassword/ForgotPassword";
 import SignUp from "../../features/Auth/registration/SignUp";
+import AchievementsPage from "../../pages/achievements/AchievementsPage";
 import ActsPage from "../../pages/acts/ActsPage";
 import CreateAct from "../../pages/createAct/CreateAct";
 import GuildsPage from "../../pages/guilds/GuildsPage";
@@ -17,9 +24,32 @@ import StreamPage from "../../pages/stream/StreamPage";
 import StreamHostPage from "../../pages/streamHost/StreamHostPage";
 import { useAuthStore } from "../../shared/stores/authStore";
 
-// Component for smart redirect
+// Component for smart redirect with Google OAuth handling
 const HomeRedirect = () => {
-  const { isAuthenticated } = useAuthStore();
+  const [searchParams] = useSearchParams();
+  const { isAuthenticated, login } = useAuthStore();
+
+  useEffect(() => {
+    // Проверяем наличие данных пользователя в query параметрах (после Google OAuth)
+    const userParam = searchParams.get("user");
+
+    if (userParam) {
+      try {
+        const userData = JSON.parse(decodeURIComponent(userParam));
+        console.log("Google OAuth user data received:", userData);
+
+        // Сохраняем пользователя в store
+        // Токены уже установлены через cookies бэкендом
+        login(userData);
+
+        // Удаляем параметр из URL для чистоты
+        window.history.replaceState({}, document.title, "/acts");
+      } catch (error) {
+        console.error("Error parsing user data from Google OAuth:", error);
+      }
+    }
+  }, [searchParams, login]);
+
   return <Navigate to={isAuthenticated ? "/acts" : "/login"} replace />;
 };
 
@@ -39,6 +69,14 @@ export const router = createBrowserRouter([
   {
     path: "/guilds",
     element: <GuildsPage />,
+  },
+  {
+    path: "/achievements",
+    element: (
+      <RequireAuth>
+        <AchievementsPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/scene-control-intro",

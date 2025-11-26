@@ -99,6 +99,9 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
         const response = await api.get(`/act/find-by-id/${actId}`);
         setActData(response.data);
         console.log("Act data received:", response.data);
+        console.log("Intro:", response.data?.intro);
+        console.log("Outro:", response.data?.outro);
+        console.log("Musics:", response.data?.musics);
       } catch (err) {
         console.error("Error fetching act data:", err);
       }
@@ -219,31 +222,71 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
     }
 
     const musicAudio = musicAudioRef.current;
-    if (!musicAudio) return;
+    if (!musicAudio) {
+      console.error("Music audio ref is not available");
+      return;
+    }
+
+    // Sort music by order field if available
+    const sortedMusic = [...actData.musics].sort((a, b) => {
+      const orderA = a.order ?? a.ActMusic?.order ?? 0;
+      const orderB = b.order ?? b.ActMusic?.order ?? 0;
+      return orderA - orderB;
+    });
 
     // Play first music track
-    const firstMusic = actData.musics[0];
-    console.log("Starting background music:", firstMusic.fileName);
+    const firstMusic = sortedMusic[0];
+    const musicUrl = firstMusic.fileName || firstMusic.music?.fileName;
 
-    musicAudio.src = firstMusic.fileName;
-    musicAudio.volume = 0.3; // Set volume to 30%
+    if (!musicUrl) {
+      console.error("No music file URL found");
+      return;
+    }
+
+    console.log("Starting background music:", musicUrl);
+
+    musicAudio.src = musicUrl;
+    musicAudio.volume = 0.25; // Set volume to 25% to not overpower voice
     musicAudio.loop = false; // We'll handle loop manually to cycle through tracks
 
     // When current track ends, play next one
     musicAudio.onended = () => {
-      const nextIndex = (currentMusicIndex + 1) % actData.musics.length;
+      const nextIndex = (currentMusicIndex + 1) % sortedMusic.length;
       setCurrentMusicIndex(nextIndex);
-      const nextMusic = actData.musics[nextIndex];
-      console.log("Playing next music track:", nextMusic.fileName);
-      musicAudio.src = nextMusic.fileName;
+      const nextMusic = sortedMusic[nextIndex];
+      const nextMusicUrl = nextMusic.fileName || nextMusic.music?.fileName;
+
+      console.log("Playing next music track:", nextMusicUrl);
+      musicAudio.src = nextMusicUrl;
       musicAudio
         .play()
         .catch((err) => console.error("Error playing next music:", err));
     };
 
-    musicAudio.play().catch((err) => {
-      console.error("Error playing background music:", err);
-    });
+    // Добавляем обработчики событий для отладки
+    musicAudio.onerror = (e) => {
+      console.error("Music playback error:", e);
+      console.error("Music source:", musicAudio.src);
+    };
+
+    musicAudio.onloadstart = () => {
+      console.log("Music loading started:", musicAudio.src);
+    };
+
+    musicAudio.oncanplay = () => {
+      console.log("Music can play:", musicAudio.src);
+    };
+
+    musicAudio
+      .play()
+      .then(() => {
+        console.log("✅ Background music started successfully");
+      })
+      .catch((err) => {
+        console.error("❌ Error playing background music:", err);
+        console.error("Music data:", firstMusic);
+        console.error("Music URL:", musicUrl);
+      });
   };
 
   // Stop background music
@@ -260,34 +303,43 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
   // Play intro video and stream it via Agora
   const playIntroStream = async (client, audioTrack) => {
     return new Promise(async (resolve) => {
-      if (!actData?.intro?.fileName) {
+      const introUrl =
+        actData?.intro?.fileName || actData?.intro?.intro?.fileName;
+
+      if (!introUrl) {
+        console.log("No intro video available, skipping...");
         resolve();
         return;
       }
 
       try {
-        console.log("Playing intro video:", actData.intro.fileName);
+        console.log("Playing intro video:", introUrl);
         setShowIntro(true);
         const introVideo = introVideoRef.current;
 
         if (!introVideo) {
+          console.error("Intro video ref is not available");
           resolve();
           return;
         }
 
-        introVideo.src = actData.intro.fileName;
+        introVideo.src = introUrl;
         introVideo.muted = false; // Включаем звук из видео
 
         // Ждем когда видео начнет воспроизводиться
         await introVideo.play();
+        console.log("Intro video playing");
 
         // Теперь создаем stream из видео
         const stream = introVideo.captureStream();
         const videoTrack = stream.getVideoTracks()[0];
+        const audioTracks = stream.getAudioTracks();
 
         if (!videoTrack) {
           console.error("Failed to capture video track from intro");
           setShowIntro(false);
+          // Публикуем микрофон если intro не удался
+          await client.publish([audioTrack]);
           resolve();
           return;
         }
@@ -296,24 +348,44 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
           mediaStreamTrack: videoTrack,
         });
 
-        // Публикуем intro video track
-        await client.publish([agoraVideoTrack]);
-        console.log("Intro video track published");
+        // Если в intro есть аудио, используем его, иначе публикуем микрофон
+        if (audioTracks.length > 0) {
+          const agoraAudioTrack = AgoraRTC.createCustomAudioTrack({
+            mediaStreamTrack: audioTracks[0],
+          });
+          await client.publish([agoraVideoTrack, agoraAudioTrack]);
+          console.log("Intro video and audio tracks published");
+
+          introVideo.onended = async () => {
+            console.log("Intro ended, switching to camera and microphone");
+            await client.unpublish([agoraVideoTrack, agoraAudioTrack]);
+            agoraVideoTrack.stop();
+            agoraVideoTrack.close();
+            agoraAudioTrack.stop();
+            agoraAudioTrack.close();
+            // Публикуем микрофон после intro
+            await client.publish([audioTrack]);
+            setShowIntro(false);
+            resolve();
+          };
+        } else {
+          await client.publish([agoraVideoTrack, audioTrack]);
+          console.log("Intro video track and microphone published");
+
+          introVideo.onended = async () => {
+            console.log("Intro ended, switching to camera");
+            await client.unpublish([agoraVideoTrack]);
+            agoraVideoTrack.stop();
+            agoraVideoTrack.close();
+            setShowIntro(false);
+            resolve();
+          };
+        }
 
         // Отображаем локально
         if (localVideoRef.current) {
           agoraVideoTrack.play(localVideoRef.current);
         }
-
-        introVideo.onended = async () => {
-          console.log("Intro ended, switching to camera");
-          // Останавливаем и удаляем intro track
-          await client.unpublish([agoraVideoTrack]);
-          agoraVideoTrack.stop();
-          agoraVideoTrack.close();
-          setShowIntro(false);
-          resolve();
-        };
       } catch (err) {
         console.error("Error playing intro:", err);
         setShowIntro(false);
@@ -325,13 +397,17 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
   // Play outro video and stream it via Agora
   const playOutroStream = async (client) => {
     return new Promise(async (resolve) => {
-      if (!actData?.outro?.fileName) {
+      const outroUrl =
+        actData?.outro?.fileName || actData?.outro?.outro?.fileName;
+
+      if (!outroUrl) {
+        console.log("No outro video available, skipping...");
         resolve();
         return;
       }
 
       try {
-        console.log("Playing outro video:", actData.outro.fileName);
+        console.log("Playing outro video:", outroUrl);
 
         // Останавливаем текущий video track камеры
         if (localTracksRef.current.videoTrack) {
@@ -344,11 +420,12 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
         const outroVideo = outroVideoRef.current;
 
         if (!outroVideo) {
+          console.error("Outro video ref is not available");
           resolve();
           return;
         }
 
-        outroVideo.src = actData.outro.fileName;
+        outroVideo.src = outroUrl;
         outroVideo.muted = false;
 
         // Ждем когда видео начнет воспроизводиться
@@ -405,6 +482,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
       setError(null);
 
       console.log("Starting stream for act:", actId, "channel:", channelName);
+      console.log("Act data available:", actData);
 
       // Stop camera preview
       stopCameraPreview();
@@ -428,16 +506,21 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
       // Create audio track
       console.log("Creating microphone track...");
       const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-      await client.publish([audioTrack]);
-
       localTracksRef.current = { audioTrack };
 
       // Play intro first if available
-      if (actData?.intro?.fileName) {
+      const introUrl =
+        actData?.intro?.fileName || actData?.intro?.intro?.fileName;
+      if (introUrl) {
+        console.log("Intro available, playing intro before camera...");
         await playIntroStream(client, audioTrack);
+      } else {
+        console.log("No intro available, publishing audio immediately");
+        await client.publish([audioTrack]);
       }
 
       // Start background music after intro
+      console.log("Starting background music...");
       startBackgroundMusic();
 
       // After intro, start camera stream
@@ -548,6 +631,24 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
                 <span className={styles.statusPreparing}>⚪ OFFLINE</span>
               )}
             </p>
+            {showIntro && (
+              <p>
+                <strong>▶️ Playing Intro Video</strong>
+              </p>
+            )}
+            {showOutro && (
+              <p>
+                <strong>▶️ Playing Outro Video</strong>
+              </p>
+            )}
+            {isStreaming &&
+              !showIntro &&
+              !showOutro &&
+              actData?.musics?.length > 0 && (
+                <p>
+                  <strong>🎵 Background Music Playing</strong>
+                </p>
+              )}
           </div>
           <div className={styles.videoContainer}>
             {/* Hidden intro video for capture */}
