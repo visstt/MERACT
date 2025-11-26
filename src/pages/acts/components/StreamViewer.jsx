@@ -1,7 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import AgoraRTC from "agora-rtc-sdk-ng";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { useNavigate } from "react-router-dom";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
 
 import api from "../../../shared/api/api";
 import { useAuthStore } from "../../../shared/stores/authStore";
@@ -38,10 +41,36 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
   const [streamDuration, setStreamDuration] = useState(0);
   const [chatMessage, setChatMessage] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showMap, setShowMap] = useState(false);
+  const [userPosition, setUserPosition] = useState([55.751244, 37.618423]);
 
   // Use chat hook
   const actId = streamData?.id || channelName?.replace("act_", "");
   const { messages: chatMessages, sendMessage, sending } = useChat(actId);
+
+  // Исправляем иконки маркеров Leaflet
+  useEffect(() => {
+    delete L.Icon.Default.prototype._getIconUrl;
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
+      iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
+      shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
+    });
+  }, []);
+
+  // Получаем геолокацию пользователя
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserPosition([position.coords.latitude, position.coords.longitude]);
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+        }
+      );
+    }
+  }, []);
 
   const remoteVideoRef = useRef(null);
   const clientRef = useRef(null);
@@ -465,7 +494,10 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
 
         {/* Chat Action Buttons */}
         <div className={styles.chatActions}>
-          <button className={styles.actionButton}>
+          <button 
+            className={styles.actionButton}
+            onClick={() => setShowMap(true)}
+          >
             <img src="/icons/chat/geo.png" alt="Location" />
           </button>
           <button className={styles.actionButton}>
@@ -476,6 +508,43 @@ const StreamViewer = ({ channelName, streamData, onClose }) => {
           </button>
         </div>
       </div>
+
+      {/* Map Overlay */}
+      {showMap && (
+        <div className={styles.mapOverlay}>
+          <button 
+            className={styles.closeMapButton}
+            onClick={() => setShowMap(false)}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Back
+          </button>
+          
+          <MapContainer
+            center={userPosition}
+            zoom={15}
+            style={{ 
+              width: "100%", 
+              height: "100%",
+              filter: "grayscale(100%) brightness(0.5) contrast(1.3)"
+            }}
+            zoomControl={true}
+            attributionControl={false}
+          >
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            />
+            <Marker position={userPosition}>
+              <Popup>
+                <div style={{ color: '#000' }}>You are here</div>
+              </Popup>
+            </Marker>
+          </MapContainer>
+        </div>
+      )}
     </div>
   );
 };

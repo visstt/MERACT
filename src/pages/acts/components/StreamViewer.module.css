@@ -340,3 +340,57 @@
   width: 20px;
   height: 20px;
 }
+
+.mapOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2000;
+  background: #000;
+}
+
+.closeMapButton {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 2001;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s ease;
+}
+
+.closeMapButton:hover {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.closeMapButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Hide Leaflet controls and attribution */
+:global(.leaflet-touch .leaflet-control-attribution),
+:global(.leaflet-touch .leaflet-control-layers),
+:global(.leaflet-touch .leaflet-bar) {
+  display: none !important;
+}
+
+/* Hide Leaflet controls and attribution */
+.mapOverlay :global(.leaflet-touch .leaflet-control-attribution),
+.mapOverlay :global(.leaflet-touch .leaflet-control-layers),
+.mapOverlay :global(.leaflet-touch .leaflet-bar) {
+  display: none !important;
+}
