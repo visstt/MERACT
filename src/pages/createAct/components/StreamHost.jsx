@@ -93,7 +93,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
   useEffect(() => {
     const fetchActData = async () => {
       if (!actId || actId === "undefined") return;
-      
+
       try {
         console.log("Fetching act data for actId:", actId);
         const response = await api.get(`/act/find-by-id/${actId}`);
@@ -224,11 +224,11 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
     // Play first music track
     const firstMusic = actData.musics[0];
     console.log("Starting background music:", firstMusic.fileName);
-    
+
     musicAudio.src = firstMusic.fileName;
     musicAudio.volume = 0.3; // Set volume to 30%
     musicAudio.loop = false; // We'll handle loop manually to cycle through tracks
-    
+
     // When current track ends, play next one
     musicAudio.onended = () => {
       const nextIndex = (currentMusicIndex + 1) % actData.musics.length;
@@ -236,10 +236,12 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
       const nextMusic = actData.musics[nextIndex];
       console.log("Playing next music track:", nextMusic.fileName);
       musicAudio.src = nextMusic.fileName;
-      musicAudio.play().catch(err => console.error("Error playing next music:", err));
+      musicAudio
+        .play()
+        .catch((err) => console.error("Error playing next music:", err));
     };
 
-    musicAudio.play().catch(err => {
+    musicAudio.play().catch((err) => {
       console.error("Error playing background music:", err);
     });
   };
@@ -267,7 +269,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
         console.log("Playing intro video:", actData.intro.fileName);
         setShowIntro(true);
         const introVideo = introVideoRef.current;
-        
+
         if (!introVideo) {
           resolve();
           return;
@@ -275,14 +277,14 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
 
         introVideo.src = actData.intro.fileName;
         introVideo.muted = false; // Включаем звук из видео
-        
+
         // Ждем когда видео начнет воспроизводиться
         await introVideo.play();
-        
+
         // Теперь создаем stream из видео
         const stream = introVideo.captureStream();
         const videoTrack = stream.getVideoTracks()[0];
-        
+
         if (!videoTrack) {
           console.error("Failed to capture video track from intro");
           setShowIntro(false);
@@ -297,7 +299,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
         // Публикуем intro video track
         await client.publish([agoraVideoTrack]);
         console.log("Intro video track published");
-        
+
         // Отображаем локально
         if (localVideoRef.current) {
           agoraVideoTrack.play(localVideoRef.current);
@@ -330,7 +332,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
 
       try {
         console.log("Playing outro video:", actData.outro.fileName);
-        
+
         // Останавливаем текущий video track камеры
         if (localTracksRef.current.videoTrack) {
           await client.unpublish([localTracksRef.current.videoTrack]);
@@ -340,7 +342,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
 
         setShowOutro(true);
         const outroVideo = outroVideoRef.current;
-        
+
         if (!outroVideo) {
           resolve();
           return;
@@ -348,14 +350,14 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
 
         outroVideo.src = actData.outro.fileName;
         outroVideo.muted = false;
-        
+
         // Ждем когда видео начнет воспроизводиться
         await outroVideo.play();
-        
+
         // Теперь создаем stream из видео
         const stream = outroVideo.captureStream();
         const videoTrack = stream.getVideoTracks()[0];
-        
+
         if (!videoTrack) {
           console.error("Failed to capture video track from outro");
           setShowOutro(false);
@@ -370,7 +372,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
         // Публикуем outro video track
         await client.publish([agoraVideoTrack]);
         console.log("Outro video track published");
-        
+
         // Отображаем локально
         if (localVideoRef.current) {
           agoraVideoTrack.play(localVideoRef.current);
@@ -427,7 +429,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
       console.log("Creating microphone track...");
       const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
       await client.publish([audioTrack]);
-      
+
       localTracksRef.current = { audioTrack };
 
       // Play intro first if available
@@ -555,7 +557,7 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
               playsInline
               style={{ display: "none" }}
             />
-            
+
             {/* Hidden outro video for capture */}
             <video
               ref={outroVideoRef}
@@ -570,13 +572,13 @@ const StreamHost = ({ actId, actTitle, onStopStream }) => {
               crossOrigin="anonymous"
               style={{ display: "none" }}
             />
-            
+
             {/* Main stream video */}
             <div
               ref={localVideoRef}
-              style={{ 
-                width: "100%", 
-                height: "100%"
+              style={{
+                width: "100%",
+                height: "100%",
               }}
             />
           </div>

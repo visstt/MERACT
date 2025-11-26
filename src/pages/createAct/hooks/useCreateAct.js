@@ -155,7 +155,7 @@ export function useCreateAct() {
       if (actData.musicIds && Array.isArray(actData.musicIds)) {
         // Для FormData массивы нужно добавлять либо через запятую, либо каждый элемент отдельно
         // Способ 1: Отправляем каждый ID отдельно с одинаковым ключом
-        actData.musicIds.forEach(id => {
+        actData.musicIds.forEach((id) => {
           formData.append("musicIds", id.toString());
         });
       }
